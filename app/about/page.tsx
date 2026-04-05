@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Why WorkWithMe",
+  title: "Why learnwithme",
   description:
-    "1:1 tools don’t scale; YouTube optimizes for views, not outcomes. WorkWithMe explores structured programs instructors own and learners can follow.",
+    "1:1 tools don’t scale; YouTube optimizes for views, not outcomes. learnwithme explores structured programs instructors own and learners can follow.",
 };
 
 export default function AboutPage() {
@@ -23,15 +23,11 @@ export default function AboutPage() {
         <article className="space-y-10">
           <header className="space-y-4">
             <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
-              WorkWithMe
+              learnwithme
             </p>
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-neutral-900 sm:text-4xl">
               Why this exists
             </h1>
-            <p className="text-lg font-medium leading-snug text-neutral-800">
-              Help instructors teach at scale without losing their brand — and
-              help learners follow a real program, not an endless feed.
-            </p>
           </header>
 
           <section className="rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-5">
@@ -62,33 +58,52 @@ export default function AboutPage() {
             </ul>
           </section>
 
-          <section className="space-y-3">
+          <section className="space-y-4">
             <h2 className="text-xl font-semibold text-neutral-900">
-              Why many coaching tools feel stuck
+              What we&apos;ve been seeing
             </h2>
-            <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-neutral-600">
-              <li>
-                Built around{" "}
-                <strong className="font-medium text-neutral-800">1:1</strong>:
-                more revenue often means more clients and more admin, not a
-                sharper product.
-              </li>
-              <li>
+            <div className="space-y-4 text-base leading-relaxed text-neutral-600">
+              <p>
+                A lot of trainers deliver through platforms in the vein of{" "}
+                <span className="font-medium text-neutral-800">Trainerize</span>{" "}
+                or <span className="font-medium text-neutral-800">Wellhub</span>.
+                Those products skew heavily toward a{" "}
+                <strong className="font-medium text-neutral-800">1:1</strong>{" "}
+                model: the trainer is expected to give each client individual time
+                and attention. That doesn&apos;t scale cleanly — to make more
+                money you usually take on more clients, which means more work.
+                It can also introduce{" "}
                 <strong className="font-medium text-neutral-800">
-                  Inconsistent delivery
-                </strong>{" "}
-                — hard to say “this is the program” when everyone gets a custom
-                variant.
-              </li>
-              <li>
-                Big consumer brands (Peloton-style) already proved{" "}
+                  inconsistency
+                </strong>
+                , because each person ends up with something slightly different.
+              </p>
+              <p>
+                The biggest consumer fitness brands — think{" "}
+                <span className="font-medium text-neutral-800">Peloton</span>
+                -style products — lean the other way:{" "}
                 <strong className="font-medium text-neutral-800">
                   one-to-many
                 </strong>{" "}
-                can work; independents still need a simple way to do that{" "}
-                <em>as themselves</em>.
-              </li>
-            </ul>
+                delivery. The same well-produced experience goes out to a wide
+                audience; everyone gets the same core product.
+              </p>
+              <p>
+                That contrast made us ask whether the usual playbook is backwards.
+                Instead of only managing clients one-on-one, what if trainers
+                could{" "}
+                <strong className="font-medium text-neutral-800">
+                  package workout videos, training schedules, and meal plans
+                </strong>{" "}
+                into a{" "}
+                <strong className="font-medium text-neutral-800">
+                  subscription people follow on their own time
+                </strong>
+                ? Same program for every subscriber — easier to improve, explain,
+                and stand behind — while optional tiers could still leave room for
+                more hands-on help when the trainer wants that.
+              </p>
+            </div>
           </section>
 
           <section className="space-y-3">
@@ -133,45 +148,32 @@ export default function AboutPage() {
             </ul>
           </section>
 
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold text-neutral-900">
-              What we&apos;re betting on
-            </h2>
-            <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-neutral-600">
-              <li>
-                Instructors{" "}
-                <strong className="font-medium text-neutral-800">
-                  package video, schedules, and materials
-                </strong>{" "}
-                into something people subscribe to and follow on their own time
-                — same core program for every subscriber, clearer to improve
-                and sell.
-              </li>
-              <li>
-                Optional tiers later for higher-touch help — without the whole
-                business living in 1:1 chat by default.
-              </li>
-            </ul>
-          </section>
-
-          <section className="grid gap-6 sm:grid-cols-2">
+          <section className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-neutral-900">
-                For instructors
+                From the trainer side
               </h2>
               <p className="text-sm leading-relaxed text-neutral-600">
-                One shareable link to your page and programs — brand, pricing,
-                and positioning you control.
+                A <strong className="font-medium text-neutral-800">shareable link</strong>{" "}
+                that lives in a social bio (or anywhere you send people) — a clear
+                home for your training brand and a way to attract subscribers.{" "}
+                <strong className="font-medium text-neutral-800">
+                  Tiered pricing
+                </strong>{" "}
+                could reflect how involved you want to be with different clients.
               </p>
             </div>
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-neutral-900">
-                For learners
+                From the user side
               </h2>
               <p className="text-sm leading-relaxed text-neutral-600">
-                Land on someone you trust, open a structured plan, follow video +
-                tips — built around finishing the work, not chasing the next
-                recommended clip.
+                As simple as opening the app or site, going to their trainer&apos;s
+                page or workout plan, and following along with{" "}
+                <strong className="font-medium text-neutral-800">
+                  video demos and coaching tips
+                </strong>{" "}
+                — structured like a program, not a random playlist.
               </p>
             </div>
           </section>
@@ -181,17 +183,17 @@ export default function AboutPage() {
               This prototype
             </h2>
             <p className="text-base leading-relaxed text-neutral-600">
-              WorkWithMe is early and rough — fitness is the first concrete
-              example, but the idea applies to anyone teaching through video and
-              progression (fitness, crafts, 3D printing, and more). We&apos;re
-              testing whether this model feels closer to how instructors want to
-              teach and how people want to learn than 1:1-only tools or a public
-              feed alone.
+              learnwithme is a rough early version of that idea — we&apos;re
+              starting with fitness as the example you can click through, but the
+              same shape could apply to other skills you teach on video. We want
+              to know whether this feels closer to how you want to train people
+              going forward than living entirely in 1:1 tools or a public feed
+              alone.
             </p>
             <p className="text-base leading-relaxed text-neutral-600">
-              If it resonates, tell us what would make a link like this
-              something you&apos;d put in your bio — and what learners would need
-              to trust it.
+              If it resonates, we&apos;d love to hear what would make a platform
+              like this something you&apos;d actually use — and what your clients
+              would need to trust it.
             </p>
           </section>
 

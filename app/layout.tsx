@@ -8,7 +8,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "WorkWithMe",
+  metadataBase: new URL("https://learnwithme.fyi"),
+  title: "learnwithme",
   description:
     "Teach or learn skills in fitness, sewing, 3D printing, and more — step-by-step videos and courses from creators that resonate with you.",
 };

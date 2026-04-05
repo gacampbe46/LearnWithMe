@@ -8,7 +8,7 @@ export default function HomePage() {
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-16 pb-28">
         <div className="space-y-6">
           <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
-            WorkWithMe
+            learnwithme
           </p>
           <h1 className="text-4xl font-semibold leading-tight tracking-tight text-neutral-900 sm:text-5xl">
             Learn from creators you trust
