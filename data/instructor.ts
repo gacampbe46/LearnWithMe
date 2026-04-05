@@ -40,7 +40,7 @@ export type Instructor = {
 
 export const KATHLEEN_INSTRUCTOR: Instructor = {
   id: "kathleen-chu",
-  name: "Kathleen Chu",
+  name: "Kathleen",
   slug: "kathleen-chu",
   tagline:
     "Theraband sessions, Pilates-style full-body work, and simple training that fits your life",
