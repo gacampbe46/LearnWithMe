@@ -69,41 +69,59 @@ export const KATHLEEN_INSTRUCTOR: Instructor = {
     workouts: [
       {
         id: "day-1",
-        title: "Day 1: Lower Body + Core",
+        title:
+          "Day 1 — 20 MINUTE | Express Glutes & Inner Thigh Focus | Ankle Weights",
         description:
-          "Glutes, hamstrings, and deep core — steady tempo, full control.",
+          "Short, focused lower-body session targeting glutes and inner thighs; ankle weights optional.",
         exercises: [
           {
-            id: "goblet-squat",
-            title: "Goblet Squat",
+            id: "express-glutes-inner-thigh",
+            title:
+              "Day 1 — 20 MINUTE | Express Glutes & Inner Thigh Focus | Ankle Weights",
             videoId: "YDXB0N0eAwc",
-            setsReps: "3 × 10",
+            setsReps: "Full session — follow along in the video",
             notes: [
-              "Hold the weight at your chest, ribs stacked over hips.",
-              "Sit between your hips; keep heels planted and knees tracking over toes.",
-              "Pause at the bottom, breathe out as you stand tall.",
+              "Keep ribs stacked and glutes engaged — quality range over speed.",
+              "If you use ankle weights, stop or lighten load if form slips.",
+              "Breathe steadily; match Kathleen’s tempo and rest when she cues it.",
             ],
           },
+        ],
+      },
+      {
+        id: "day-2",
+        title: "Day 2 — 26 MINUTE | Full Body Express | Optional Ankle Weights",
+        description:
+          "Efficient full-body express class; add ankle weights only if it still feels controlled.",
+        exercises: [
           {
-            id: "romanian-deadlift",
-            title: "Romanian Deadlift",
+            id: "full-body-express",
+            title: "Day 2 — 26 MINUTE | Full Body Express | Optional Ankle Weights",
             videoId: "QPLAqXiWa6Y",
-            setsReps: "3 × 10",
+            setsReps: "Full session — follow along in the video",
             notes: [
-              "Soft bend in the knees; hinge from the hips, not the lower back.",
-              "Keep the bar or dumbbells close to your legs the whole way.",
-              "Stop when you feel a strong hamstring stretch, then drive hips forward.",
+              "Move smoothly between segments; modify range before you sacrifice alignment.",
+              "Ankle weights are optional — prioritize joint comfort and steady breathing.",
+              "Pause the video anytime you need a slower setup between moves.",
             ],
           },
+        ],
+      },
+      {
+        id: "day-3",
+        title: "Day 3 — Twist & Rotate | 47 min | Small Pilates Ball",
+        description:
+          "Longer rotation-focused Pilates-style session using a small ball for feedback and control.",
+        exercises: [
           {
-            id: "core-rotation",
-            title: "Core Rotation",
+            id: "twist-rotate-pilates-ball",
+            title: "Day 3 — Twist & Rotate | 47 min | Small Pilates Ball",
             videoId: "QfHHsTar1LI",
-            setsReps: "3 × 8 each side",
+            setsReps: "Full session — follow along in the video",
             notes: [
-              "Move from your mid-back, not your neck or elbows.",
-              "Exhale as you rotate; keep the lower ribs quiet.",
-              "Follow Kathleen’s pacing — quality reps over speed.",
+              "Initiate rotation from the mid-back; keep neck and jaw soft.",
+              "Use the ball to support alignment without gripping or collapsing.",
+              "Exhale on effort; follow Kathleen’s pacing for each twist series.",
             ],
           },
         ],

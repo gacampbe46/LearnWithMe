@@ -5,10 +5,20 @@ import { KATHLEEN_INSTRUCTOR } from "@/data/instructor";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default function WorkoutDayPage() {
+type PageProps = {
+  params: Promise<{ workoutId: string }>;
+};
+
+export function generateStaticParams() {
+  const p = KATHLEEN_INSTRUCTOR.program;
+  return p.workouts.map((w) => ({ workoutId: w.id }));
+}
+
+export default async function WorkoutDayPage({ params }: PageProps) {
+  const { workoutId } = await params;
   const t = KATHLEEN_INSTRUCTOR;
   const p = t.program;
-  const workout = p.workouts.find((w) => w.id === "day-1");
+  const workout = p.workouts.find((w) => w.id === workoutId);
 
   if (!workout) {
     notFound();
