@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Why learnwithme",
   description:
-    "1:1 tools don’t scale; YouTube optimizes for views, not outcomes. learnwithme explores structured programs instructors own and learners can follow.",
+    "One-to-many learning isn’t only for fitness: learnwithme explores packaged programs—subscriptions, tiered pricing, a shareable link—so anyone showcasing a skill or craft on social can monetize that audience, not just grind 1:1 or the algorithm.",
 };
 
 export default function AboutPage() {
@@ -30,78 +30,82 @@ export default function AboutPage() {
             </h1>
           </header>
 
-          <section className="rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
-              In short
-            </h2>
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-base leading-relaxed text-neutral-700">
-              <li>
-                <span className="font-medium text-neutral-900">
-                  1:1-first tools
-                </span>{" "}
-                (e.g. Trainerize, Wellhub-style setups) don&apos;t scale cleanly
-                and often mean every client gets something slightly different.
-              </li>
-              <li>
-                <span className="font-medium text-neutral-900">YouTube</span>{" "}
-                rewards views, watch time, and engagement — not whether someone
-                finishes a plan or gets a result.
-              </li>
-              <li>
-                <span className="font-medium text-neutral-900">
-                  We&apos;re prototyping
-                </span>{" "}
-                a middle path: structured programs + video + a shareable link
-                instructors own, built around outcomes and progression — not
-                only DMs or the algorithm.
-              </li>
-            </ul>
-          </section>
-
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-neutral-900">
-              What we&apos;ve been seeing
-            </h2>
+            <h2 className="text-xl font-semibold text-neutral-900">Overview</h2>
             <div className="space-y-4 text-base leading-relaxed text-neutral-600">
               <p>
                 A lot of trainers deliver through platforms in the vein of{" "}
                 <span className="font-medium text-neutral-800">Trainerize</span>{" "}
                 or <span className="font-medium text-neutral-800">Wellhub</span>.
-                Those products skew heavily toward a{" "}
-                <strong className="font-medium text-neutral-800">1:1</strong>{" "}
-                model: the trainer is expected to give each client individual time
-                and attention. That doesn&apos;t scale cleanly — to make more
-                money you usually take on more clients, which means more work.
-                It can also introduce{" "}
+                Those products are mostly built around a{" "}
+                <strong className="font-medium text-neutral-800">1:1 model</strong>
+                : the trainer is expected to give each individual client their time
+                and attention. That{" "}
+                <strong className="font-medium text-neutral-800">
+                  doesn&apos;t scale well
+                </strong>
+                — to make more money you usually need to take on{" "}
+                <strong className="font-medium text-neutral-800">
+                  more clients
+                </strong>
+                , which means <strong className="font-medium text-neutral-800">more work</strong>. It
+                also introduces{" "}
                 <strong className="font-medium text-neutral-800">
                   inconsistency
                 </strong>
-                , because each person ends up with something slightly different.
+                , since each client receives something slightly different.
               </p>
               <p>
-                The biggest consumer fitness brands — think{" "}
-                <span className="font-medium text-neutral-800">Peloton</span>
-                -style products — lean the other way:{" "}
+                The most successful fitness platforms at scale —{" "}
+                <span className="font-medium text-neutral-800">Peloton</span> is
+                the familiar example — are built around{" "}
                 <strong className="font-medium text-neutral-800">
-                  one-to-many
-                </strong>{" "}
-                delivery. The same well-produced experience goes out to a wide
-                audience; everyone gets the same core product.
+                  one-to-many delivery
+                </strong>
+                : the same product can be shared across a wide audience. Everyone
+                gets the same, well-produced program.
               </p>
               <p>
-                That contrast made us ask whether the usual playbook is backwards.
-                Instead of only managing clients one-on-one, what if trainers
-                could{" "}
+                Set those two patterns next to each other and a question appears:
+                we may have had{" "}
+                <strong className="font-medium text-neutral-800">
+                  the default playbook backwards
+                </strong>
+                . Instead of optimizing for how closely a trainer manages each
+                person, the opportunity may be to{" "}
                 <strong className="font-medium text-neutral-800">
                   package workout videos, training schedules, and meal plans
                 </strong>{" "}
                 into a{" "}
                 <strong className="font-medium text-neutral-800">
-                  subscription people follow on their own time
+                  subscription-based
+                </strong>{" "}
+                experience people{" "}
+                <strong className="font-medium text-neutral-800">
+                  follow on their own time
                 </strong>
-                ? Same program for every subscriber — easier to improve, explain,
-                and stand behind — while optional tiers could still leave room for
-                more hands-on help when the trainer wants that.
+                . That packaged-subscription shape is what{" "}
+                <span className="font-medium text-neutral-800">learnwithme</span>{" "}
+                exists to explore.
+              </p>
+              <p>
+                In thinking through this problem space, we also realized the same
+                idea —{" "}
+                <strong className="font-medium text-neutral-800">
+                  one-to-many learning
+                </strong>{" "}
+                — applies well beyond fitness training. Anyone who has a{" "}
+                <strong className="font-medium text-neutral-800">
+                  skill or craft
+                </strong>{" "}
+                they showcase on social media should be able to{" "}
+                <strong className="font-medium text-neutral-800">
+                  monetize that audience
+                </strong>
+                : a clear program people can buy into, not only ad revenue,
+                tips, or endless DMs. Fitness is the first vertical we&apos;re
+                prototyping because the contrast with 1:1 tooling is sharp; the
+                underlying pattern is meant to generalize.
               </p>
             </div>
           </section>
@@ -153,12 +157,15 @@ export default function AboutPage() {
               <h2 className="text-lg font-semibold text-neutral-900">
                 From the trainer side
               </h2>
-              <p className="text-sm leading-relaxed text-neutral-600">
-                A <strong className="font-medium text-neutral-800">shareable link</strong>{" "}
-                that lives in a social bio (or anywhere you send people) — a clear
-                home for your training brand and a way to attract subscribers.{" "}
+              <p className="text-base leading-relaxed text-neutral-600">
+                A{" "}
                 <strong className="font-medium text-neutral-800">
-                  Tiered pricing
+                  shareable link
+                </strong>{" "}
+                that lives in a social media bio — a home for your training brand
+                and a way to attract new subscribers.{" "}
+                <strong className="font-medium text-neutral-800">
+                  Tiered pricing models
                 </strong>{" "}
                 could reflect how involved you want to be with different clients.
               </p>
@@ -167,13 +174,13 @@ export default function AboutPage() {
               <h2 className="text-lg font-semibold text-neutral-900">
                 From the user side
               </h2>
-              <p className="text-sm leading-relaxed text-neutral-600">
-                As simple as opening the app or site, going to their trainer&apos;s
-                page or workout plan, and following along with{" "}
+              <p className="text-base leading-relaxed text-neutral-600">
+                As simple as opening an app, going to their trainer&apos;s page or
+                workout plan, and following workouts with the aid of{" "}
                 <strong className="font-medium text-neutral-800">
                   video demos and coaching tips
-                </strong>{" "}
-                — structured like a program, not a random playlist.
+                </strong>
+                — structured as a program, not a loose feed or playlist.
               </p>
             </div>
           </section>
@@ -183,12 +190,15 @@ export default function AboutPage() {
               This prototype
             </h2>
             <p className="text-base leading-relaxed text-neutral-600">
-              learnwithme is a rough early version of that idea — we&apos;re
-              starting with fitness as the example you can click through, but the
-              same shape could apply to other skills you teach on video. We want
-              to know whether this feels closer to how you want to train people
-              going forward than living entirely in 1:1 tools or a public feed
-              alone.
+              This page is the same question we&apos;d ask a trainer in
+              conversation: does a platform shaped like this{" "}
+              <strong className="font-medium text-neutral-800">
+                better align with how you want to train people going forward
+              </strong>{" "}
+              than living entirely in 1:1 tools or a public feed alone? The
+              sample you can click through is fitness; the same shape should work
+              for any skill or craft you teach on video and promote to a social
+              following.
             </p>
             <p className="text-base leading-relaxed text-neutral-600">
               If it resonates, we&apos;d love to hear what would make a platform
