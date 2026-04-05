@@ -13,9 +13,9 @@ export default function HomePage() {
             Learn from creators you trust
           </h1>
           <p className="text-lg leading-relaxed text-neutral-600 sm:text-xl">
-            Tutorials, courses, and how-tos from creators you trust. Teach or
-            learn skills in fitness, sewing, 3D printing, and more — all in one
-            place.
+            Tutorials, courses, and how-tos from creators that resonate with you.
+            Teach or learn skills in fitness, sewing, 3D printing, and more —
+            all in one place.
           </p>
           <div className="pt-4">
             <Button href="/kathleen-chu" className="w-full sm:w-auto">

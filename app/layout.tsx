@@ -10,7 +10,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "WorkWithMe",
   description:
-    "Teach or learn skills in fitness, sewing, 3D printing, and more — step-by-step videos and courses from creators you trust.",
+    "Teach or learn skills in fitness, sewing, 3D printing, and more — step-by-step videos and courses from creators that resonate with you.",
 };
 
 export default function RootLayout({
