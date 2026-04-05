@@ -1,11 +1,10 @@
 import { Button } from "@/components/Button";
-import { StickyBottomCTA } from "@/components/StickyBottomCTA";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-16 pb-28">
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-12 sm:py-16">
         <div className="space-y-6">
           <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
             learnwithme
@@ -18,35 +17,19 @@ export default function HomePage() {
             Teach or learn skills in fitness, sewing, 3D printing, and more —
             all in one place.
           </p>
-          <div className="flex flex-row flex-wrap items-center gap-x-5 gap-y-3 pt-4">
-            <Button href="/kathleen-chu" className="w-auto shrink-0">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
+            <Button href="/kathleen-chu" className="w-full sm:w-auto sm:shrink-0">
               View Sample Instructor
             </Button>
             <Link
               href="/about"
-              className="shrink-0 text-base font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-4 transition hover:text-neutral-900 hover:decoration-neutral-900"
+              className="inline-flex min-h-12 items-center text-base font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-4 transition hover:text-neutral-900 hover:decoration-neutral-900 sm:min-h-0"
             >
               Why we&apos;re building this
             </Link>
           </div>
         </div>
       </main>
-
-      <StickyBottomCTA>
-        <Button href="/kathleen-chu" variant="primary" className="min-h-12 flex-1">
-          View Sample Instructor
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="min-h-12 shrink-0 px-4"
-          disabled
-          aria-disabled
-          title="Coming soon"
-        >
-          Subscribe
-        </Button>
-      </StickyBottomCTA>
     </div>
   );
 }
