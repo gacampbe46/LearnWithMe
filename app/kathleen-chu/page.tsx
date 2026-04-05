@@ -14,6 +14,10 @@ export default function InstructorPage() {
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-28">
         <div className="space-y-12">
+          <Button href="/" variant="outline" className="w-full sm:w-auto">
+            Back to home
+          </Button>
+
           <header className="space-y-4">
             <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
               Instructor
