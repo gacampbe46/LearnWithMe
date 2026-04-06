@@ -209,7 +209,7 @@ export default function AboutPage() {
 
           <p>
             <Link
-              href="/kathleen-chu"
+              href="/kathleen"
               className="text-base font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-4 transition hover:decoration-neutral-900"
             >
               View the sample instructor page

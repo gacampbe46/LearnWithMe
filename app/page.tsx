@@ -18,7 +18,7 @@ export default function HomePage() {
             all in one place.
           </p>
           <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
-            <Button href="/kathleen-chu" className="w-full sm:w-auto sm:shrink-0">
+            <Button href="/kathleen" className="w-full sm:w-auto sm:shrink-0">
               View Sample Instructor
             </Button>
             <Link

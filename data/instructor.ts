@@ -39,9 +39,9 @@ export type Instructor = {
 };
 
 export const KATHLEEN_INSTRUCTOR: Instructor = {
-  id: "kathleen-chu",
+  id: "kathleen",
   name: "Kathleen",
-  slug: "kathleen-chu",
+  slug: "kathleen",
   tagline:
     "Theraband sessions, Pilates-style full-body work, and simple training that fits your life",
   bio: "Focused on efficient, repeatable workouts you can follow anywhere",
