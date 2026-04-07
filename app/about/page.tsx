@@ -11,12 +11,18 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-16">
-        <nav className="mb-10">
+        <nav className="mb-10 flex flex-wrap gap-x-4 gap-y-2">
           <Link
             href="/"
             className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
           >
             ← Home
+          </Link>
+          <Link
+            href="/conduct"
+            className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+          >
+            Code of conduct
           </Link>
         </nav>
 

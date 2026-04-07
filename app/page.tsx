@@ -27,6 +27,12 @@ export default function HomePage() {
             >
               Why we&apos;re building this
             </Link>
+            <Link
+              href="/conduct"
+              className="inline-flex min-h-12 items-center text-base font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-4 transition hover:text-neutral-900 hover:decoration-neutral-900 sm:min-h-0"
+            >
+              Code of conduct
+            </Link>
           </div>
         </div>
       </main>
