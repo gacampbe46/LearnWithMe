@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# learnwithme
 
-## Getting Started
+**learnwithme** is a prototype web app exploring how people who teach skills on video can offer **structured, subscription-style programs**—with a shareable link, clear progression, and pricing they control—while still using open platforms (for example YouTube) for discovery.
 
-First, run the development server:
+**Live site:** [learnwithme.fyi](https://learnwithme.fyi)
+
+---
+
+## What this app is
+
+This repository is an **early front-end prototype**, not a production platform with accounts, payments, or a database. It demonstrates:
+
+- A **marketing home** and a **product narrative** (“Why this exists”) describing the problem space and intended direction.
+- A **sample member profile** ([`/kathleen`](https://learnwithme.fyi/kathleen)) with preview videos and a **sample program** (“Foundation”) made of workout-style days, to show how guided, sequential content could feel in the product.
+
+The codebase is meant to communicate **intent and UX shape** to collaborators, teachers, and future contributors—not to ship billing or auth yet.
+
+---
+
+## Who it is for
+
+| Audience | Role |
+| -------- | ---- |
+| **Independent teachers and creators** | People who build an audience around a skill or craft on social or video and want a **calm, owned place** for a paid program—not only one-on-one client work, ad revenue, or algorithmic reach. |
+| **Learners** | People who want to **follow a clear path** (video + structure) from someone they already like, instead of only browsing an endless feed. |
+
+**Product assumption:** the same person can be both. The prototype is framed around **one member model**: every account is a **member** who can **offer programs** and **subscribe to programs** from others—teaching and learning are not separate “user types” in the product vision.
+
+---
+
+## Product principles (as reflected in the app)
+
+- **Structured programs** — Video, schedules, and supporting materials in a **sequence** people can follow on their own time.
+- **Subscription-shaped revenue** — Steady, transparent pricing for the program (the sample uses placeholder copy such as “$12/month”).
+- **Shareable identity** — A **link** suitable for a bio that points to **your** program and brand.
+- **Complementary to discovery platforms** — Open video and social are treated as **great for being found**; learnwithme is scoped as a **next step** after someone already wants to commit to a program.
+
+Details and tone match the in-app copy on [`/about`](https://learnwithme.fyi/about).
+
+---
+
+## What’s in the repo (high level)
+
+| Path | Purpose |
+| ---- | ------- |
+| `app/page.tsx` | Home |
+| `app/about/page.tsx` | Why this exists (product story) |
+| `app/kathleen/` | Sample member profile and program routes |
+| `data/member.ts` | Sample **`MemberProfile`** data (Kathleen demo) |
+| `components/` | Shared UI (buttons, cards, video embeds, sticky CTAs, etc.) |
+
+Legacy URL **`/kathleen-chu`** redirects to **`/kathleen`** (see `next.config.ts`).
+
+---
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router)
+- [React](https://react.dev)
+- [TypeScript](https://www.typescriptlang.org)
+- [Tailwind CSS](https://tailwindcss.com) v4
+
+---
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Other scripts:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build   # production build
+npm run start   # run production server (after build)
+npm run lint    # ESLint
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The live site is deployed from this repository (for example via [Vercel](https://vercel.com) or your host of choice). Configure the host to run `next build` and serve with `next start`, or use the platform’s Next.js preset.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Community standards
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Participation in learnwithme spaces (product, future community features, and project-related channels) is governed by the **[Code of Conduct](CODE_OF_CONDUCT.md)**.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License and contributions
+
+`"private": true` in `package.json` means this app is not published as an npm package. **License, repository visibility, and contribution rules** are defined by the project maintainer.
+
+For questions about direction or partnerships, use the contact path you maintain for **learnwithme**.
