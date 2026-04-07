@@ -2,11 +2,11 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_INSTRUCTOR } from "@/data/instructor";
+import { KATHLEEN_MEMBER } from "@/data/member";
 import Link from "next/link";
 
 export default function ProgramPage() {
-  const t = KATHLEEN_INSTRUCTOR;
+  const t = KATHLEEN_MEMBER;
   const p = t.program;
   const first = p.workouts[0];
 

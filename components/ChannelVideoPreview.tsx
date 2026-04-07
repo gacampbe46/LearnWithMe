@@ -1,4 +1,4 @@
-import type { FeaturedPreviewVideo } from "@/data/instructor";
+import type { FeaturedPreviewVideo } from "@/data/member";
 import { SectionHeader } from "./SectionHeader";
 import { VideoEmbed } from "./VideoEmbed";
 

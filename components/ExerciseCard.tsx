@@ -1,6 +1,6 @@
 import { SectionHeader } from "./SectionHeader";
 import { VideoEmbed } from "./VideoEmbed";
-import type { Exercise } from "@/data/instructor";
+import type { Exercise } from "@/data/member";
 
 type ExerciseCardProps = {
   exercise: Exercise;

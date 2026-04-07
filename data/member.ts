@@ -1,3 +1,7 @@
+/**
+ * Public teaching content for a member. The same account is meant to both
+ * teach (offer programs) and learn (subscribe to others)—not separate roles.
+ */
 export type Exercise = {
   id: string;
   title: string;
@@ -26,7 +30,7 @@ export type FeaturedPreviewVideo = {
   title: string;
 };
 
-export type Instructor = {
+export type MemberProfile = {
   id: string;
   name: string;
   slug: string;
@@ -38,7 +42,7 @@ export type Instructor = {
   program: Program;
 };
 
-export const KATHLEEN_INSTRUCTOR: Instructor = {
+export const KATHLEEN_MEMBER: MemberProfile = {
   id: "kathleen",
   name: "Kathleen",
   slug: "kathleen",

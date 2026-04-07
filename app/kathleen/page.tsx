@@ -3,11 +3,11 @@ import { Card } from "@/components/Card";
 import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_INSTRUCTOR } from "@/data/instructor";
+import { KATHLEEN_MEMBER } from "@/data/member";
 import Link from "next/link";
 
-export default function InstructorPage() {
-  const t = KATHLEEN_INSTRUCTOR;
+export default function KathleenSamplePage() {
+  const t = KATHLEEN_MEMBER;
   const programPath = `/${t.slug}/${t.program.id}`;
 
   return (
@@ -25,11 +25,15 @@ export default function InstructorPage() {
 
           <header className="space-y-4">
             <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
-              Instructor
+              Member
             </p>
             <h1 className="text-4xl font-semibold tracking-tight text-neutral-900">
               {t.name}
             </h1>
+            <p className="text-sm text-neutral-500">
+              Sample profile — members can both offer programs and subscribe to
+              others.
+            </p>
             <p className="text-xl font-medium text-neutral-800">{t.tagline}</p>
             <p className="text-lg leading-relaxed text-neutral-600">{t.bio}</p>
           </header>

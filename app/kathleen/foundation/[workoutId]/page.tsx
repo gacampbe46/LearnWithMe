@@ -1,7 +1,7 @@
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { WorkoutStickyNav } from "@/components/WorkoutStickyNav";
-import { KATHLEEN_INSTRUCTOR } from "@/data/instructor";
+import { KATHLEEN_MEMBER } from "@/data/member";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -10,13 +10,13 @@ type PageProps = {
 };
 
 export function generateStaticParams() {
-  const p = KATHLEEN_INSTRUCTOR.program;
+  const p = KATHLEEN_MEMBER.program;
   return p.workouts.map((w) => ({ workoutId: w.id }));
 }
 
 export default async function WorkoutDayPage({ params }: PageProps) {
   const { workoutId } = await params;
-  const t = KATHLEEN_INSTRUCTOR;
+  const t = KATHLEEN_MEMBER;
   const p = t.program;
   const workout = p.workouts.find((w) => w.id === workoutId);
 
