@@ -149,7 +149,7 @@ export default function AboutPage() {
                   your link, with your rules
                 </strong>
                 .                 Big video sites and that kind of home serve different jobs.{" "}
-                <span className="font-medium text-neutral-800">learnwithme</span> is
+                <span className="font-medium text-neutral-800">learnwithme </span> is
                 our early draft of that home: a place where &quot;what do I do
                 next?&quot; has a simple answer, like &quot;day three is right
                 here.&quot;
