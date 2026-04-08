@@ -10,7 +10,7 @@ type ChannelVideoPreviewProps = {
 
 export function ChannelVideoPreview({
   videos,
-  sectionTitle = "Free sample sessions",
+  sectionTitle = "Sample videos",
   className = "",
 }: ChannelVideoPreviewProps) {
   return (
@@ -19,7 +19,7 @@ export function ChannelVideoPreview({
       <div className="space-y-10">
         {videos.map((v) => (
           <div key={v.videoId} className="space-y-3">
-            <p className="text-sm font-medium uppercase tracking-wide text-neutral-500">
+            <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
               {v.title}
             </p>
             <VideoEmbed videoId={v.videoId} title={v.title} />

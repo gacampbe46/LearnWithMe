@@ -11,11 +11,11 @@ export function SectionHeader({
 }: SectionHeaderProps) {
   return (
     <header className={`space-y-1 ${className}`.trim()}>
-      <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
+      <h2 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
         {title}
       </h2>
       {subtitle ? (
-        <p className="text-base leading-relaxed text-neutral-600">{subtitle}</p>
+        <p className="text-base leading-relaxed text-zinc-400">{subtitle}</p>
       ) : null}
     </header>
   );

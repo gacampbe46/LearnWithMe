@@ -14,37 +14,55 @@ export default function KathleenSamplePage() {
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-28">
         <div className="space-y-12">
-          <nav>
+          <nav className="flex flex-wrap gap-x-4 gap-y-2">
             <Link
               href="/"
-              className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
             >
               ← Home
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
+            >
+              Why this exists
+            </Link>
+            <Link
+              href="/design"
+              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
+            >
+              Design principles
+            </Link>
+            <Link
+              href="/conduct"
+              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
+            >
+              Code of conduct
             </Link>
           </nav>
 
           <header className="space-y-4">
-            <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
+            <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
               Member
             </p>
-            <h1 className="text-4xl font-semibold tracking-tight text-neutral-900">
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-100">
               {t.name}
             </h1>
-            <p className="text-sm text-neutral-500">
-              Sample profile — members can both offer programs and subscribe to
-              others.
+            <p className="text-sm text-zinc-500">
+              Sample profile — members can offer programs and subscribe to others
+              from the same kind of account.
             </p>
-            <p className="text-xl font-medium text-neutral-800">{t.tagline}</p>
-            <p className="text-lg leading-relaxed text-neutral-600">{t.bio}</p>
+            <p className="text-xl font-medium text-zinc-200">{t.tagline}</p>
+            <p className="text-lg leading-relaxed text-zinc-400">{t.bio}</p>
           </header>
 
           {t.whatYouNeed && t.whatYouNeed.length > 0 ? (
             <section className="space-y-4">
               <SectionHeader
-                title="What you'll need"
-                subtitle="For the free sample sessions below"
+                title="What you&apos;ll need"
+                subtitle="For the sample videos below"
               />
-              <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-neutral-600">
+              <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-zinc-400">
                 {t.whatYouNeed.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -57,24 +75,28 @@ export default function KathleenSamplePage() {
           <p>
             <Link
               href={programPath}
-              className="text-base font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-4 transition hover:decoration-neutral-900"
+              className="text-base font-medium text-zinc-100 underline decoration-zinc-600 underline-offset-4 transition hover:decoration-zinc-300"
             >
-              Subscribe to the program to unlock the full video library
+              Open the full program outline
             </Link>
+            <span className="mt-1 block text-sm text-zinc-500">
+              Subscription checkout is not connected yet; this link is for
+              exploring structure and pacing.
+            </span>
           </p>
 
           <Card className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-neutral-900">
+              <h2 className="text-xl font-semibold text-zinc-100">
                 {t.program.title}
               </h2>
-              <p className="text-neutral-600">{t.program.subtitle}</p>
+              <p className="text-zinc-400">{t.program.subtitle}</p>
             </div>
-            <p className="text-lg font-medium text-neutral-900">
+            <p className="text-lg font-medium text-zinc-100">
               {t.program.price}
             </p>
             <Button href={programPath} className="w-full">
-              View Program
+              View program
             </Button>
           </Card>
         </div>
@@ -82,7 +104,7 @@ export default function KathleenSamplePage() {
 
       <StickyBottomCTA>
         <Button href={programPath} className="min-h-12 flex-1">
-          View Program
+          View program
         </Button>
         <Button
           type="button"
