@@ -14,11 +14,19 @@ const components: Components = {
   ),
   h2: ({ children, ...props }) => (
     <h2
-      className="mb-3 mt-10 text-xl font-semibold text-neutral-900"
+      className="mb-2 mt-10 text-xl font-semibold text-neutral-900"
       {...props}
     >
       {children}
     </h2>
+  ),
+  h3: ({ children, ...props }) => (
+    <h3
+      className="mb-2 mt-6 text-base font-semibold text-neutral-900"
+      {...props}
+    >
+      {children}
+    </h3>
   ),
   p: ({ children, ...props }) => (
     <p className="mb-4 text-base leading-relaxed text-neutral-600" {...props}>
@@ -74,7 +82,7 @@ type ConductMarkdownProps = {
 
 export function ConductMarkdown({ source }: ConductMarkdownProps) {
   return (
-    <div className="[&_li>p]:mb-1 [&_li>p:last-child]:mb-0">
+    <div className="[&_h2+h3]:mt-4 [&_li>p]:mb-1 [&_li>p:last-child]:mb-0">
       <ReactMarkdown components={components}>{source}</ReactMarkdown>
     </div>
   );
