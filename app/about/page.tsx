@@ -32,7 +32,7 @@ export default function AboutPage() {
               learnwithme
             </p>
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-neutral-900 sm:text-4xl">
-              Why this exists
+              Why we're building this
             </h1>
           </header>
 
