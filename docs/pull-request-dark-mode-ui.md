@@ -1,6 +1,6 @@
 # Pull request: dark mode and UI foundation
 
-**Tip for reviewers:** You can copy this text into the GitHub PR description box, or just read it here.
+**GitHub shows this PR with an empty description until you set it.** From the project root, after [`gh auth login`](https://cli.github.com/), run: `./scripts/fill-pr-descriptions.sh` — it copies this file into the PR body. You can also paste this file by hand into the PR on GitHub.
 
 ## What this change does (plain English)
 
