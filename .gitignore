@@ -40,6 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# docs
-docs/*
-scripts/*
+# Local-only helpers (not pushed); untrack with: git rm -r --cached docs scripts
+/docs/
+/scripts/
