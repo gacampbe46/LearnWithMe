@@ -1,12 +1,18 @@
 # Pull request: dark mode and UI foundation
 
-**GitHub shows this PR with an empty description until you set it.** From the project root, after [`gh auth login`](https://cli.github.com/), run: `./scripts/fill-pr-descriptions.sh` — it copies this file into the PR body. You can also paste this file by hand into the PR on GitHub.
+Branch: **`dark-mode-ui`**
+
+To open this PR **with this text already in the description**, run from the project root (after `gh auth login`):
+
+`./scripts/open-prs-with-descriptions.sh`
+
+You can still paste this file into GitHub by hand if you prefer.
 
 ## What this change does (plain English)
 
 This update makes the **whole site use a dark look**: dark background, light text, and matching buttons and cards. It also sets the **browser theme color** (the color around the top bar on some phones) so it matches the dark style.
 
-This PR is based on **today’s `main` branch** for **text and pages**. If your team merges **docs and product alignment** first, you will need to **rebase** this branch and fix a few merge conflicts (same files touched for different reasons).
+This PR is based on **today’s `main` branch** for **text and pages**. If your team merges **`weekly-sync-2026-04-07`** first, you will need to **rebase** this branch and fix a few merge conflicts (same files touched for different reasons).
 
 ## If you are new to this codebase
 
@@ -20,11 +26,11 @@ This PR is based on **today’s `main` branch** for **text and pages**. If your 
 - **Colors and background** — Dark gray / zinc style, not pure black. Subtle gradients so the page feels less flat.
 - **Buttons, cards, video placeholders, section titles** — Styles updated so they work on dark backgrounds.
 - **Sticky bar** (bottom of some screens) — Frosted dark style so it fits the rest of the UI.
-- **Pages** — Text color classes updated from light-theme names to dark-theme names. **Story and links** are still the older `main` version on this branch until you merge with the docs PR.
+- **Pages** — Text color classes updated from light-theme names to dark-theme names. **Story and links** are still the older `main` version on this branch until you merge with the weekly sync PR.
 
 ## What we did not change
 
-- **README**, **design principles file**, **`/design` route**, **MarkdownDoc**, and **big copy edits** — Those live on the **docs-and-product-alignment** branch.
+- **README**, **design principles file**, **`/design` route**, **MarkdownDoc**, and **big copy edits** — Those live on **`weekly-sync-2026-04-07`**.
 
 ## How to check it
 
