@@ -1,10 +1,16 @@
-# Pull request: docs and product alignment
+# Pull request: weekly sync follow-up (April 7, 2026)
 
-**GitHub shows this PR with an empty description until you set it.** From the project root, after [`gh auth login`](https://cli.github.com/), run: `./scripts/fill-pr-descriptions.sh` — it copies this file into the PR body. You can also paste this file by hand into the PR on GitHub.
+Branch: **`weekly-sync-2026-04-07`**
+
+To open this PR **with this text already in the description**, run from the project root (after `gh auth login`):
+
+`./scripts/open-prs-with-descriptions.sh`
+
+You can still paste this file into GitHub by hand if you prefer.
 
 ## What this change does (plain English)
 
-This update improves **the words on the site**, **the links between pages**, and **team docs** in the repo. It does **not** change the dark look of the site—that is a **different pull request**.
+This update improves **the words on the site**, **the links between pages**, and **team docs** in the repo. It does **not** change the dark look of the site—that is a **different pull request** (`dark-mode-ui`).
 
 ## If you are new to this codebase
 
@@ -26,7 +32,7 @@ This update improves **the words on the site**, **the links between pages**, and
 
 ## What we did not change
 
-- No dark mode, no new color theme for the whole site (see the **dark-mode-ui** branch).
+- No dark mode, no new color theme for the whole site (see **`dark-mode-ui`**).
 
 ## How to check it
 

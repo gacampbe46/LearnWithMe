@@ -22,13 +22,13 @@ set_pr_body() {
   local num
   num="$(gh pr list --repo "$REPO" --head "$branch" --json number --jq '.[0].number // empty')"
   if [[ -z "$num" ]]; then
-    echo "No open PR found for branch: $branch (open one on GitHub or run: gh pr create --head $branch --base main)"
+    echo "No open PR found for branch: $branch (run ./scripts/open-prs-with-descriptions.sh to create PRs with bodies)"
     return 1
   fi
   gh pr edit "$num" --repo "$REPO" --body-file "$file"
   echo "Updated PR #$num ($branch)"
 }
 
-set_pr_body "docs-and-product-alignment" "$ROOT/docs/pull-request-docs-and-product-alignment.md"
+set_pr_body "weekly-sync-2026-04-07" "$ROOT/docs/pull-request-weekly-sync-2026-04-07.md"
 set_pr_body "dark-mode-ui" "$ROOT/docs/pull-request-dark-mode-ui.md"
 echo "Done."
