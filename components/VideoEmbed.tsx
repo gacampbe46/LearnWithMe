@@ -11,7 +11,7 @@ export function VideoEmbed({
 }: VideoEmbedProps) {
   return (
     <div
-      className={`aspect-video w-full overflow-hidden rounded-xl bg-neutral-100 ${className}`.trim()}
+      className={`aspect-video w-full overflow-hidden rounded-xl bg-zinc-800 ${className}`.trim()}
     >
       <iframe
         className="h-full w-full"

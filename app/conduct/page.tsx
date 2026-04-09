@@ -20,13 +20,13 @@ export default async function ConductPage() {
         <nav className="mb-10 flex flex-wrap gap-x-4 gap-y-2">
           <Link
             href="/"
-            className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+            className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
           >
             ← Home
           </Link>
           <Link
             href="/about"
-            className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+            className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
           >
             Why this exists
           </Link>
@@ -34,7 +34,7 @@ export default async function ConductPage() {
 
         <article className="space-y-8">
           <header className="space-y-4">
-            <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
+            <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
               learnwithme
             </p>
           </header>

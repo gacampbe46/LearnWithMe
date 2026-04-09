@@ -1,15 +1,15 @@
 import Link from "next/link";
 
 const base =
-  "inline-flex min-h-12 items-center justify-center rounded-full px-6 text-base font-medium transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
+  "inline-flex min-h-12 items-center justify-center rounded-full px-6 text-base font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 
 const variants = {
   primary:
-    "bg-neutral-900 text-white hover:bg-neutral-800 focus-visible:outline-neutral-900",
+    "bg-zinc-100 text-zinc-950 hover:bg-white focus-visible:outline-zinc-400",
   outline:
-    "border border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300 hover:bg-neutral-50 focus-visible:outline-neutral-400",
+    "border border-zinc-600 bg-zinc-900/40 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800/60 focus-visible:outline-zinc-500",
   ghost:
-    "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 focus-visible:outline-neutral-400",
+    "text-zinc-400 hover:bg-zinc-800/80 hover:text-zinc-100 focus-visible:outline-zinc-500",
 } as const;
 
 type Variant = keyof typeof variants;

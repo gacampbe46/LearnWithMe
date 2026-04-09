@@ -17,7 +17,7 @@ export default function ProgramPage() {
           <nav>
             <Link
               href={`/${t.slug}`}
-              className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
             >
               ← {t.name}
             </Link>
@@ -25,21 +25,21 @@ export default function ProgramPage() {
 
           <SectionHeader title={p.title} subtitle={p.subtitle} />
 
-          <p className="text-lg font-medium text-neutral-900">{p.price}</p>
+          <p className="text-lg font-medium text-zinc-100">{p.price}</p>
 
           <section className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
               Workouts
             </h3>
             <ul className="space-y-3">
               {p.workouts.map((w) => (
                 <li key={w.id}>
                   <Link href={`/${t.slug}/${p.id}/${w.id}`}>
-                    <Card className="transition hover:border-neutral-300 hover:shadow-md active:scale-[0.99]">
-                      <p className="font-semibold text-neutral-900">
+                    <Card className="transition hover:border-zinc-600 hover:shadow-md active:scale-[0.99]">
+                      <p className="font-semibold text-zinc-100">
                         {w.title}
                       </p>
-                      <p className="mt-1 text-sm text-neutral-600">
+                      <p className="mt-1 text-sm text-zinc-400">
                         {w.description}
                       </p>
                     </Card>
