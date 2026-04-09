@@ -20,9 +20,13 @@ set_pr_body() {
   local branch="$1"
   local file="$2"
   local num
+  if [[ ! -f "$file" ]]; then
+    echo "Skip $branch (missing $file)"
+    return 0
+  fi
   num="$(gh pr list --repo "$REPO" --head "$branch" --json number --jq '.[0].number // empty')"
   if [[ -z "$num" ]]; then
-    echo "No open PR found for branch: $branch (run ./scripts/open-prs-with-descriptions.sh to create PRs with bodies)"
+    echo "No open PR for $branch — run ./scripts/open-prs-with-descriptions.sh first"
     return 1
   fi
   gh pr edit "$num" --repo "$REPO" --body-file "$file"

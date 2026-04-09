@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Creates GitHub PRs with the description file as the body (so the field is not blank).
 # Run from repo root after: gh auth login
-# Safe to re-run: skips creation if a PR already exists for that head branch.
+# Only runs for description files that exist in this working tree (so either branch can carry the script).
 set -euo pipefail
 
 REPO="gacampbe46/LearnWithMe"
@@ -32,12 +32,23 @@ create_if_missing() {
   echo "Created PR for $head"
 }
 
-create_if_missing "weekly-sync-2026-04-07" \
-  "Weekly sync (Apr 7, 2026): docs, content, and markdown" \
-  "$ROOT/docs/pull-request-weekly-sync-2026-04-07.md"
+WEEKLY_MD="$ROOT/docs/pull-request-weekly-sync-2026-04-07.md"
+DARK_MD="$ROOT/docs/pull-request-dark-mode-ui.md"
 
-create_if_missing "dark-mode-ui" \
-  "Dark mode and UI foundation" \
-  "$ROOT/docs/pull-request-dark-mode-ui.md"
+if [[ -f "$WEEKLY_MD" ]]; then
+  create_if_missing "weekly-sync-2026-04-07" \
+    "Weekly sync (Apr 7, 2026): docs, content, and markdown" \
+    "$WEEKLY_MD"
+else
+  echo "Skip weekly-sync PR (no $WEEKLY_MD in this checkout)"
+fi
+
+if [[ -f "$DARK_MD" ]]; then
+  create_if_missing "dark-mode-ui" \
+    "Dark mode and UI foundation" \
+    "$DARK_MD"
+else
+  echo "Skip dark-mode PR (no $DARK_MD in this checkout)"
+fi
 
 echo "All set."
