@@ -24,6 +24,12 @@ export default function AboutPage() {
           >
             Code of conduct
           </Link>
+          <Link
+            href="/design"
+            className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+          >
+            Design principles
+          </Link>
         </nav>
 
         <article className="space-y-10">
@@ -32,7 +38,7 @@ export default function AboutPage() {
               learnwithme
             </p>
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-neutral-900 sm:text-4xl">
-              Why we're building this
+              Why we&apos;re building this
             </h1>
           </header>
 
@@ -40,87 +46,45 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-neutral-900">Overview</h2>
             <div className="space-y-4 text-base leading-relaxed text-neutral-600">
               <p>
-                <strong className="font-medium text-neutral-800">
-                  Everyone can teach and learn.
-                </strong>{" "}
-                We didn&apos;t want to split people into two buckets — “only
-                teachers” and “only students.”{" "}
-                <strong className="font-medium text-neutral-800">
-                  Every account is a member
-                </strong>
-                : you can share programs with others, and you can follow programs
-                from others too. Same person, same login; you&apos;re not stuck in
-                one role forever.
+                Everyone can teach and learn. We didn&apos;t want to split people
+                into two buckets — &quot;only teachers&quot; and &quot;only
+                students.&quot; Every account is a member: you can share programs
+                with others, and you can follow programs from others too. Same
+                person, same login; you&apos;re not stuck in one role forever.
               </p>
               <p>
-                <strong className="font-medium text-neutral-800">
-                  Making money from what you teach is genuinely hard
-                </strong>
-                , in any field. A lot of tools still assume you&apos;ll work{" "}
-                <strong className="font-medium text-neutral-800">
-                  one-on-one
-                </strong>
-                , giving each person lots of personal time and custom plans.
-                That can be great for the people you help. It also means when you
-                want to earn more, you often end up with{" "}
-                <strong className="font-medium text-neutral-800">
-                  more people to juggle, a fuller calendar, and more busywork
-                </strong>
-                . Everyone can end up with something a little different, which
-                makes it harder to polish{" "}
-                <strong className="font-medium text-neutral-800">
-                  one clear offer
-                </strong>{" "}
+                Making money from what you teach is genuinely hard, in any field.
+                A lot of tools still assume you&apos;ll work one-on-one, giving
+                each person lots of personal time and custom plans. That can be
+                great for the people you help. It also means when you want to earn
+                more, you often end up with more people to juggle, a fuller
+                calendar, and more busywork. Everyone can end up with something a
+                little different, which makes it harder to polish one clear offer
                 you&apos;re proud to stand behind.
               </p>
               <p>
-                Big platforms have also shown that{" "}
-                <strong className="font-medium text-neutral-800">
-                  one solid program, shared with many people
-                </strong>
-                , can work when the plan is clear and easy to follow. Many
-                independent teachers still don&apos;t have a simple way to do
-                that{" "}
-                <strong className="font-medium text-neutral-800">
-                  under their own name
-                </strong>
-                : their prices, their link, and a straight line to the people who
-                already like what they do online.
+                Big platforms have also shown that one solid program, shared with
+                many people, can work when the plan is clear and easy to follow.
+                Many independent teachers still don&apos;t have a simple way to do
+                that under their own name: their prices, their link, and a straight
+                line to the people who already like what they do online.
               </p>
               <p>
                 So we&apos;re curious about another path: what if growth didn&apos;t
                 always mean &quot;more hours for you personally,&quot; and instead
-                could mean{" "}
-                <strong className="font-medium text-neutral-800">
-                  one thoughtful program
-                </strong>{" "}
-                — video, schedules, and extra materials — that people can{" "}
-                <strong className="font-medium text-neutral-800">
-                  follow on their own schedule
-                </strong>{" "}
-                for a{" "}
-                <strong className="font-medium text-neutral-800">
-                  steady monthly subscription
-                </strong>
-                ? That&apos;s the shape{" "}
-                <span className="font-medium text-neutral-800">learnwithme</span>{" "}
-                is trying out.
+                could mean one thoughtful program — video, schedules, and extra
+                materials — that people can follow on their own schedule for a
+                steady monthly subscription? That&apos;s the shape learnwithme is
+                trying out.
               </p>
               <p>
                 The same idea can apply to fitness, crafts, languages, creative
                 skills — really anything you show on video. If you&apos;re growing
-                a following around a{" "}
-                <strong className="font-medium text-neutral-800">
-                  skill or craft
-                </strong>
-                , we think you deserve a fair way to{" "}
-                <strong className="font-medium text-neutral-800">
-                  turn that interest into income
-                </strong>{" "}
-                with a real program — not only ad checks, tips, or living in your
-                inbox. We started with fitness as our first example because
-                it&apos;s easy to picture; we hope the pattern spreads wider over
-                time.
+                a following around a skill or craft, we think you deserve a fair way
+                to turn that interest into income with a real program — not only ad
+                checks, tips, or living in your inbox. We started with fitness as
+                our first example because it&apos;s easy to picture; we hope the
+                pattern spreads wider over time.
               </p>
             </div>
           </section>
@@ -132,40 +96,27 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4 text-base leading-relaxed text-neutral-600">
               <p>
-                Lots of us discover teachers on the open web,{" "}
-                <span className="font-medium text-neutral-800">YouTube</span>{" "}
-                included. That&apos;s a strength: people can sample your style,
-                share a clip, and decide they want more. We love that part of the
-                internet.
+                Lots of us discover teachers on the open web, YouTube included.
+                That&apos;s a strength: people can sample your style, share a clip,
+                and decide they want more. We love that part of the internet.
               </p>
               <p>
                 Where we saw room to help is after someone already likes you.
-                Sometimes they want{" "}
-                <strong className="font-medium text-neutral-800">
-                  a clear program
-                </strong>
-                — a start, a middle, and a fair price that supports you — on{" "}
-                <strong className="font-medium text-neutral-800">
-                  your link, with your rules
-                </strong>
-                .                 Big video sites and that kind of home serve different jobs.{" "}
-                <span className="font-medium text-neutral-800">learnwithme </span> is
-                our early draft of that home: a place where &quot;what do I do
+                Sometimes they want a clear program — a start, a middle, and a
+                fair price that supports you — on your link, with your rules. Big
+                video sites and that kind of home serve different jobs.{" "}
+                <span className="font-medium text-neutral-800">learnwithme</span>{" "}
+                is our early draft of that home: a place where &quot;what do I do
                 next?&quot; has a simple answer, like &quot;day three is right
                 here.&quot;
               </p>
               <p>
                 You can still post free videos wherever you already do. We hope
-                this sits{" "}
-                <strong className="font-medium text-neutral-800">alongside</strong>{" "}
-                that — not instead of it. What we&apos;re aiming for is accounts
-                where{" "}
-                <strong className="font-medium text-neutral-800">
-                  people both teach and learn
-                </strong>
-                , plus programs built around subscriptions and a link that fits in
-                your bio, so fans have a calm spot to sign up and you can point to
-                one clear home for your paid work.
+                this sits alongside that — not instead of it. What we&apos;re aiming
+                for is accounts where people both teach and learn, plus programs
+                built around subscriptions and a link that fits in your bio, so
+                fans have a calm spot to sign up and you can point to one clear
+                home for your paid work.
               </p>
             </div>
           </section>
@@ -176,16 +127,9 @@ export default function AboutPage() {
                 When you teach
               </h2>
               <p className="text-base leading-relaxed text-neutral-600">
-                Same member account — a{" "}
-                <strong className="font-medium text-neutral-800">
-                  shareable link
-                </strong>{" "}
-                in your bio, a home for what you offer, and a way to attract
-                subscribers.{" "}
-                <strong className="font-medium text-neutral-800">
-                  Tiered pricing
-                </strong>{" "}
-                can reflect how hands-on you want to be with different people.
+                Same member account — a shareable link in your bio, a home for what
+                you offer, and a way to attract subscribers. Tiered pricing can
+                reflect how hands-on you want to be with different people.
               </p>
             </div>
             <div className="space-y-2">
@@ -194,11 +138,9 @@ export default function AboutPage() {
               </h2>
               <p className="text-base leading-relaxed text-neutral-600">
                 Same member account — open the app or site, land on someone
-                else&apos;s program, and follow along with{" "}
-                <strong className="font-medium text-neutral-800">
-                  video and structured guidance
-                </strong>
-                — a clear path, built for sticking with a program start to finish.
+                else&apos;s program, and follow along with video and structured
+                guidance. The layout is meant for sticking with a program from
+                start to finish, not for endless browsing.
               </p>
             </div>
           </section>
@@ -209,22 +151,15 @@ export default function AboutPage() {
             </h2>
             <p className="text-base leading-relaxed text-neutral-600">
               If we sat down with you, we&apos;d ask: does a setup like this feel
-              closer to how you want to{" "}
-              <strong className="font-medium text-neutral-800">
-                earn from what you teach
-              </strong>{" "}
-              and{" "}
-              <strong className="font-medium text-neutral-800">
-                find things you want to learn
-              </strong>{" "}
-              than juggling only one-on-one tools or only public feeds? The demo
-              here is fitness, but we imagine the same idea for any skill you share
-              on video and grow with a social following.
+              closer to how you want to earn from what you teach and find things
+              you want to learn than juggling only one-on-one tools or only public
+              feeds? The demo here is fitness, but we imagine the same idea for any
+              skill you share on video and grow with a social following.
             </p>
             <p className="text-base leading-relaxed text-neutral-600">
-              If any of this clicks with you, we&apos;d genuinely like to hear what
-              would make you want to use it — and what would help the people who
-              pay you feel safe and excited to stay.
+              If any of this resonates, we&apos;d like to hear what would make you
+              want to use it — and what would help the people who pay you feel safe
+              and comfortable staying.
             </p>
           </section>
 

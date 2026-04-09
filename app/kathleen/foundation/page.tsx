@@ -14,12 +14,18 @@ export default function ProgramPage() {
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-28">
         <div className="space-y-10">
-          <nav>
+          <nav className="flex flex-wrap gap-x-4 gap-y-2">
             <Link
               href={`/${t.slug}`}
               className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
             >
               ← {t.name}
+            </Link>
+            <Link
+              href="/"
+              className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
+            >
+              Home
             </Link>
           </nav>
 
@@ -29,13 +35,13 @@ export default function ProgramPage() {
 
           <section className="space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
-              Workouts
+              Sessions
             </h3>
             <ul className="space-y-3">
               {p.workouts.map((w) => (
                 <li key={w.id}>
                   <Link href={`/${t.slug}/${p.id}/${w.id}`}>
-                    <Card className="transition hover:border-neutral-300 hover:shadow-md active:scale-[0.99]">
+                    <Card className="transition hover:border-neutral-300 hover:shadow-md">
                       <p className="font-semibold text-neutral-900">
                         {w.title}
                       </p>
@@ -56,7 +62,7 @@ export default function ProgramPage() {
           href={`/${t.slug}/${p.id}/${first?.id ?? "day-1"}`}
           className="min-h-12 w-full max-w-sm"
         >
-          Start Workout
+          Continue
         </Button>
       </StickyBottomCTA>
     </div>
