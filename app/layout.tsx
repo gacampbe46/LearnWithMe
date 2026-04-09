@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     "Teach or learn skills in fitness, sewing, 3D printing, and more — step-by-step videos and courses from creators that resonate with you.",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#09090b",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} h-full`}>
-      <body className="min-h-dvh bg-white text-neutral-900 antialiased">
+      <body className="min-h-dvh antialiased">
         {children}
       </body>
     </html>
