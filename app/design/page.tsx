@@ -5,13 +5,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Code of conduct",
+  title: "Design principles",
   description:
-    "Community standards for learnwithme: respectful teaching and learning, what we encourage, unacceptable behavior, reporting, and enforcement.",
+    "How learnwithme approaches UX: calm engagement, completion-first learning, light milestone recognition, bounded community, and safety by design.",
 };
 
-export default async function ConductPage() {
-  const mdPath = path.join(process.cwd(), "CODE_OF_CONDUCT.md");
+export default async function DesignPrinciplesPage() {
+  const mdPath = path.join(process.cwd(), "DESIGN_PRINCIPLES.md");
   const source = await fs.readFile(mdPath, "utf8");
 
   return (
@@ -31,10 +31,10 @@ export default async function ConductPage() {
             Why this exists
           </Link>
           <Link
-            href="/design"
+            href="/conduct"
             className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900"
           >
-            Design principles
+            Code of conduct
           </Link>
         </nav>
 

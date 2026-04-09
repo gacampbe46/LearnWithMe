@@ -2,6 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const components: Components = {
   h1: ({ children, ...props }) => (
@@ -74,16 +75,41 @@ const components: Components = {
     </a>
   ),
   hr: () => <hr className="my-8 border-neutral-200" />,
+  table: ({ children }) => (
+    <div className="mb-4 overflow-x-auto">
+      <table className="w-full min-w-[20rem] border-collapse text-left text-sm text-neutral-600">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }) => (
+    <thead className="border-b border-neutral-200 bg-neutral-50">{children}</thead>
+  ),
+  th: ({ children, ...props }) => (
+    <th
+      className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-700"
+      {...props}
+    >
+      {children}
+    </th>
+  ),
+  td: ({ children, ...props }) => (
+    <td className="border-b border-neutral-100 px-3 py-2 align-top" {...props}>
+      {children}
+    </td>
+  ),
 };
 
-type ConductMarkdownProps = {
+type MarkdownDocProps = {
   source: string;
 };
 
-export function ConductMarkdown({ source }: ConductMarkdownProps) {
+export function MarkdownDoc({ source }: MarkdownDocProps) {
   return (
     <div className="[&_h2+h3]:mt-4 [&_li>p]:mb-1 [&_li>p:last-child]:mb-0">
-      <ReactMarkdown components={components}>{source}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+        {source}
+      </ReactMarkdown>
     </div>
   );
 }

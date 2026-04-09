@@ -10,12 +10,12 @@ export default function HomePage() {
             learnwithme
           </p>
           <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight text-neutral-900 sm:text-5xl md:text-6xl lg:text-7xl lg:leading-[1.05]">
-            Learn from creators you trust
+            Learn from people you trust
           </h1>
           <p className="max-w-2xl text-lg leading-relaxed text-neutral-600 sm:text-xl lg:text-2xl lg:leading-relaxed">
-            Tutorials, courses, and how-tos from creators that resonate with you.
-            Teach or learn skills in fitness, sewing, 3D printing, and more —
-            all in one place.
+            Structured programs you can follow at your own pace — fitness, crafts,
+            tech, and more. One calm place to teach what you know or learn from
+            others, with progress and completion in mind — not an endless feed.
           </p>
           <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
             <Button href="/kathleen" className="w-full sm:w-auto sm:shrink-0">
@@ -26,6 +26,12 @@ export default function HomePage() {
               className="inline-flex min-h-12 items-center text-base font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-4 transition hover:text-neutral-900 hover:decoration-neutral-900 sm:min-h-0"
             >
               Why we&apos;re building this
+            </Link>
+            <Link
+              href="/design"
+              className="inline-flex min-h-12 items-center text-base font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-4 transition hover:text-neutral-900 hover:decoration-neutral-900 sm:min-h-0"
+            >
+              Design principles
             </Link>
             <Link
               href="/conduct"

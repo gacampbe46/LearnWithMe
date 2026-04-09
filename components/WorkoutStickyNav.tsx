@@ -28,7 +28,7 @@ export function WorkoutStickyNav({
     <StickyBottomCTA>
       {isLast ? (
         <Button href={finishHref} className="min-h-12 w-full max-w-sm">
-          Finish Workout
+          Back to program
         </Button>
       ) : (
         <Button
@@ -37,7 +37,7 @@ export function WorkoutStickyNav({
           className="min-h-12 w-full max-w-sm"
           onClick={goNext}
         >
-          Next Exercise
+          Continue
         </Button>
       )}
     </StickyBottomCTA>

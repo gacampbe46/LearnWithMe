@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://learnwithme.fyi"),
   title: "learnwithme",
   description:
-    "Teach or learn skills in fitness, sewing, 3D printing, and more — step-by-step videos and courses from creators that resonate with you.",
+    "Structured programs at your own pace — teach or learn skills without living in a feed. Calm UX focused on finishing courses; sample members and programs inside.",
 };
 
 export default function RootLayout({
