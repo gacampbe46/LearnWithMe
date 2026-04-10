@@ -17,25 +17,29 @@ export default function KathleenSamplePage() {
           <nav>
             <Link
               href="/"
-              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
+              className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
             >
               ← Home
             </Link>
           </nav>
 
           <header className="space-y-4">
-            <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
+            <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-500">
               Member
             </p>
-            <h1 className="text-4xl font-semibold tracking-tight text-zinc-100">
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
               {t.name}
             </h1>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-600 dark:text-zinc-500">
               Sample profile — members can both offer programs and subscribe to
               others.
             </p>
-            <p className="text-xl font-medium text-zinc-200">{t.tagline}</p>
-            <p className="text-lg leading-relaxed text-zinc-400">{t.bio}</p>
+            <p className="text-xl font-medium text-zinc-800 dark:text-zinc-200">
+              {t.tagline}
+            </p>
+            <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
+              {t.bio}
+            </p>
           </header>
 
           {t.whatYouNeed && t.whatYouNeed.length > 0 ? (
@@ -44,7 +48,7 @@ export default function KathleenSamplePage() {
                 title="What you'll need"
                 subtitle="For the free sample sessions below"
               />
-              <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-zinc-400">
+              <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
                 {t.whatYouNeed.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -57,7 +61,7 @@ export default function KathleenSamplePage() {
           <p>
             <Link
               href={programPath}
-              className="text-base font-medium text-zinc-100 underline decoration-zinc-600 underline-offset-4 transition hover:decoration-zinc-300"
+              className="text-base font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50 dark:hover:decoration-zinc-300"
             >
               Subscribe to the program to unlock the full video library
             </Link>
@@ -65,12 +69,12 @@ export default function KathleenSamplePage() {
 
           <Card className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-zinc-100">
+              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
                 {t.program.title}
               </h2>
-              <p className="text-zinc-400">{t.program.subtitle}</p>
+              <p className="text-zinc-600 dark:text-zinc-400">{t.program.subtitle}</p>
             </div>
-            <p className="text-lg font-medium text-zinc-100">
+            <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
               {t.program.price}
             </p>
             <Button href={programPath} className="w-full">

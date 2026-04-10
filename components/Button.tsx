@@ -5,11 +5,11 @@ const base =
 
 const variants = {
   primary:
-    "bg-zinc-100 text-zinc-950 hover:bg-white focus-visible:outline-zinc-400",
+    "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 focus-visible:outline-zinc-500 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white dark:focus-visible:outline-zinc-400",
   outline:
-    "border border-zinc-600 bg-zinc-900/40 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800/60 focus-visible:outline-zinc-500",
+    "border border-zinc-300 bg-white/50 text-zinc-900 hover:border-zinc-400 hover:bg-zinc-100/80 focus-visible:outline-zinc-400 dark:border-zinc-600 dark:bg-zinc-900/40 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800/60 dark:focus-visible:outline-zinc-500",
   ghost:
-    "text-zinc-400 hover:bg-zinc-800/80 hover:text-zinc-100 focus-visible:outline-zinc-500",
+    "text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 focus-visible:outline-zinc-400 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-100 dark:focus-visible:outline-zinc-500",
 } as const;
 
 type Variant = keyof typeof variants;

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,7 +17,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#09090b",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
 };
 
 export default function RootLayout({
@@ -24,9 +29,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full`}>
+    <html lang="en" className={`${geistSans.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-dvh antialiased">
-        {children}
+        <ThemeProvider>
+          <div className="pointer-events-none fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
+            <div className="pointer-events-auto">
+              <ThemeToggle />
+            </div>
+          </div>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
