@@ -3,7 +3,7 @@ import { Card } from "@/components/Card";
 import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_MEMBER } from "@/data/member";
+import { KATHLEEN_MEMBER, programPurchaseLabel } from "@/data/member";
 import Link from "next/link";
 
 export default function KathleenSamplePage() {
@@ -71,7 +71,7 @@ export default function KathleenSamplePage() {
               <p className="text-zinc-400">{t.program.subtitle}</p>
             </div>
             <p className="text-lg font-medium text-zinc-100">
-              {t.program.price}
+              {programPurchaseLabel(t.program.purchase)}
             </p>
             <Button href={programPath} className="w-full">
               View Program
