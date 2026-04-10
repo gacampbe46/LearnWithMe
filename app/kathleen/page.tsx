@@ -3,7 +3,7 @@ import { Card } from "@/components/Card";
 import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_MEMBER, programPurchaseLabel } from "@/data/member";
+import { KATHLEEN_MEMBER } from "@/data/member";
 import Link from "next/link";
 
 export default function KathleenSamplePage() {
@@ -59,7 +59,7 @@ export default function KathleenSamplePage() {
               href={programPath}
               className="text-base font-medium text-zinc-100 underline decoration-zinc-600 underline-offset-4 transition hover:decoration-zinc-300"
             >
-              Subscribe to the program to unlock the full video library
+              Open the full program — every session included
             </Link>
           </p>
 
@@ -71,7 +71,7 @@ export default function KathleenSamplePage() {
               <p className="text-zinc-400">{t.program.subtitle}</p>
             </div>
             <p className="text-lg font-medium text-zinc-100">
-              {programPurchaseLabel(t.program.purchase)}
+              {t.program.price}
             </p>
             <Button href={programPath} className="w-full">
               View Program

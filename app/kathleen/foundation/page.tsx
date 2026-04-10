@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_MEMBER, programPurchaseLabel } from "@/data/member";
+import { KATHLEEN_MEMBER } from "@/data/member";
 import Link from "next/link";
 
 export default function ProgramPage() {
@@ -25,9 +25,7 @@ export default function ProgramPage() {
 
           <SectionHeader title={p.title} subtitle={p.subtitle} />
 
-          <p className="text-lg font-medium text-zinc-100">
-            {programPurchaseLabel(p.purchase)}
-          </p>
+          <p className="text-lg font-medium text-zinc-100">{p.price}</p>
 
           <section className="space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">

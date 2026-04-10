@@ -17,26 +17,13 @@ export type Workout = {
   exercises: Exercise[];
 };
 
-/** One-time purchase for a fixed number of sessions (sample — not a monthly bill). */
-export type ProgramPurchase = {
-  /** Whole US dollars for the full bundle */
-  flatPriceUsd: number;
-  /** Number of classes / sessions included */
-  sessionCount: number;
-};
-
 export type Program = {
   id: string;
   title: string;
   subtitle: string;
-  purchase: ProgramPurchase;
+  price: string;
   workouts: Workout[];
 };
-
-/** Single source of truth for how we show Kathleen’s program price in the UI. */
-export function programPurchaseLabel(purchase: ProgramPurchase): string {
-  return `${purchase.sessionCount} sessions — $${purchase.flatPriceUsd} total (one-time)`;
-}
 
 export type FeaturedPreviewVideo = {
   videoId: string;
@@ -81,8 +68,8 @@ export const KATHLEEN_MEMBER: MemberProfile = {
   program: {
     id: "foundation",
     title: "Foundation Program",
-    subtitle: "Structured workouts you can follow in any gym",
-    purchase: { flatPriceUsd: 36, sessionCount: 3 },
+    subtitle: "Three guided sessions — one simple price for the whole program",
+    price: "$12 one-time — all sessions included",
     workouts: [
       {
         id: "day-1",
