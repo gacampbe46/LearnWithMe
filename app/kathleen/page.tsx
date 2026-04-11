@@ -59,7 +59,7 @@ export default function KathleenSamplePage() {
               href={programPath}
               className="text-base font-medium text-zinc-100 underline decoration-zinc-600 underline-offset-4 transition hover:decoration-zinc-300"
             >
-              Subscribe to the program to unlock the full video library
+              Open the full program — every session included
             </Link>
           </p>
 

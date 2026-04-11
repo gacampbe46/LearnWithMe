@@ -68,8 +68,8 @@ export const KATHLEEN_MEMBER: MemberProfile = {
   program: {
     id: "foundation",
     title: "Foundation Program",
-    subtitle: "Structured workouts you can follow in any gym",
-    price: "$12/month",
+    subtitle: "Three guided sessions — one simple price for the whole program",
+    price: "$12 one-time — all sessions included",
     workouts: [
       {
         id: "day-1",
