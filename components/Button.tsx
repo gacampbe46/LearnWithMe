@@ -25,6 +25,8 @@ type Base = {
 
 type ButtonAsLink = Base & {
   href: string;
+  target?: "_blank" | "_self" | "_parent" | "_top";
+  rel?: string;
 };
 
 type ButtonAsButton = Base & {
@@ -47,8 +49,15 @@ export function Button(props: ButtonProps) {
   const classes = `${base} ${variants[variant]} ${disabled ? "pointer-events-none opacity-50" : ""} ${className}`.trim();
 
   if ("href" in props && props.href) {
+    const link = props as ButtonAsLink;
     return (
-      <Link href={props.href} className={classes} title={title}>
+      <Link
+        href={link.href}
+        className={classes}
+        title={title}
+        target={link.target}
+        rel={link.rel}
+      >
         {children}
       </Link>
     );
