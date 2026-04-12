@@ -2,12 +2,14 @@ import { MemberProfileFullContent } from "@/components/member/MemberProfileFullC
 import { MemberProfileLinkHub } from "@/components/member/MemberProfileLinkHub";
 import { getMemberBySlug, listMemberSlugs } from "@/data/members";
 import { getIsMobileVisitor } from "@/lib/device";
+import { parseProfileLayoutParam } from "@/lib/profileLayoutQuery";
 import { resolveRenderedProfileView } from "@/lib/profileView";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ username: string }>;
+  searchParams?: Promise<{ layout?: string | string[] }>;
 };
 
 export function generateStaticParams() {
@@ -28,7 +30,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function MemberProfilePage({ params }: PageProps) {
+export default async function MemberProfilePage({ params, searchParams }: PageProps) {
   const { username } = await params;
   const member = getMemberBySlug(username);
 
@@ -36,15 +38,30 @@ export default async function MemberProfilePage({ params }: PageProps) {
     notFound();
   }
 
+  const sp = searchParams ? await searchParams : {};
+  const layoutOverride = parseProfileLayoutParam(sp.layout);
+
   const isMobile = await getIsMobileVisitor();
   const view = resolveRenderedProfileView(
     member.profileViewPreference,
     isMobile,
+    layoutOverride ?? null,
   );
+  const hasLayoutQuery = layoutOverride !== null;
 
   if (view === "link_hub") {
-    return <MemberProfileLinkHub member={member} />;
+    return (
+      <MemberProfileLinkHub
+        member={member}
+        hasLayoutQuery={hasLayoutQuery}
+      />
+    );
   }
 
-  return <MemberProfileFullContent member={member} />;
+  return (
+    <MemberProfileFullContent
+      member={member}
+      hasLayoutQuery={hasLayoutQuery}
+    />
+  );
 }

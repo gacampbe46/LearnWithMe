@@ -3,15 +3,20 @@ import type { ProfileViewPreference } from "@/data/member";
 export type RenderedProfileView = "link_hub" | "full_content";
 
 /**
- * Picks which profile surface to render from the member's saved preference and
- * the visitor's device class. No query params or alternate URLs — same route.
+ * Resolves the profile surface: optional `?layout=` wins; otherwise uses the
+ * member’s `baseUrlViewPreference` at `/{slug}`, using device type when
+ * `device_adaptive`.
  */
 export function resolveRenderedProfileView(
-  preference: ProfileViewPreference,
+  profileViewPreference: ProfileViewPreference,
   isMobileVisitor: boolean,
+  layoutOverride?: RenderedProfileView | null,
 ): RenderedProfileView {
-  if (preference === "link_hub") return "link_hub";
-  if (preference === "full_content") return "full_content";
+  if (layoutOverride) {
+    return layoutOverride;
+  }
+  if (profileViewPreference === "link_hub") return "link_hub";
+  if (profileViewPreference === "full_content") return "full_content";
   // device_adaptive: compact link hub on small screens, full page on desktop
   return isMobileVisitor ? "link_hub" : "full_content";
 }

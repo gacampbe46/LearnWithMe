@@ -1,13 +1,18 @@
 import { Button } from "@/components/Button";
 import type { MemberProfile } from "@/data/member";
 import { getProfileHubLinks } from "@/lib/profileHubLinks";
+import { profilePageHref } from "@/lib/profileLayoutQuery";
 import Link from "next/link";
 
 type Props = {
   member: MemberProfile;
+  hasLayoutQuery?: boolean;
 };
 
-export function MemberProfileLinkHub({ member }: Props) {
+export function MemberProfileLinkHub({
+  member,
+  hasLayoutQuery = false,
+}: Props) {
   const links = getProfileHubLinks(member);
   const initial = member.name.trim().charAt(0).toUpperCase() || "?";
 
@@ -57,6 +62,16 @@ export function MemberProfileLinkHub({ member }: Props) {
               </li>
             ))}
           </ul>
+
+          <div className="mt-12 max-w-sm text-center text-sm text-zinc-600 dark:text-zinc-500">
+            Want the full profile page?{" "}
+            <Link
+              href={profilePageHref(member.slug, "full")}
+              className="font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50"
+            >
+              Open full profile
+            </Link>
+          </div>
         </div>
       </main>
     </div>
