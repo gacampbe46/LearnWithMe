@@ -3,11 +3,14 @@ import { Card } from "@/components/Card";
 import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_MEMBER } from "@/data/member";
+import type { MemberProfile } from "@/data/member";
 import Link from "next/link";
 
-export default function KathleenSamplePage() {
-  const t = KATHLEEN_MEMBER;
+type Props = {
+  member: MemberProfile;
+};
+
+export function MemberProfileFullContent({ member: t }: Props) {
   const programPath = `/${t.slug}/${t.program.id}`;
 
   return (

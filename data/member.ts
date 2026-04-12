@@ -30,6 +30,19 @@ export type FeaturedPreviewVideo = {
   title: string;
 };
 
+/** Saved member setting — combined with visitor device to pick the surface on /[username]. */
+export type ProfileViewPreference =
+  | "link_hub"
+  | "full_content"
+  | "device_adaptive";
+
+export type ProfileHubLink = {
+  label: string;
+  href: string;
+  /** When true, opens in a new tab with noopener */
+  external?: boolean;
+};
+
 export type MemberProfile = {
   id: string;
   name: string;
@@ -37,6 +50,10 @@ export type MemberProfile = {
   bio: string;
   tagline: string;
   channelUrl: string;
+  /** How this profile should present on the public /[username] route. */
+  profileViewPreference: ProfileViewPreference;
+  /** Optional link-in-bio ordering; defaults are derived if omitted. */
+  hubLinks?: ProfileHubLink[];
   whatYouNeed?: string[];
   featuredPreviewVideos: FeaturedPreviewVideo[];
   program: Program;
@@ -46,6 +63,7 @@ export const KATHLEEN_MEMBER: MemberProfile = {
   id: "kathleen",
   name: "Kathleen",
   slug: "kathleen",
+  profileViewPreference: "device_adaptive",
   tagline:
     "Theraband sessions, Pilates-style full-body work, and simple training that fits your life",
   bio: "Focused on efficient, repeatable workouts you can follow anywhere",
