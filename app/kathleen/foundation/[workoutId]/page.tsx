@@ -34,7 +34,7 @@ export default async function WorkoutDayPage({ params }: PageProps) {
           <nav>
             <Link
               href={finishHref}
-              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-100"
+              className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
             >
               ← {p.title}
             </Link>
