@@ -3,11 +3,20 @@ import { Card } from "@/components/Card";
 import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_MEMBER } from "@/data/member";
+import type { MemberProfile } from "@/data/member";
+import { profilePageHref } from "@/lib/profileLayoutQuery";
 import Link from "next/link";
 
-export default function KathleenSamplePage() {
-  const t = KATHLEEN_MEMBER;
+type Props = {
+  member: MemberProfile;
+  /** True when `?layout=` is present — show link back to automatic layout. */
+  hasLayoutQuery?: boolean;
+};
+
+export function MemberProfileFullContent({
+  member: t,
+  hasLayoutQuery = false,
+}: Props) {
   const programPath = `/${t.slug}/${t.program.id}`;
 
   return (
@@ -81,6 +90,18 @@ export default function KathleenSamplePage() {
               View Program
             </Button>
           </Card>
+
+          <div className="border-t border-zinc-200 pt-8 dark:border-zinc-800">
+            <div className="text-center text-sm text-zinc-600 dark:text-zinc-500">
+              Prefer a compact link list?{" "}
+              <Link
+                href={profilePageHref(t.slug, "hub")}
+                className="font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50"
+              >
+                Open link hub
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
 

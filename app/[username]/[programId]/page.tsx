@@ -2,11 +2,44 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { KATHLEEN_MEMBER } from "@/data/member";
+import { getMemberBySlug, listMemberSlugs } from "@/data/members";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function ProgramPage() {
-  const t = KATHLEEN_MEMBER;
+type PageProps = {
+  params: Promise<{ username: string; programId: string }>;
+};
+
+export function generateStaticParams() {
+  return listMemberSlugs().map((username) => {
+    const m = getMemberBySlug(username)!;
+    return { username, programId: m.program.id };
+  });
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { username, programId } = await params;
+  const member = getMemberBySlug(username);
+  if (!member || member.program.id !== programId) {
+    return { title: "Program" };
+  }
+  return {
+    title: `${member.program.title} — ${member.name}`,
+    description: member.program.subtitle,
+  };
+}
+
+export default async function ProgramPage({ params }: PageProps) {
+  const { username, programId } = await params;
+  const t = getMemberBySlug(username);
+
+  if (!t || t.program.id !== programId) {
+    notFound();
+  }
+
   const p = t.program;
   const first = p.workouts[0];
 

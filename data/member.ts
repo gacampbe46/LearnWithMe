@@ -30,6 +30,18 @@ export type FeaturedPreviewVideo = {
   title: string;
 };
 
+export type ProfileViewPreference =
+  | "link_hub"
+  | "full_content"
+  | "device_adaptive";
+
+export type ProfileHubLink = {
+  label: string;
+  href: string;
+  /** When true, opens in a new tab with noopener */
+  external?: boolean;
+};
+
 export type MemberProfile = {
   id: string;
   name: string;
@@ -37,6 +49,9 @@ export type MemberProfile = {
   bio: string;
   tagline: string;
   channelUrl: string;
+  profileViewPreference: ProfileViewPreference;
+  /** Optional link-in-bio ordering; defaults are derived if omitted. */
+  hubLinks?: ProfileHubLink[];
   whatYouNeed?: string[];
   featuredPreviewVideos: FeaturedPreviewVideo[];
   program: Program;
@@ -46,6 +61,7 @@ export const KATHLEEN_MEMBER: MemberProfile = {
   id: "kathleen",
   name: "Kathleen",
   slug: "kathleen",
+  profileViewPreference: "full_content",
   tagline:
     "Theraband sessions, Pilates-style full-body work, and simple training that fits your life",
   bio: "Focused on efficient, repeatable workouts you can follow anywhere",
