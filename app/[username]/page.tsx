@@ -1,6 +1,6 @@
 import { MemberProfileFullContent } from "@/components/member/MemberProfileFullContent";
 import { MemberProfileLinkHub } from "@/components/member/MemberProfileLinkHub";
-import { getMemberBySlug, listMemberSlugs } from "@/data/members";
+import { getMemberByUsername } from "@/data/members";
 import { getIsMobileVisitor } from "@/lib/device";
 import { parseProfileLayoutParam } from "@/lib/profileLayoutQuery";
 import { resolveRenderedProfileView } from "@/lib/profileView";
@@ -12,15 +12,11 @@ type PageProps = {
   searchParams?: Promise<{ layout?: string | string[] }>;
 };
 
-export function generateStaticParams() {
-  return listMemberSlugs().map((username) => ({ username }));
-}
-
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { username } = await params;
-  const member = getMemberBySlug(username);
+  const member = await getMemberByUsername(username);
   if (!member) {
     return { title: "Profile" };
   }
@@ -32,7 +28,7 @@ export async function generateMetadata({
 
 export default async function MemberProfilePage({ params, searchParams }: PageProps) {
   const { username } = await params;
-  const member = getMemberBySlug(username);
+  const member = await getMemberByUsername(username);
 
   if (!member) {
     notFound();

@@ -1,7 +1,7 @@
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { WorkoutStickyNav } from "@/components/WorkoutStickyNav";
-import { getMemberBySlug, listMemberSlugs } from "@/data/members";
+import { getMemberByUsername } from "@/data/members";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -10,27 +10,11 @@ type PageProps = {
   params: Promise<{ username: string; programId: string; workoutId: string }>;
 };
 
-export function generateStaticParams() {
-  const out: { username: string; programId: string; workoutId: string }[] = [];
-  for (const username of listMemberSlugs()) {
-    const m = getMemberBySlug(username);
-    if (!m) continue;
-    for (const w of m.program.workouts) {
-      out.push({
-        username: m.slug,
-        programId: m.program.id,
-        workoutId: w.id,
-      });
-    }
-  }
-  return out;
-}
-
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { username, programId, workoutId } = await params;
-  const member = getMemberBySlug(username);
+  const member = await getMemberByUsername(username);
   const workout = member?.program.workouts.find((w) => w.id === workoutId);
   if (!member || member.program.id !== programId || !workout) {
     return { title: "Workout" };
@@ -43,7 +27,7 @@ export async function generateMetadata({
 
 export default async function WorkoutDayPage({ params }: PageProps) {
   const { username, programId, workoutId } = await params;
-  const t = getMemberBySlug(username);
+  const t = await getMemberByUsername(username);
 
   if (!t || t.program.id !== programId) {
     notFound();

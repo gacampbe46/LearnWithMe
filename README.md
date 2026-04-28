@@ -8,12 +8,12 @@
 
 ## What this app is
 
-This repository is an **early front-end prototype**, not a production platform with accounts, payments, or a database. It demonstrates:
+This repository is still an **early product prototype**, now with a Supabase-backed data path for profile/program/session content. It demonstrates:
 
 - A **marketing home** and a **product narrative** (“Why this exists”) describing the problem space and intended direction.
-- A **sample member profile** ([`/kathleen`](https://learnwithme.fyi/kathleen)) with preview videos and a **sample program** (“Foundation”) made of workout-style days, to show how guided, sequential content could feel in the product.
+- A **sample member profile** ([`/kathleen`](https://learnwithme.fyi/kathleen)) with preview videos and a **sample program** (“Foundation”), seeded into Supabase for end-to-end testing.
 
-The codebase is meant to communicate **intent and UX shape** to collaborators, teachers, and future contributors—not to ship billing or auth yet.
+The codebase is meant to communicate **intent and UX shape** to collaborators, teachers, and future contributors. Billing and full account lifecycle are still in progress.
 
 ---
 
@@ -46,8 +46,10 @@ Details and tone match the in-app copy on [`/about`](https://learnwithme.fyi/abo
 | `app/page.tsx` | Home |
 | `app/about/page.tsx` | Why this exists (product story) |
 | `app/conduct/page.tsx` | Code of conduct (renders `CODE_OF_CONDUCT.md`) |
-| `app/kathleen/` | Sample member profile and program routes |
-| `data/member.ts` | Sample **`MemberProfile`** data (Kathleen demo) |
+| `app/[username]/` | Profile/program/session routes (Supabase-backed) |
+| `data/member.ts` | Shared TypeScript content/domain types |
+| `data/members.ts` | DB mapper from Supabase rows to `MemberProfile` UI shape |
+| `tools/seed-supabase.mjs` | Phase 4 seed script for profile/program/sessions |
 | `components/` | Shared UI (buttons, cards, video embeds, sticky CTAs, etc.) |
 
 Legacy URL **`/kathleen-chu`** redirects to **`/kathleen`** (see `next.config.ts`).
@@ -78,6 +80,18 @@ Other scripts:
 npm run build   # production build
 npm run start   # run production server (after build)
 npm run lint    # ESLint
+npm run seed:supabase  # seed Kathleen profile/program/sessions into Supabase
+```
+
+### Supabase environment
+
+Copy `.env.local.example` to `.env.local` and set:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=  # seed script only
+SEED_PROFILE_USER_ID=       # optional; required if profile row doesn't exist yet
 ```
 
 ---
