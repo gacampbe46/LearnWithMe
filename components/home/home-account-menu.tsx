@@ -1,5 +1,6 @@
 "use client";
 
+import { ProfileAvatar } from "@/components/profile-avatar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -8,6 +9,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 type Props = {
   displayName: string;
   profilePath: string | null;
+  avatarUrl: string | null;
 };
 
 const triggerBase =
@@ -16,7 +18,11 @@ const triggerBase =
 const menuItem =
   "flex w-full items-center px-4 py-2.5 text-left text-sm text-zinc-800 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80";
 
-export function HomeAccountMenu({ displayName, profilePath }: Props) {
+export function HomeAccountMenu({
+  displayName,
+  profilePath,
+  avatarUrl,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -73,6 +79,12 @@ export function HomeAccountMenu({ displayName, profilePath }: Props) {
             : `${displayName} — profile coming soon`
         }
       >
+        <ProfileAvatar
+          name={displayName}
+          imageUrl={avatarUrl}
+          size="sm"
+          className="shrink-0"
+        />
         <span className="truncate">{displayName}</span>
         <ChevronIcon open={open} />
       </button>

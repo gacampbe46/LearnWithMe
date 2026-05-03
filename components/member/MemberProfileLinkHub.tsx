@@ -1,4 +1,5 @@
 import { Button } from "@/components/Button";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import type { MemberProfile } from "@/data/member";
 import { getProfileHubLinks } from "@/lib/profileHubLinks";
 import { profilePageHref } from "@/lib/profileLayoutQuery";
@@ -14,7 +15,6 @@ export function MemberProfileLinkHub({
   hasLayoutQuery = false,
 }: Props) {
   const links = getProfileHubLinks(member);
-  const initial = member.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -29,12 +29,11 @@ export function MemberProfileLinkHub({
         </nav>
 
         <div className="flex flex-1 flex-col items-center text-center">
-          <div
-            className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-zinc-200 text-3xl font-semibold text-zinc-700 ring-4 ring-background dark:bg-zinc-800 dark:text-zinc-200"
-            aria-hidden
-          >
-            {initial}
-          </div>
+          <ProfileAvatar
+            name={member.name}
+            size="lg"
+            className="mb-6 ring-4 ring-background"
+          />
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
             {member.name}
           </h1>

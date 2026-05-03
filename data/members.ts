@@ -39,6 +39,8 @@ type DbProfile = {
 type ProfileTags = {
   tagline?: string;
   profileViewPreference?: ProfileViewPreference;
+  /** Tag catalog UUIDs from `tags`, stored in profile.tags JSON. */
+  tagIds?: string[];
   whatYouNeed?: string[];
   featuredPreviewVideos?: FeaturedPreviewVideo[];
   channelUrl?: string;
@@ -78,6 +80,9 @@ function parseProfileTags(value: unknown): ProfileTags {
   return {
     tagline: typeof value.tagline === "string" ? value.tagline : undefined,
     profileViewPreference,
+    tagIds: Array.isArray(value.tagIds)
+      ? value.tagIds.filter((x): x is string => typeof x === "string")
+      : undefined,
     whatYouNeed: Array.isArray(value.whatYouNeed)
       ? value.whatYouNeed.filter((x): x is string => typeof x === "string")
       : undefined,
@@ -159,15 +164,27 @@ function mapProfileToMember(profile: DbProfile): MemberProfile | undefined {
 
   const tags = parseProfileTags(profile.tags);
   const links = parseProfileLinks(profile.links);
-  const program = profile.programs?.[0];
-  if (!program) return undefined;
+  const dbProgram = profile.programs?.[0];
 
   const firstName = profile.first_name?.trim() ?? "";
   const lastName = profile.last_name?.trim() ?? "";
   const displayName = `${firstName} ${lastName}`.trim() || username;
-  const sortedSessions = [...(program.sessions ?? [])].sort(
-    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-  );
+
+  const program =
+    dbProgram != null
+      ? (() => {
+          const sortedSessions = [...(dbProgram.sessions ?? [])].sort(
+            (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+          );
+          return {
+            id: dbProgram.id,
+            title: dbProgram.title ?? "Program",
+            subtitle: dbProgram.description ?? "",
+            price: formatPrice(dbProgram.price),
+            workouts: sortedSessions.map(mapSessionToWorkout),
+          };
+        })()
+      : undefined;
 
   return {
     id: profile.id,
@@ -180,13 +197,7 @@ function mapProfileToMember(profile: DbProfile): MemberProfile | undefined {
     hubLinks: links.hubLinks,
     whatYouNeed: tags.whatYouNeed ?? [],
     featuredPreviewVideos: tags.featuredPreviewVideos ?? [],
-    program: {
-      id: program.id,
-      title: program.title ?? "Program",
-      subtitle: program.description ?? "",
-      price: formatPrice(program.price),
-      workouts: sortedSessions.map(mapSessionToWorkout),
-    },
+    ...(program ? { program } : {}),
   };
 }
 

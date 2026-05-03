@@ -1,26 +1,16 @@
+import {
+  oauthAccountMenuLabel,
+  ssoAvatarUrlFromUser,
+} from "@/lib/auth/oauth-user";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type NavAccount = {
+  /** Shown in the account trigger: profile `username` when set, else auth display fallback. */
   displayName: string;
   profilePath: string | null;
+  /** Picture from the signed-in SSO account (`user_metadata`), when the provider supplies one. */
+  avatarUrl: string | null;
 };
-
-function displayNameFromUser(user: {
-  email?: string | null;
-  user_metadata?: Record<string, unknown>;
-}): string {
-  const meta = user.user_metadata ?? {};
-  const pick = (key: string) => {
-    const v = meta[key];
-    return typeof v === "string" && v.trim() ? v.trim() : null;
-  };
-  return (
-    pick("full_name") ??
-    pick("name") ??
-    pick("given_name") ??
-    (user.email?.split("@")[0] ?? "Account")
-  );
-}
 
 export async function getNavAccount(): Promise<NavAccount | null> {
   const supabase = await createSupabaseServerClient();
@@ -32,8 +22,6 @@ export async function getNavAccount(): Promise<NavAccount | null> {
     return null;
   }
 
-  const displayName = displayNameFromUser(user);
-
   const { data: profile } = await supabase
     .from("profile")
     .select("username")
@@ -41,8 +29,12 @@ export async function getNavAccount(): Promise<NavAccount | null> {
     .maybeSingle();
 
   const username =
-    profile && typeof profile.username === "string" ? profile.username : null;
+    profile && typeof profile.username === "string" && profile.username.trim()
+      ? profile.username.trim()
+      : null;
   const profilePath = username ? `/${username}` : null;
+  const displayName = username ?? oauthAccountMenuLabel(user);
+  const avatarUrl = ssoAvatarUrlFromUser(user);
 
-  return { displayName, profilePath };
+  return { displayName, profilePath, avatarUrl };
 }

@@ -54,5 +54,6 @@ export type MemberProfile = {
   hubLinks?: ProfileHubLink[];
   whatYouNeed?: string[];
   featuredPreviewVideos: FeaturedPreviewVideo[];
-  program: Program;
+  /** Omitted until the member has at least one program in the database. */
+  program?: Program;
 };
