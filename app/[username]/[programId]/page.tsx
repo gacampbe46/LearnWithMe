@@ -16,7 +16,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { username, programId } = await params;
   const member = await getMemberByUsername(username);
-  if (!member || member.program.id !== programId) {
+  if (!member?.program || member.program.id !== programId) {
     return { title: "Program" };
   }
   return {
@@ -29,12 +29,13 @@ export default async function ProgramPage({ params }: PageProps) {
   const { username, programId } = await params;
   const t = await getMemberByUsername(username);
 
-  if (!t || t.program.id !== programId) {
+  if (!t?.program || t.program.id !== programId) {
     notFound();
   }
 
   const p = t.program;
   const first = p.workouts[0];
+  const hasWorkouts = p.workouts.length > 0;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -59,34 +60,43 @@ export default async function ProgramPage({ params }: PageProps) {
             <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-500">
               Workouts
             </h3>
-            <ul className="space-y-3">
-              {p.workouts.map((w) => (
-                <li key={w.id}>
-                  <Link href={`/${t.slug}/${p.id}/${w.id}`}>
-                    <Card className="transition hover:border-zinc-400 hover:shadow-md active:scale-[0.99] dark:hover:border-zinc-600">
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                        {w.title}
-                      </p>
-                      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                        {w.description}
-                      </p>
-                    </Card>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {hasWorkouts ? (
+              <ul className="space-y-3">
+                {p.workouts.map((w) => (
+                  <li key={w.id}>
+                    <Link href={`/${t.slug}/${p.id}/${w.id}`}>
+                      <Card className="transition hover:border-zinc-400 hover:shadow-md active:scale-[0.99] dark:hover:border-zinc-600">
+                        <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                          {w.title}
+                        </p>
+                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                          {w.description}
+                        </p>
+                      </Card>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+                No sessions yet. When you add workouts to this program, they will
+                show up here.
+              </p>
+            )}
           </section>
         </div>
       </main>
 
-      <StickyBottomCTA>
-        <Button
-          href={`/${t.slug}/${p.id}/${first?.id ?? "day-1"}`}
-          className="min-h-12 w-full max-w-sm"
-        >
-          Start Workout
-        </Button>
-      </StickyBottomCTA>
+      {hasWorkouts && first ? (
+        <StickyBottomCTA>
+          <Button
+            href={`/${t.slug}/${p.id}/${first.id}`}
+            className="min-h-12 w-full max-w-sm"
+          >
+            Start Workout
+          </Button>
+        </StickyBottomCTA>
+      ) : null}
     </div>
   );
 }
