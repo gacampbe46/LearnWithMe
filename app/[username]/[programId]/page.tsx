@@ -1,11 +1,21 @@
+import { EditProgramIconLink } from "@/components/edit-program-icon-link";
+import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
+import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { SectionHeader } from "@/components/SectionHeader";
+import { VideoEmbed } from "@/components/VideoEmbed";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import { getMemberByUsername } from "@/data/members";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  bodyLeadClass,
+  metaCapsClass,
+  navLinkClass,
+  titleCardClass,
+  titleSubsectionClass,
+} from "@/lib/ui/typography";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string }>;
@@ -15,85 +25,127 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { username, programId } = await params;
-  const member = await getMemberByUsername(username);
-  if (!member?.program || member.program.id !== programId) {
+  const loaded = await loadProgramDetail(username, programId);
+  if (!loaded) {
     return { title: "Program" };
   }
   return {
-    title: `${member.program.title} — ${member.name}`,
-    description: member.program.subtitle,
+    title: `${loaded.program.title} — ${loaded.profileDisplayName}`,
+    description: loaded.program.subtitle,
   };
 }
 
+/** Learner-facing program page — owners edit from `/manage`. */
 export default async function ProgramPage({ params }: PageProps) {
   const { username, programId } = await params;
-  const t = await getMemberByUsername(username);
+  const loaded = await loadProgramDetail(username, programId);
 
-  if (!t?.program || t.program.id !== programId) {
+  if (!loaded) {
     notFound();
   }
 
-  const p = t.program;
-  const first = p.workouts[0];
-  const hasWorkouts = p.workouts.length > 0;
+  const { profileSlug, profileDisplayName, program: p, canManage } = loaded;
+  const sessions = p.sessions;
+  const firstSession = sessions[0];
+  const hasSessions = sessions.length > 0;
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-28">
-        <div className="space-y-10">
-          <nav>
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-10 px-4 py-10 pb-28">
+        <nav className="flex flex-wrap items-center justify-between gap-3">
+          <Link href={`/${profileSlug}`} className={navLinkClass}>
+            ← {profileDisplayName}
+          </Link>
+          {canManage ? (
+            <EditProgramIconLink
+              href={`/${profileSlug}/${programId}/manage`}
+            />
+          ) : null}
+        </nav>
+
+        <SectionHeader title={p.title} subtitle={p.subtitle} />
+
+        {canManage && !p.isActive ? (
+          <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+            Hidden from learners — learners won&apos;t find this listing until it&apos;s
+            active.{" "}
             <Link
-              href={`/${t.slug}`}
-              className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
+              href={`/${profileSlug}/${programId}/manage`}
+              className="font-semibold underline decoration-amber-600 underline-offset-2 dark:decoration-amber-400"
             >
-              ← {t.name}
+              Manage visibility
             </Link>
-          </nav>
-
-          <SectionHeader title={p.title} subtitle={p.subtitle} />
-
-          <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-            {p.price}
           </p>
+        ) : null}
 
-          <section className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-500">
-              Workouts
-            </h3>
-            {hasWorkouts ? (
-              <ul className="space-y-3">
-                {p.workouts.map((w) => (
-                  <li key={w.id}>
-                    <Link href={`/${t.slug}/${p.id}/${w.id}`}>
-                      <Card className="transition hover:border-zinc-400 hover:shadow-md active:scale-[0.99] dark:hover:border-zinc-600">
-                        <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                          {w.title}
-                        </p>
-                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                          {w.description}
-                        </p>
-                      </Card>
-                    </Link>
+        <ReadonlyTopicChips tags={p.topicTags} />
+
+        <section className="space-y-8">
+          <h2 className={titleSubsectionClass}>Sessions</h2>
+          {hasSessions ? (
+            <ul className="space-y-6">
+              {sessions.map((s, index) => {
+                const videoId = s.media[0]?.videoId?.trim() ?? "";
+                const sessionHref = `/${profileSlug}/${p.id}/${s.id}`;
+                const n = index + 1;
+                const total = sessions.length;
+                return (
+                  <li key={s.id}>
+                    <Card className="space-y-0 !p-0 overflow-hidden shadow-md shadow-zinc-900/[0.06] dark:shadow-black/25">
+                      <div className="border-b border-zinc-200/80 bg-zinc-100/60 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-900/80">
+                        {total > 1 ? (
+                          <p className={metaCapsClass}>
+                            Session {n} of {total}
+                          </p>
+                        ) : null}
+                        <h3
+                          className={`${titleCardClass} ${total > 1 ? "mt-1" : ""}`}
+                        >
+                          {s.title}
+                        </h3>
+                      </div>
+                      <div className="space-y-4 px-5 pb-5 pt-4">
+                        {videoId ? (
+                          <VideoEmbed videoId={videoId} title={s.title} />
+                        ) : (
+                          <div
+                            className="flex aspect-video w-full items-center justify-center rounded-xl bg-zinc-200 text-sm text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                            role="presentation"
+                          >
+                            No video for this session yet
+                          </div>
+                        )}
+                        {s.description ? (
+                          <p className={bodyLeadClass}>{s.description}</p>
+                        ) : null}
+                        <div className="flex flex-wrap justify-end gap-3 border-t border-zinc-200/80 pt-4 dark:border-zinc-700/80">
+                          <Button
+                            href={sessionHref}
+                            variant="outline"
+                            className="min-h-10 shrink-0 px-5 text-sm font-medium"
+                          >
+                            View lesson page
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
                   </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-                No sessions yet. When you add workouts to this program, they will
-                show up here.
-              </p>
-            )}
-          </section>
-        </div>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className={bodyLeadClass}>No sessions are published for this program yet.</p>
+          )}
+        </section>
       </main>
 
-      {hasWorkouts && first ? (
+      {hasSessions && firstSession && (p.isActive || canManage) ? (
         <StickyBottomCTA>
           <Button
-            href={`/${t.slug}/${p.id}/${first.id}`}
+            href={`/${profileSlug}/${p.id}/${firstSession.id}`}
             className="min-h-12 w-full max-w-sm"
           >
-            Start Workout
+            Begin program
           </Button>
         </StickyBottomCTA>
       ) : null}

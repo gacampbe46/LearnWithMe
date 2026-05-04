@@ -7,10 +7,10 @@ export function getProfileHubLinks(member: MemberProfile): ProfileHubLink[] {
 
   const defaults: ProfileHubLink[] = [];
 
-  if (member.program) {
+  for (const program of member.programs) {
     defaults.push({
-      label: `View ${member.program.title}`,
-      href: `/${member.slug}/${member.program.id}`,
+      label: `View ${program.title}`,
+      href: `/${member.slug}/${program.id}`,
     });
   }
 

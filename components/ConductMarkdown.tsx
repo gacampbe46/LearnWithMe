@@ -1,51 +1,44 @@
 "use client";
 
+import {
+  bodyLeadClass,
+  proseStrongClass,
+  textLinkUnderlineClass,
+  titleDisplayClass,
+  titleSmallClass,
+  titleSubsectionClass,
+} from "@/lib/ui/typography";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 
 const components: Components = {
   h1: ({ children, ...props }) => (
-    <h1
-      className="mb-4 text-3xl font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl"
-      {...props}
-    >
+    <h1 className={`mb-4 leading-tight ${titleDisplayClass}`} {...props}>
       {children}
     </h1>
   ),
   h2: ({ children, ...props }) => (
-    <h2
-      className="mb-2 mt-10 text-xl font-semibold text-zinc-900 dark:text-zinc-100"
-      {...props}
-    >
+    <h2 className={`mb-2 mt-10 ${titleSubsectionClass}`} {...props}>
       {children}
     </h2>
   ),
   h3: ({ children, ...props }) => (
-    <h3
-      className="mb-2 mt-6 text-base font-semibold text-zinc-900 dark:text-zinc-100"
-      {...props}
-    >
+    <h3 className={`mb-2 mt-6 ${titleSmallClass}`} {...props}>
       {children}
     </h3>
   ),
   p: ({ children, ...props }) => (
-    <p className="mb-4 text-base leading-relaxed text-zinc-600 dark:text-zinc-400" {...props}>
+    <p className={`mb-4 ${bodyLeadClass}`} {...props}>
       {children}
     </p>
   ),
   ul: ({ children, ...props }) => (
-    <ul
-      className="mb-4 list-disc space-y-2 pl-5 text-base leading-relaxed text-zinc-600 dark:text-zinc-400"
-      {...props}
-    >
+    <ul className={`mb-4 list-disc space-y-2 pl-5 ${bodyLeadClass}`} {...props}>
       {children}
     </ul>
   ),
   ol: ({ children, ...props }) => (
-    <ol
-      className="mb-4 list-decimal space-y-2 pl-5 text-base leading-relaxed text-zinc-600 dark:text-zinc-400"
-      {...props}
-    >
+    <ol className={`mb-4 list-decimal space-y-2 pl-5 ${bodyLeadClass}`} {...props}>
       {children}
     </ol>
   ),
@@ -55,7 +48,7 @@ const components: Components = {
     </li>
   ),
   strong: ({ children, ...props }) => (
-    <strong className="font-medium text-zinc-800 dark:text-zinc-200" {...props}>
+    <strong className={proseStrongClass} {...props}>
       {children}
     </strong>
   ),
@@ -65,11 +58,7 @@ const components: Components = {
     </em>
   ),
   a: ({ children, href, ...props }) => (
-    <a
-      href={href}
-      className="font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50 dark:hover:decoration-zinc-300"
-      {...props}
-    >
+    <a href={href} className={textLinkUnderlineClass} {...props}>
       {children}
     </a>
   ),

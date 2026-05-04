@@ -2,19 +2,28 @@
  * Public teaching content for a member. The same account is meant to both
  * teach (offer programs) and learn (subscribe to others)—not separate roles.
  */
-export type Exercise = {
+export type SessionMedia = {
   id: string;
   title: string;
   videoId: string;
-  setsReps: string;
+  /** Short learner-facing text under the video (e.g. instructions). */
+  caption: string;
   notes: string[];
 };
 
-export type Workout = {
+export type ProgramSession = {
   id: string;
   title: string;
   description: string;
-  exercises: Exercise[];
+  media: SessionMedia[];
+  /** DB `sessions.content_url` — link or bare ID — for instructor edit UI. */
+  storedContentUrl: string | null;
+};
+
+/** Topics: catalog `tags.id` entries stored under `programs.tags` JSON (`tagIds`). */
+export type ProgramTopicTag = {
+  id: string;
+  name: string;
 };
 
 export type Program = {
@@ -22,7 +31,13 @@ export type Program = {
   title: string;
   subtitle: string;
   price: string;
-  workouts: Workout[];
+  /** Raw amount from DB for edit forms (`null` when missing or invalid). */
+  priceValue: number | null;
+  sessions: ProgramSession[];
+  /** Catalog topic IDs from `programs.tags` JSON (`{ tagIds }`), labels resolved when loading. */
+  topicTags: ProgramTopicTag[];
+  /** When false, hidden from learners on profile and blocked for anonymous viewers here. */
+  isActive: boolean;
 };
 
 export type FeaturedPreviewVideo = {
@@ -54,6 +69,23 @@ export type MemberProfile = {
   hubLinks?: ProfileHubLink[];
   whatYouNeed?: string[];
   featuredPreviewVideos: FeaturedPreviewVideo[];
-  /** Omitted until the member has at least one program in the database. */
+  /** Programs for this profile, newest first when loaded from Supabase. */
+  programs: Program[];
+  /** First program (`programs[0]`), kept for callers that assume a primary offering. */
   program?: Program;
 };
+
+/** Resolve a program by id for `[username]/[programId]` routes. */
+export function memberProgramById(
+  member: MemberProfile,
+  programId: string,
+): Program | undefined {
+  return member.programs.find((p) => p.id === programId);
+}
+
+export function memberProgramSessionById(
+  program: Program,
+  sessionId: string,
+): ProgramSession | undefined {
+  return program.sessions.find((s) => s.id === sessionId);
+}

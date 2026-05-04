@@ -8,6 +8,8 @@ export type NavAccount = {
   /** Shown in the account trigger: profile `username` when set, else auth display fallback. */
   displayName: string;
   profilePath: string | null;
+  /** Create / manage programs (requires onboarding with a username). */
+  teachNewProgramHref: string | null;
   /** Picture from the signed-in SSO account (`user_metadata`), when the provider supplies one. */
   avatarUrl: string | null;
 };
@@ -33,8 +35,9 @@ export async function getNavAccount(): Promise<NavAccount | null> {
       ? profile.username.trim()
       : null;
   const profilePath = username ? `/${username}` : null;
+  const teachNewProgramHref = username ? "/teach/programs/new" : null;
   const displayName = username ?? oauthAccountMenuLabel(user);
   const avatarUrl = ssoAvatarUrlFromUser(user);
 
-  return { displayName, profilePath, avatarUrl };
+  return { displayName, profilePath, teachNewProgramHref, avatarUrl };
 }

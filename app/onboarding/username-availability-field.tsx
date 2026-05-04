@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
-
-const inputBase =
-  "w-full rounded-xl border bg-white px-4 py-3 text-base text-zinc-900 outline-none transition placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500";
+import { bodyMutedClass, formLabelClass, inputFieldClass } from "@/lib/ui/typography";
 
 const inputNormal =
   "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
@@ -146,7 +144,7 @@ export function UsernameAvailabilityField({
     <div className="space-y-2">
       <label
         htmlFor={inputId}
-        className="block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+        className={formLabelClass}
       >
         Username
       </label>
@@ -165,7 +163,7 @@ export function UsernameAvailabilityField({
         onBlur={handleBlur}
         aria-invalid={inputInvalidVisual}
         aria-describedby={describedBy}
-        className={`${inputBase} ${
+        className={`${inputFieldClass} ${
           inputInvalidVisual
             ? inputInvalid
             : inputAvailableVisual
@@ -185,13 +183,13 @@ export function UsernameAvailabilityField({
       ) : (
         <>
           {live.kind === "idle" && (
-            <p id={hintId} className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p id={hintId} className={bodyMutedClass}>
               Lowercase letters, numbers, and underscores (3–30 characters).
               Availability is checked when you leave this field.
             </p>
           )}
           {live.kind === "checking" && (
-            <p id={liveId} className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p id={liveId} className={bodyMutedClass}>
               Checking availability…
             </p>
           )}

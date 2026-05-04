@@ -1,6 +1,8 @@
 import { MemberProfileFullContent } from "@/components/member/MemberProfileFullContent";
 import { MemberProfileLinkHub } from "@/components/member/MemberProfileLinkHub";
 import { getMemberByUsername } from "@/data/members";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { getIsMobileVisitor } from "@/lib/device";
 import { parseProfileLayoutParam } from "@/lib/profileLayoutQuery";
 import { resolveRenderedProfileView } from "@/lib/profileView";
@@ -54,10 +56,21 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     );
   }
 
+  let viewerOwnsProfile = false;
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const teaching = await getTeachingProfile(supabase, user.id);
+    viewerOwnsProfile = Boolean(teaching && teaching.id === member.id);
+  }
+
   return (
     <MemberProfileFullContent
       member={member}
       hasLayoutQuery={hasLayoutQuery}
+      viewerOwnsProfile={viewerOwnsProfile}
     />
   );
 }

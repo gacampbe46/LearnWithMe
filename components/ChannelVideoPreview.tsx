@@ -1,4 +1,5 @@
 import type { FeaturedPreviewVideo } from "@/data/member";
+import { titleSmallClass } from "@/lib/ui/typography";
 import { SectionHeader } from "./SectionHeader";
 import { VideoEmbed } from "./VideoEmbed";
 
@@ -19,9 +20,7 @@ export function ChannelVideoPreview({
       <div className="space-y-10">
         {videos.map((v) => (
           <div key={v.videoId} className="space-y-3">
-            <p className="text-sm font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-500">
-              {v.title}
-            </p>
+            <p className={titleSmallClass}>{v.title}</p>
             <VideoEmbed videoId={v.videoId} title={v.title} />
           </div>
         ))}

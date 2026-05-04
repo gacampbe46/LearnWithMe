@@ -5,6 +5,10 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import type { InterestTagOption } from "@/lib/data/interest-tags";
+import {
+  profileSetupInterestChipClasses,
+  profileSetupInterestChipPeerClasses,
+} from "@/components/program/topic-chip-styles";
 import { completeOnboarding } from "./actions";
 import {
   onboardingFormInitialState,
@@ -12,6 +16,13 @@ import {
 } from "./onboarding-state";
 import { UsernameAvailabilityField } from "./username-availability-field";
 import type { OauthAvatarPreview } from "@/lib/auth/oauth-user";
+import {
+  bodyMutedClass,
+  formLabelClass,
+  formLegendClass,
+  inputFieldClass,
+  optionalHintClass,
+} from "@/lib/ui/typography";
 
 type Props = {
   nextPath: string;
@@ -21,9 +32,6 @@ type Props = {
   interestTags: InterestTagOption[];
   tagsLoadError: string | null;
 };
-
-const inputBase =
-  "w-full rounded-xl border bg-white px-4 py-3 text-base text-zinc-900 outline-none transition placeholder:text-zinc-400 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500";
 
 const inputNormal =
   "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
@@ -125,7 +133,7 @@ export function ProfileSetupForm({
           <div className="space-y-2">
             <label
               htmlFor="onboarding-first"
-              className="block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+              className={formLabelClass}
             >
               First Name
             </label>
@@ -135,13 +143,13 @@ export function ProfileSetupForm({
               type="text"
               autoComplete="given-name"
               defaultValue={defaultFirstName}
-              className={`${inputBase} ${inputNormal}`}
+              className={`${inputFieldClass} ${inputNormal}`}
             />
           </div>
           <div className="space-y-2">
             <label
               htmlFor="onboarding-last"
-              className="block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+              className={formLabelClass}
             >
               Last Name
             </label>
@@ -151,7 +159,7 @@ export function ProfileSetupForm({
               type="text"
               autoComplete="family-name"
               defaultValue={defaultLastName}
-              className={`${inputBase} ${inputNormal}`}
+              className={`${inputFieldClass} ${inputNormal}`}
             />
           </div>
         </div>
@@ -159,12 +167,10 @@ export function ProfileSetupForm({
         <div className="space-y-2">
           <label
             htmlFor="onboarding-bio"
-            className="block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+            className={formLabelClass}
           >
             Bio{" "}
-            <span className="font-normal text-zinc-500 dark:text-zinc-400">
-              (optional)
-            </span>
+            <span className={optionalHintClass}>(optional)</span>
           </label>
           <textarea
             id="onboarding-bio"
@@ -172,15 +178,13 @@ export function ProfileSetupForm({
             rows={4}
             maxLength={2000}
             placeholder="A short introduction for your profile"
-            className={`${inputBase} ${inputNormal} resize-y`}
+            className={`${inputFieldClass} ${inputNormal} resize-y`}
           />
         </div>
 
         <fieldset className="space-y-3 border-0 p-0">
-          <legend className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-            Interests
-          </legend>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <legend className={formLegendClass}>Interests</legend>
+          <p className={bodyMutedClass}>
             Choose one or more that fit you.
           </p>
           {interestTags.length > 0 ? (
@@ -200,7 +204,7 @@ export function ProfileSetupForm({
                       className="peer sr-only"
                     />
                     <span
-                      className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:border-zinc-400 hover:bg-zinc-50 peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-zinc-50 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-zinc-400 dark:border-zinc-600 dark:bg-zinc-900/40 dark:text-zinc-200 dark:hover:border-zinc-500 dark:hover:bg-zinc-800/60 dark:peer-checked:border-zinc-100 dark:peer-checked:bg-zinc-100 dark:peer-checked:text-zinc-950 dark:peer-focus-visible:outline-zinc-500"
+                      className={`${profileSetupInterestChipClasses} ${profileSetupInterestChipPeerClasses}`}
                     >
                       {t.label}
                     </span>

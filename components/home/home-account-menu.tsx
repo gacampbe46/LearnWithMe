@@ -9,6 +9,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 type Props = {
   displayName: string;
   profilePath: string | null;
+  teachNewProgramHref: string | null;
   avatarUrl: string | null;
 };
 
@@ -21,6 +22,7 @@ const menuItem =
 export function HomeAccountMenu({
   displayName,
   profilePath,
+  teachNewProgramHref,
   avatarUrl,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -102,6 +104,16 @@ export function HomeAccountMenu({
               onClick={close}
             >
               Your page
+            </Link>
+          ) : null}
+          {teachNewProgramHref ? (
+            <Link
+              href={teachNewProgramHref}
+              role="menuitem"
+              className={menuItem}
+              onClick={close}
+            >
+              New program
             </Link>
           ) : null}
           <button

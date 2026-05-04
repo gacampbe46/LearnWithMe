@@ -26,6 +26,7 @@ export async function HomeAccountControl() {
     <HomeAccountMenu
       displayName={account.displayName}
       profilePath={account.profilePath}
+      teachNewProgramHref={account.teachNewProgramHref}
       avatarUrl={account.avatarUrl}
     />
   );

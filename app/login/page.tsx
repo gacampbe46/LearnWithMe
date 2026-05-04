@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { AuthPanel } from "@/components/auth/auth-panel";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 
@@ -21,14 +20,6 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-12 sm:px-6 sm:py-16">
-        <nav className="mb-8 sm:mb-10">
-          <Link
-            href="/"
-            className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
-          >
-            ← Home
-          </Link>
-        </nav>
         {(showConfigError || showAuthError) && (
           <div
             role="alert"

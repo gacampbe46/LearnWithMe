@@ -4,31 +4,31 @@ import { useCallback, useState } from "react";
 import { Button } from "./Button";
 import { StickyBottomCTA } from "./StickyBottomCTA";
 
-type WorkoutStickyNavProps = {
-  exerciseIds: string[];
+type SessionStickyNavProps = {
+  mediaAnchorIds: string[];
   finishHref: string;
 };
 
-export function WorkoutStickyNav({
-  exerciseIds,
+export function SessionStickyNav({
+  mediaAnchorIds,
   finishHref,
-}: WorkoutStickyNavProps) {
+}: SessionStickyNavProps) {
   const [index, setIndex] = useState(0);
-  const isLast = index >= exerciseIds.length - 1;
+  const isLast = index >= mediaAnchorIds.length - 1;
 
   const goNext = useCallback(() => {
     if (isLast) return;
-    const nextId = exerciseIds[index + 1];
+    const nextId = mediaAnchorIds[index + 1];
     const el = document.getElementById(nextId);
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
     setIndex((i) => i + 1);
-  }, [exerciseIds, index, isLast]);
+  }, [mediaAnchorIds, index, isLast]);
 
   return (
     <StickyBottomCTA>
       {isLast ? (
         <Button href={finishHref} className="min-h-12 w-full max-w-sm">
-          Finish Workout
+          Back to program
         </Button>
       ) : (
         <Button
@@ -37,7 +37,7 @@ export function WorkoutStickyNav({
           className="min-h-12 w-full max-w-sm"
           onClick={goNext}
         >
-          Next Exercise
+          Continue
         </Button>
       )}
     </StickyBottomCTA>
