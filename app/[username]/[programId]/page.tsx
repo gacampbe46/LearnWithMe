@@ -124,7 +124,7 @@ export default async function ProgramPage({ params }: PageProps) {
                             variant="outline"
                             className="min-h-10 shrink-0 px-5 text-sm font-medium"
                           >
-                            View lesson page
+                            View session
                           </Button>
                         </div>
                       </div>
@@ -133,8 +133,24 @@ export default async function ProgramPage({ params }: PageProps) {
                 );
               })}
             </ul>
+          ) : canManage ? (
+            <div className="space-y-4">
+              <p className={bodyLeadClass}>
+                No sessions yet. Add your first session so this program has
+                something for people to open.
+              </p>
+              <Button
+                href={`/${profileSlug}/${programId}/sessions/new`}
+                variant="outline"
+                className="w-full min-h-10 justify-center px-5 text-sm font-medium"
+              >
+                Add session
+              </Button>
+            </div>
           ) : (
-            <p className={bodyLeadClass}>No sessions are published for this program yet.</p>
+            <p className={bodyLeadClass}>
+              No sessions are published for this program yet.
+            </p>
           )}
         </section>
       </main>

@@ -9,6 +9,7 @@ import {
   assertProgramCatalogTopicIds,
   parseProgramCatalogTopicIdsFromForm,
 } from "@/lib/program/program-catalog-topic-form";
+import { parseProgramPriceFromForm } from "@/lib/program/program-price-form";
 import { serializeProgramTags } from "@/lib/program/program-tags-json";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
@@ -22,18 +23,6 @@ function trimField(v: FormDataEntryValue | null, max: number): string {
 function formText(fd: FormData, key: string): string | null {
   const v = fd.get(key);
   return typeof v === "string" ? v : null;
-}
-
-function parsePrice(raw: string): { ok: true; value: number } | { ok: false; message: string } {
-  const cleaned = raw.trim().replace(/^\$/, "");
-  if (cleaned === "") {
-    return { ok: false, message: "Enter a price (use 0 for free)." };
-  }
-  const n = Number.parseFloat(cleaned);
-  if (!Number.isFinite(n) || n < 0) {
-    return { ok: false, message: "Price must be zero or a positive number." };
-  }
-  return { ok: true, value: n };
 }
 
 export async function enableInstructorForCurrentUser(): Promise<{
@@ -100,7 +89,7 @@ export async function createProgram(
   const description = trimField(formText(formData, "description"), 8000);
 
   const priceRaw = trimField(formText(formData, "price"), 32);
-  const priceParsed = parsePrice(priceRaw);
+  const priceParsed = parseProgramPriceFromForm(priceRaw);
   if (!priceParsed.ok) {
     return { formError: priceParsed.message };
   }

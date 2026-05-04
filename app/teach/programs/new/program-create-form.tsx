@@ -19,6 +19,7 @@ import {
   subtitleSmClass,
   titleSubsectionClass,
 } from "@/lib/ui/typography";
+import { priceAllowsSubmit } from "@/lib/program/program-price-form";
 import type { TeachingProfile } from "@/lib/teach/teaching-profile";
 import {
   createProgram,
@@ -28,14 +29,6 @@ import {
   programCreateFormInitialState,
   type ProgramCreateFormState,
 } from "./program-create-state";
-
-/** Mirrors `parsePrice` in `./actions.ts` — button enablement only */
-function priceAllowsSubmit(raw: string): boolean {
-  const cleaned = raw.trim().replace(/^\$/, "");
-  if (cleaned === "") return false;
-  const n = Number.parseFloat(cleaned);
-  return Number.isFinite(n) && n >= 0;
-}
 
 type Props = {
   profile: TeachingProfile;
@@ -84,10 +77,7 @@ export function ProgramCreateForm({
     return (
       <Card className="space-y-5">
         <p className={bodyLeadClass}>
-          To create programs, your account needs instructor access. This mirrors
-          the <code className="text-sm">is_instructor</code> flag on your profile
-          in the database — turn it on when you&apos;re ready to publish
-          structured programs.
+          To create programs, your account needs instructor access.
         </p>
         {instrError ? (
           <p
@@ -238,7 +228,7 @@ export function ProgramCreateForm({
         <div className="flex justify-end pt-1">
           <Button
             type="submit"
-            className="min-h-12 min-w-[10.5rem] justify-center px-6 sm:px-8"
+            className="min-h-10 justify-center px-4 py-2 text-sm font-medium sm:px-5"
             disabled={!canSubmit}
           >
             {pending ? "Creating…" : "Create program"}

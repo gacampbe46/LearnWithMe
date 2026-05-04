@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import {
   friendlyDbPermissionMessage,
+  friendlyLearnerVisibilityRlsMessage,
   isRlsOrPermissionError,
 } from "@/lib/supabase/map-db-error";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -48,7 +49,7 @@ export async function flipLearnerVisibility(
   if (readErr) {
     return {
       formError: isRlsOrPermissionError(readErr)
-        ? friendlyDbPermissionMessage()
+        ? friendlyLearnerVisibilityRlsMessage()
         : readErr.message,
     };
   }
@@ -60,17 +61,38 @@ export async function flipLearnerVisibility(
   const currentlyVisible = row.is_active !== false;
   const nextActive = !currentlyVisible;
 
-  const { error } = await supabase
-    .from("programs")
-    .update({ is_active: nextActive })
-    .eq("id", programId);
+  /**
+   * Prefer DB RPC: ownership is enforced inside Postgres (`SECURITY DEFINER`), so a messy
+   * RLS policy stack on `programs` can’t block `is_active` updates after policies ran.
+   */
+  const { data: rpcOk, error: rpcErr } = await supabase.rpc("set_program_is_active", {
+    p_program_id: programId,
+    p_active: nextActive,
+  });
 
-  if (error) {
+  if (rpcErr) {
+    const rpcMsg = rpcErr.message ?? "";
+    const missingFn =
+      rpcErr.code === "42883" ||
+      /does not exist/i.test(rpcMsg) ||
+      (/function/i.test(rpcMsg) && /set_program_is_active/i.test(rpcMsg));
+
+    if (missingFn) {
+      return {
+        formError:
+          "Database is missing function `set_program_is_active`. Paste and run the latest `tools/sql/run-all-owner-policies.sql` in Supabase SQL Editor (bottom section), then try again.",
+      };
+    }
+
     return {
-      formError: isRlsOrPermissionError(error)
-        ? friendlyDbPermissionMessage()
-        : error.message,
+      formError: isRlsOrPermissionError(rpcErr)
+        ? friendlyLearnerVisibilityRlsMessage()
+        : rpcErr.message,
     };
+  }
+
+  if (rpcOk !== true) {
+    return { formError: friendlyLearnerVisibilityRlsMessage() };
   }
 
   redirect(safeNextPath(`/${username}/${programId}/manage`));

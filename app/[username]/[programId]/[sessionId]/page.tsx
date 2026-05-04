@@ -53,6 +53,14 @@ export default async function ProgramSessionPage({ params }: PageProps) {
 
   const mediaAnchorIds = session.media.map((m) => m.id);
   const finishHref = `/${profileSlug}/${p.id}`;
+  const sessionIndex = p.sessions.findIndex((s) => s.id === sessionId);
+  const nextInProgram =
+    sessionIndex >= 0 && sessionIndex < p.sessions.length - 1
+      ? p.sessions[sessionIndex + 1]
+      : null;
+  const nextSessionHref = nextInProgram
+    ? `/${profileSlug}/${p.id}/${nextInProgram.id}`
+    : null;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -85,7 +93,11 @@ export default async function ProgramSessionPage({ params }: PageProps) {
         </div>
       </main>
 
-      <SessionStickyNav mediaAnchorIds={mediaAnchorIds} finishHref={finishHref} />
+      <SessionStickyNav
+        mediaAnchorIds={mediaAnchorIds}
+        finishHref={finishHref}
+        nextSessionHref={nextSessionHref}
+      />
     </div>
   );
 }

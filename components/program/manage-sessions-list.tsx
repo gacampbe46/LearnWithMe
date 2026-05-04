@@ -22,7 +22,9 @@ import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { deleteProgramSession } from "@/app/[username]/[programId]/actions";
 import { reorderProgramSessions } from "@/app/[username]/[programId]/manage-actions";
+import { TrashIcon } from "@/components/icons/trash-icon";
 import { bodyLeadClass, bodyMutedClass, captionClass, titleSmallClass } from "@/lib/ui/typography";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -76,10 +78,12 @@ function SortableSessionRow({
   session,
   profileSlug,
   programId,
+  onDeleteSession,
 }: {
   session: ManageSessionRow;
   profileSlug: string;
   programId: string;
+  onDeleteSession: (sessionId: string) => Promise<void>;
 }) {
   const {
     attributes,
@@ -98,6 +102,11 @@ function SortableSessionRow({
 
   const viewerHref = `/${profileSlug}/${programId}/${session.id}`;
   const editHref = `/${profileSlug}/${programId}/sessions/${session.id}/edit`;
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const iconBtn =
+    "inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-zinc-600 transition enabled:cursor-pointer disabled:opacity-50 dark:text-zinc-400";
 
   return (
     <li ref={setNodeRef} style={style}>
@@ -108,21 +117,74 @@ function SortableSessionRow({
             : "hover:border-zinc-400/90 dark:hover:border-zinc-600"
         }`}
       >
-        <div className="flex items-start gap-2">
-          <GripHandle attributes={attributes} listeners={listeners} />
-          <Link href={viewerHref} className="min-w-0 flex-1">
-            <p className={titleSmallClass}>{session.title}</p>
-            {session.description ? (
-              <p className={`mt-1 ${bodyMutedClass}`}>
-                {session.description}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-2">
+            <GripHandle attributes={attributes} listeners={listeners} />
+            <Link href={viewerHref} className="min-w-0 flex-1">
+              <p className={titleSmallClass}>{session.title}</p>
+              {session.description ? (
+                <p className={`mt-1 ${bodyMutedClass}`}>
+                  {session.description}
+                </p>
+              ) : null}
+            </Link>
+            <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+              <EditProgramIconLink
+                href={editHref}
+                ariaLabel="Edit session"
+                titleProp="Edit session"
+              />
+              {!confirmDelete ? (
+                <button
+                  type="button"
+                  className={`${iconBtn} hover:bg-zinc-100/80 hover:text-red-700 dark:hover:bg-zinc-800/40 dark:hover:text-red-400`}
+                  aria-label="Remove session"
+                  title="Remove session"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <TrashIcon />
+                </button>
+              ) : null}
+            </div>
+          </div>
+          {confirmDelete ? (
+            <div
+              className="flex flex-col gap-2 rounded-xl border border-red-200/90 bg-red-50/90 px-3 py-2.5 dark:border-red-900/50 dark:bg-red-950/35 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+              role="group"
+              aria-label="Confirm remove session"
+            >
+              <p className="text-sm text-red-950 dark:text-red-100">
+                Remove this session permanently?
               </p>
-            ) : null}
-          </Link>
-          <EditProgramIconLink
-            href={editHref}
-            ariaLabel="Edit session"
-            titleProp="Edit session"
-          />
+              <div className="flex shrink-0 items-center justify-end gap-2">
+                <button
+                  type="button"
+                  className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteBusy}
+                  className="rounded-lg bg-red-700 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-red-800 disabled:opacity-60 dark:bg-red-800 dark:hover:bg-red-700"
+                  onClick={() => {
+                    void (async () => {
+                      setDeleteBusy(true);
+                      try {
+                        await onDeleteSession(session.id);
+                        setConfirmDelete(false);
+                      } finally {
+                        setDeleteBusy(false);
+                      }
+                    })();
+                  }}
+                >
+                  {deleteBusy ? "Removing…" : "Remove"}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </Card>
     </li>
@@ -230,6 +292,19 @@ export function ManageSessionsList({
     }),
   );
 
+  const deleteSession = useCallback(
+    async (sessionId: string) => {
+      const r = await deleteProgramSession({ programId, sessionId });
+      if (!r.ok) {
+        setPersistError(r.error);
+        return;
+      }
+      setItems((prev) => prev.filter((s) => s.id !== sessionId));
+      router.refresh();
+    },
+    [programId, router],
+  );
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -292,6 +367,7 @@ export function ManageSessionsList({
                 session={s}
                 profileSlug={profileSlug}
                 programId={programId}
+                onDeleteSession={deleteSession}
               />
             ))}
           </ul>

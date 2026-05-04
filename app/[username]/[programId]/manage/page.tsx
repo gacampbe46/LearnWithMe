@@ -61,12 +61,9 @@ export default async function ManageProgramPage({ params }: PageProps) {
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 space-y-10 px-4 py-10 pb-28">
-        <nav className="flex flex-wrap items-center justify-between gap-3">
+        <nav>
           <Link href={`/${profileSlug}/${programId}`} className={navLinkClass}>
             ← View program page
-          </Link>
-          <Link href={`/${profileSlug}`} className={navLinkClass}>
-            Profile
           </Link>
         </nav>
 

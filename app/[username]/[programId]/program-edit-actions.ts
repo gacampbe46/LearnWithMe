@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import {
   friendlyDbPermissionMessage,
@@ -10,7 +10,11 @@ import {
   assertProgramCatalogTopicIds,
   parseProgramCatalogTopicIdsFromForm,
 } from "@/lib/program/program-catalog-topic-form";
-import { serializeProgramTags } from "@/lib/program/program-tags-json";
+import { parseProgramPriceFromForm } from "@/lib/program/program-price-form";
+import {
+  parseProgramTagsColumn,
+  serializeProgramTags,
+} from "@/lib/program/program-tags-json";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
 import type { EditProgramBasicsState } from "./program-edit-actions-state";
@@ -23,22 +27,6 @@ function trimField(v: FormDataEntryValue | null, max: number): string {
 function formText(fd: FormData, key: string): string | null {
   const v = fd.get(key);
   return typeof v === "string" ? v : null;
-}
-
-function parsePrice(raw: string): { ok: true; value: number } | { ok: false; message: string } {
-  const cleaned = raw.trim().replace(/^\$/, "");
-  if (cleaned === "") {
-    return { ok: false, message: "Enter a price (use 0 for free)." };
-  }
-  const n = Number.parseFloat(cleaned);
-  if (!Number.isFinite(n) || n < 0) {
-    return { ok: false, message: "Price must be zero or a positive number." };
-  }
-  return { ok: true, value: n };
-}
-
-function redirectAfterProgramEdit(username: string, programId: string): never {
-  redirect(safeNextPath(`/${username}/${programId}/manage`));
 }
 
 export async function updateProgramBasics(
@@ -64,7 +52,7 @@ export async function updateProgramBasics(
 
   const description = trimField(formText(formData, "description"), 8000);
   const priceRaw = trimField(formText(formData, "price"), 32);
-  const priceParsed = parsePrice(priceRaw);
+  const priceParsed = parseProgramPriceFromForm(priceRaw);
   if (!priceParsed.ok) {
     return { formError: priceParsed.message };
   }
@@ -76,15 +64,18 @@ export async function updateProgramBasics(
     return { formError: tagCheck.message };
   }
 
-  const tagsJson = serializeProgramTags(topicIds);
+  /** Same as create: omit tags JSON when none selected (nullable column). */
+  const tagsPayload =
+    topicIds.length > 0 ? serializeProgramTags(topicIds) : null;
 
+  /** Avoid `.update().select()` — RETURNING can be empty under SELECT RLS even when UPDATE applies. */
   const { error } = await supabase
     .from("programs")
     .update({
       title,
       description: description || null,
       price: priceParsed.value,
-      tags: tagsJson,
+      tags: tagsPayload,
     })
     .eq("id", programId);
 
@@ -96,5 +87,49 @@ export async function updateProgramBasics(
     };
   }
 
-  redirectAfterProgramEdit(username, programId);
+  const { data: check, error: checkErr } = await supabase
+    .from("programs")
+    .select("title, description, price, tags")
+    .eq("id", programId)
+    .maybeSingle();
+
+  if (checkErr) {
+    return {
+      formError: isRlsOrPermissionError(checkErr)
+        ? friendlyDbPermissionMessage()
+        : checkErr.message,
+    };
+  }
+
+  if (!check) {
+    return {
+      formError:
+        "Could not save: no program row returned after update. Run `tools/sql/run-all-owner-policies.sql` in Supabase → SQL Editor.",
+    };
+  }
+
+  const savedTags = [...parseProgramTagsColumn(check.tags)].sort().join("\0");
+  const wantTags = [...topicIds].sort().join("\0");
+  const persisted =
+    check.title === title &&
+    (check.description ?? "") === (description || "") &&
+    Number(check.price) === priceParsed.value &&
+    savedTags === wantTags;
+
+  if (!persisted) {
+    return {
+      formError:
+        "Could not save: changes didn’t persist. Run `tools/sql/run-all-owner-policies.sql` in Supabase → SQL Editor.",
+    };
+  }
+
+  const managePath = safeNextPath(`/${username}/${programId}/manage`);
+  revalidatePath(managePath);
+  revalidatePath(safeNextPath(`/${username}/${programId}`));
+
+  return {
+    formError: null,
+    redirectTo: managePath,
+    savedAt: Date.now(),
+  };
 }

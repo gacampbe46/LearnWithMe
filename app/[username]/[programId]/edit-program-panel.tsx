@@ -10,13 +10,12 @@ import {
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { PROGRAM_CATALOG_TOPIC_FIELD } from "@/lib/program/program-catalog-topic-form";
+import { priceAllowsSubmit } from "@/lib/program/program-price-form";
 import {
-  bodyMutedClass,
   captionClass,
   formLabelClass,
   formLegendClass,
   inputFieldClass,
-  titleCardClass,
 } from "@/lib/ui/typography";
 import { updateProgramBasics } from "./program-edit-actions";
 import {
@@ -32,8 +31,6 @@ type Props = {
   catalogTagsLoadError: string | null;
 };
 
-const basicsFormId = (programId: string) => `program-edit-basics-${programId}`;
-
 const inputNormal =
   "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
 
@@ -41,30 +38,18 @@ function tagDefaultPrice(p: Program): string {
   if (p.priceValue != null && Number.isFinite(p.priceValue)) {
     return String(p.priceValue);
   }
-  return "";
+  return "0";
 }
 
-function draftPriceMatchesProgram(priceDraft: string, p: Program): boolean {
-  const cleaned = priceDraft.trim().replace(/^\$/, "");
-  if (p.priceValue == null || !Number.isFinite(p.priceValue)) {
-    return cleaned === "";
-  }
-  const n = Number.parseFloat(cleaned);
-  return Number.isFinite(n) && n === p.priceValue;
-}
-
+/** Stable key for topic fieldset — matches fingerprint used server-side for tags. */
 function orderedTopicFingerprint(tags: Program["topicTags"]): string {
   return [...new Set(tags.map((t) => t.id.trim()).filter(Boolean))]
     .sort()
     .join(",");
 }
 
-function setsEqual(server: Set<string>, draft: Set<string>): boolean {
-  if (server.size !== draft.size) return false;
-  for (const id of draft) {
-    if (!server.has(id)) return false;
-  }
-  return true;
+function fingerprintFromSelectedIds(ids: ReadonlySet<string>): string {
+  return [...ids].map((id) => id.trim()).filter(Boolean).sort().join(",");
 }
 
 export function EditProgramPanel({
@@ -74,93 +59,52 @@ export function EditProgramPanel({
   catalogTagOptions,
   catalogTagsLoadError,
 }: Props) {
-  const formId = basicsFormId(programId);
-
   const [basicState, basicAction, basicPending] = useActionState<
     EditProgramBasicsState,
     FormData
   >(updateProgramBasics, editProgramBasicsInitial);
+
+  /** Full navigation matches create flow `redirect()` — SPA routing alone can leave stale UI. */
+  useEffect(() => {
+    const path = basicState.redirectTo;
+    if (!path || basicState.savedAt == null) return;
+    window.location.assign(path);
+  }, [basicState.redirectTo, basicState.savedAt]);
 
   const serverTopicFingerprint = useMemo(
     () => orderedTopicFingerprint(program.topicTags),
     [program.topicTags],
   );
 
-  const [draftTopicIds, setDraftTopicIds] = useState<Set<string>>(
-    () =>
-      new Set(
-        program.topicTags.map((t) => t.id.trim()).filter(Boolean),
-      ),
+  const [title, setTitle] = useState(program.title);
+  const [description, setDescription] = useState(program.subtitle);
+  const [price, setPrice] = useState(() => tagDefaultPrice(program));
+  const [selectedTopicIds, setSelectedTopicIds] = useState(
+    () => new Set(program.topicTags.map((t) => t.id)),
   );
 
-  const [draftTitle, setDraftTitle] = useState(program.title);
-  const [draftDescription, setDraftDescription] = useState(program.subtitle);
-  const [draftPrice, setDraftPrice] = useState(() => tagDefaultPrice(program));
-
   useEffect(() => {
-    setDraftTitle(program.title);
-    setDraftDescription(program.subtitle);
-    setDraftPrice(tagDefaultPrice(program));
-  }, [program.id, program.title, program.subtitle, program.priceValue]);
+    setTitle(program.title);
+    setDescription(program.subtitle);
+    setPrice(tagDefaultPrice(program));
+    setSelectedTopicIds(new Set(program.topicTags.map((t) => t.id)));
+  }, [program.id, program.title, program.subtitle, program.priceValue, serverTopicFingerprint]);
 
-  useEffect(() => {
-    const ids = serverTopicFingerprint
-      ? serverTopicFingerprint.split(",").filter(Boolean)
-      : [];
-    setDraftTopicIds(new Set(ids));
-  }, [program.id, serverTopicFingerprint]);
+  const isDirty =
+    title !== program.title ||
+    description !== program.subtitle ||
+    price.trim() !== tagDefaultPrice(program).trim() ||
+    fingerprintFromSelectedIds(selectedTopicIds) !== serverTopicFingerprint;
 
-  const basicsDirty = useMemo(
-    () =>
-      draftTitle !== program.title ||
-      draftDescription !== program.subtitle ||
-      !draftPriceMatchesProgram(draftPrice, program),
-    [
-      draftTitle,
-      draftDescription,
-      draftPrice,
-      program.title,
-      program.subtitle,
-      program.priceValue,
-    ],
-  );
-
-  const tagsDirty = useMemo(() => {
-    const fromServer = new Set(
-      serverTopicFingerprint
-        ? serverTopicFingerprint.split(",").filter(Boolean)
-        : [],
-    );
-    return !setsEqual(fromServer, draftTopicIds);
-  }, [serverTopicFingerprint, draftTopicIds]);
-
-  const saveDirty = basicsDirty || tagsDirty;
-
-  function toggleDraftTopic(tagId: string) {
-    setDraftTopicIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(tagId)) next.delete(tagId);
-      else next.add(tagId);
-      return next;
-    });
-  }
+  const canSubmit =
+    isDirty &&
+    title.trim().length > 0 &&
+    priceAllowsSubmit(price) &&
+    !basicPending;
 
   return (
-    <Card className="space-y-8">
-      <header className="space-y-1 border-b border-zinc-200 pb-4 dark:border-zinc-800">
-        <h3 className={titleCardClass}>Edit program</h3>
-        <p className={bodyMutedClass}>
-          Same choices as creating a program — topics use the checkbox chips below;
-          save when ready.
-        </p>
-      </header>
-
-      <form
-        id={formId}
-        action={basicAction}
-        className="space-y-4"
-        aria-busy={basicPending}
-      >
+    <Card className="space-y-5">
+      <form action={basicAction} className="space-y-5">
         <input type="hidden" name="username" value={username} />
         <input type="hidden" name="program_id" value={programId} />
 
@@ -182,8 +126,8 @@ export function EditProgramPanel({
             name="title"
             required
             maxLength={240}
-            value={draftTitle}
-            onChange={(e) => setDraftTitle(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             className={`${inputFieldClass} ${inputNormal}`}
           />
         </div>
@@ -197,16 +141,13 @@ export function EditProgramPanel({
             name="description"
             rows={4}
             maxLength={8000}
-            value={draftDescription}
-            onChange={(e) => setDraftDescription(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             className={`${inputFieldClass} ${inputNormal} resize-y`}
           />
         </div>
 
-        <fieldset
-          className="space-y-3 border-0 p-0"
-          key={`${program.id}-${serverTopicFingerprint}`}
-        >
+        <fieldset className="space-y-3 border-0 p-0">
           <legend className={formLegendClass}>Topic tags</legend>
 
           {catalogTagsLoadError ? (
@@ -230,9 +171,14 @@ export function EditProgramPanel({
                       type="checkbox"
                       name={PROGRAM_CATALOG_TOPIC_FIELD}
                       value={t.id}
-                      checked={draftTopicIds.has(t.id)}
-                      onChange={() => {
-                        toggleDraftTopic(t.id);
+                      checked={selectedTopicIds.has(t.id)}
+                      onChange={(e) => {
+                        setSelectedTopicIds((prev) => {
+                          const next = new Set(prev);
+                          if (e.target.checked) next.add(t.id);
+                          else next.delete(t.id);
+                          return next;
+                        });
                       }}
                       className="peer sr-only"
                     />
@@ -259,8 +205,8 @@ export function EditProgramPanel({
             maxLength={32}
             inputMode="decimal"
             placeholder="0 for free, or e.g. 29.99"
-            value={draftPrice}
-            onChange={(e) => setDraftPrice(e.target.value)}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
             className={`${inputFieldClass} ${inputNormal}`}
           />
           <p className={captionClass}>
@@ -269,11 +215,11 @@ export function EditProgramPanel({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+        <div className="flex justify-end pt-1">
           <Button
             type="submit"
-            className="w-full min-h-10 px-5 text-sm font-medium sm:w-auto"
-            disabled={basicPending || !saveDirty}
+            className="min-h-10 justify-center px-4 py-2 text-sm font-medium sm:px-5"
+            disabled={!canSubmit}
           >
             {basicPending ? "Saving…" : "Save program"}
           </Button>

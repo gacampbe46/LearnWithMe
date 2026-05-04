@@ -2,7 +2,6 @@
 
 import { ProfileAvatar } from "@/components/profile-avatar";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -28,7 +27,6 @@ export function HomeAccountMenu({
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -57,10 +55,10 @@ export function HomeAccountMenu({
     setSigningOut(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       close();
-      router.refresh();
-      router.push("/");
+      window.location.assign("/");
     } catch (e) {
       console.error(e);
       setSigningOut(false);

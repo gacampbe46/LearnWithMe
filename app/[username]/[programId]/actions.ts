@@ -173,3 +173,56 @@ export async function updateProgramSession(
 
   redirect(safeNextPath(backPath));
 }
+
+export async function deleteProgramSession(payload: {
+  programId: string;
+  sessionId: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const programId =
+    typeof payload.programId === "string" ? payload.programId.trim().slice(0, 64) : "";
+  const sessionId =
+    typeof payload.sessionId === "string" ? payload.sessionId.trim().slice(0, 64) : "";
+
+  if (!programId || !sessionId) {
+    return { ok: false, error: "Missing session or program." };
+  }
+
+  const canManage = await currentUserCanManageProgram(programId);
+  if (!canManage) {
+    return { ok: false, error: "You can only delete sessions on your own programs." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data: sess, error: readErr } = await supabase
+    .from("sessions")
+    .select("program_id")
+    .eq("id", sessionId)
+    .maybeSingle();
+
+  if (readErr) {
+    const msg = isRlsOrPermissionError(readErr)
+      ? friendlyDbPermissionMessage()
+      : readErr.message;
+    return { ok: false, error: msg };
+  }
+
+  if (!sess || sess.program_id !== programId) {
+    return { ok: false, error: "This session wasn’t found for this program." };
+  }
+
+  const { error: delErr } = await supabase
+    .from("sessions")
+    .delete()
+    .eq("id", sessionId)
+    .eq("program_id", programId);
+
+  if (delErr) {
+    const msg = isRlsOrPermissionError(delErr)
+      ? friendlyDbPermissionMessage()
+      : delErr.message;
+    return { ok: false, error: msg };
+  }
+
+  return { ok: true };
+}

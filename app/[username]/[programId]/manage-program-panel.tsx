@@ -53,7 +53,7 @@ export function ManageProgramPanel({
           <p className={`mt-0.5 ${captionClass}`}>
             {isActive
               ? "Learners can see this program on your profile."
-              : "Learners won\u2019t see it until you turn this on."}
+              : "Learners won\u2019t see this program until you turn this on."}
           </p>
         </div>
 
@@ -64,10 +64,10 @@ export function ManageProgramPanel({
             onClick={() => {
               void runFlipVisibility();
             }}
-            className={`relative h-5 w-[2rem] shrink-0 rounded-full transition-colors outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-zinc-400 enabled:cursor-pointer disabled:opacity-60 dark:ring-offset-zinc-950 dark:focus-visible:ring-zinc-500 ${
+            className={`relative h-5 w-[2rem] shrink-0 rounded-full transition-colors outline-none ring-offset-2 focus-visible:ring-2 enabled:cursor-pointer disabled:opacity-60 dark:ring-offset-zinc-950 ${
               isActive
-                ? "bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-950 dark:hover:bg-black"
-                : "bg-zinc-300 hover:bg-zinc-400 dark:bg-zinc-600 dark:hover:bg-zinc-500"
+                ? "bg-emerald-500/20 hover:bg-emerald-500/30 focus-visible:ring-emerald-500/45 dark:bg-emerald-600/35 dark:hover:bg-emerald-600/45 dark:focus-visible:ring-emerald-500/55"
+                : "bg-zinc-300 hover:bg-zinc-400 focus-visible:ring-zinc-400 dark:bg-zinc-600 dark:hover:bg-zinc-500 dark:focus-visible:ring-zinc-500"
             }`}
             role="switch"
             aria-checked={isActive}
@@ -76,8 +76,10 @@ export function ManageProgramPanel({
             }
           >
             <span
-              className={`pointer-events-none absolute left-[3px] top-[3px] block size-[0.8125rem] rounded-full bg-white shadow-sm ring-1 ring-black/10 transition-transform dark:bg-zinc-50 dark:ring-white/20 ${
-                isActive ? "translate-x-[0.6875rem]" : "translate-x-0"
+              className={`pointer-events-none absolute left-[3px] top-[3px] block size-[0.8125rem] rounded-full bg-white shadow-sm ring-1 transition-transform dark:bg-zinc-50 ${
+                isActive
+                  ? "translate-x-[0.6875rem] ring-emerald-600/20 dark:ring-emerald-400/35"
+                  : "translate-x-0 ring-black/10 dark:ring-white/20"
               }`}
               aria-hidden
             />

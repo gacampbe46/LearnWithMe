@@ -40,6 +40,7 @@ async function fetchOwnedProgramRowForManage(
   const teaching = await getTeachingProfile(supabase, user.id);
   if (!teaching) return null;
 
+  /** Embeds `sessions` — RLS on `sessions` must allow owner SELECT (see `run-all-owner-policies.sql`) or nested rows are empty when program is inactive. */
   const primary = await supabase
     .from("programs")
     .select(PROGRAM_CHILDREN_EMBED_FIELDS)
@@ -115,6 +116,10 @@ export async function loadProgramDetail(
   programId: string,
 ): Promise<LoadedProgramDetail | null> {
   const normalizedUser = username.trim().toLowerCase();
+  /**
+   * Needs DB SELECT RLS so owners can read inactive rows; otherwise `canManage` is false
+   * and the member embed path drops inactive programs → manage URL 404s.
+   */
   const canManage = await currentUserCanManageProgram(programId);
 
   let program: Program | undefined;
@@ -150,6 +155,7 @@ export async function loadProgramDetail(
     return null;
   }
 
+  /** Inactive (`is_active = false`): hide program page from learners; owners still see it for manage/preview. */
   if (!program.isActive && !canManage) {
     return null;
   }
