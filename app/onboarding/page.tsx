@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { ProfileSetupForm } from "./profile-setup-form";
 import { oauthOnboardingSeed } from "@/lib/auth/oauth-user";
 import { profileNeedsOnboarding } from "@/lib/auth/profile-onboarding";
-import { listInterestTagOptions } from "@/lib/data/interest-tags";
+import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { navLinkClass, sectionEyebrowClass, titleDisplayClass } from "@/lib/ui/typography";

@@ -8,7 +8,7 @@ import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,
 } from "@/components/program/topic-chip-styles";
-import type { InterestTagOption } from "@/lib/data/interest-tags";
+import type { InterestTagOption } from "@/lib/catalog/interest-tags";
 import { PROGRAM_CATALOG_TOPIC_FIELD } from "@/lib/program/program-catalog-topic-form";
 import {
   bodyLeadClass,

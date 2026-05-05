@@ -14,7 +14,7 @@ import type {
   ProfileHubLink,
   ProfileViewPreference,
   SessionMedia,
-} from "./member";
+} from "./types";
 
 type DbSession = {
   id: string;

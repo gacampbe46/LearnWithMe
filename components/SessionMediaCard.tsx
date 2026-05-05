@@ -1,7 +1,7 @@
 import { bodyEmphasisClass, bodyLeadClass } from "@/lib/ui/typography";
 import { SectionHeader } from "./SectionHeader";
 import { VideoEmbed } from "./VideoEmbed";
-import type { SessionMedia } from "@/data/member";
+import type { SessionMedia } from "@/lib/member";
 
 type SessionMediaCardProps = {
   block: SessionMedia;

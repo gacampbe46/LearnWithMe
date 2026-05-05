@@ -1,4 +1,4 @@
-import { listInterestTagOptions } from "@/lib/data/interest-tags";
+import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";

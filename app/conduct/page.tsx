@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ConductPage() {
-  const mdPath = path.join(process.cwd(), "CODE_OF_CONDUCT.md");
+  const mdPath = path.join(process.cwd(), "docs", "CODE_OF_CONDUCT.md");
   const source = await fs.readFile(mdPath, "utf8");
 
   return (

@@ -1,4 +1,4 @@
-import type { MemberProfile, ProfileHubLink } from "@/data/member";
+import type { MemberProfile, ProfileHubLink } from "./types";
 
 export function getProfileHubLinks(member: MemberProfile): ProfileHubLink[] {
   if (member.hubLinks && member.hubLinks.length > 0) {

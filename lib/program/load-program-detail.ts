@@ -2,8 +2,9 @@ import {
   getMemberByUsername,
   mapEmbeddedProgramRow,
   type EmbeddedProgramRow,
-} from "@/data/members";
-import { memberProgramById, type Program } from "@/data/member";
+  memberProgramById,
+  type Program,
+} from "@/lib/member";
 import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
 import {
   PROGRAM_CHILDREN_EMBED_FIELDS,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
-import type { Program } from "@/data/member";
-import type { InterestTagOption } from "@/lib/data/interest-tags";
+import type { InterestTagOption } from "@/lib/catalog/interest-tags";
+import type { Program } from "@/lib/member";
 import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,

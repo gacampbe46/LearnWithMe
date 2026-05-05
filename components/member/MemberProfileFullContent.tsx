@@ -3,9 +3,8 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { SectionHeader } from "@/components/SectionHeader";
-import type { MemberProfile } from "@/data/member";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
-import { profilePageHref } from "@/lib/profileLayoutQuery";
+import { type MemberProfile, profilePageHref } from "@/lib/member";
 import {
   ancillaryClass,
   bodyEmphasisClass,

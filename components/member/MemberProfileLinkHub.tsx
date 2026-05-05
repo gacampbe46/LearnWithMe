@@ -1,8 +1,10 @@
 import { Button } from "@/components/Button";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import type { MemberProfile } from "@/data/member";
-import { getProfileHubLinks } from "@/lib/profileHubLinks";
-import { profilePageHref } from "@/lib/profileLayoutQuery";
+import {
+  type MemberProfile,
+  getProfileHubLinks,
+  profilePageHref,
+} from "@/lib/member";
 import {
   ancillaryClass,
   bodyMutedClass,

@@ -1,4 +1,4 @@
-import type { FeaturedPreviewVideo } from "@/data/member";
+import type { FeaturedPreviewVideo } from "@/lib/member";
 import { titleSmallClass } from "@/lib/ui/typography";
 import { SectionHeader } from "./SectionHeader";
 import { VideoEmbed } from "./VideoEmbed";

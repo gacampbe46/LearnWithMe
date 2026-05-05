@@ -1,4 +1,4 @@
-import type { ProgramTopicTag } from "@/data/member";
+import type { ProgramTopicTag } from "@/lib/member";
 import { profileSetupInterestChipClasses } from "./topic-chip-styles";
 
 type Props = {

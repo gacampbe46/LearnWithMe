@@ -28,6 +28,7 @@ const seedMember = {
     title: "Foundation Program",
     description: "Three guided sessions — one simple price for the whole program",
     price: 12,
+    topicTagNames: ["Fitness", "Yoga"],
     sessions: [
       {
         title: "Day 1 — 20 MINUTE | Express Glutes & Inner Thigh Focus | Ankle Weights",
@@ -62,7 +63,7 @@ function mustGetEnv(name) {
   return value;
 }
 
-async function upsertProfile(supabase) {
+async function upsertProfile(supabase, profileTagIds) {
   const username = seedMember.username;
   const seedUserId = process.env.SEED_PROFILE_USER_ID || null;
 
@@ -104,6 +105,7 @@ async function upsertProfile(supabase) {
       profileViewPreference: seedMember.profileViewPreference,
       whatYouNeed: seedMember.whatYouNeed,
       featuredPreviewVideos: seedMember.featuredPreviewVideos,
+      ...(profileTagIds.length > 0 ? { tagIds: profileTagIds } : {}),
     },
     is_instructor: true,
     type: "creator",
@@ -119,7 +121,59 @@ async function upsertProfile(supabase) {
   return profile.id;
 }
 
-async function upsertProgram(supabase, profileId) {
+/** Resolve catalog UUIDs from `public.tags.name` for program topic chips. */
+async function fetchTagIdsForProgramTopics(supabase, names) {
+  const trimmed = names.map((n) => String(n).trim()).filter(Boolean);
+  if (trimmed.length === 0) return [];
+
+  const { data, error } = await supabase.from("tags").select("id, name");
+  if (error) throw error;
+
+  const byLower = new Map();
+  for (const row of data ?? []) {
+    const label = typeof row.name === "string" ? row.name.trim() : "";
+    if (!label || typeof row.id !== "string") continue;
+    byLower.set(label.toLowerCase(), row.id);
+  }
+
+  const ids = [];
+  const matchedNames = [];
+  const missing = [];
+  for (const name of trimmed) {
+    const id = byLower.get(name.toLowerCase());
+    if (id) {
+      ids.push(id);
+      matchedNames.push(name);
+    } else missing.push(name);
+  }
+
+  if (matchedNames.length > 0) {
+    console.log(`Seed: matched catalog tags → ${matchedNames.join(", ")}`);
+  }
+
+  if (missing.length > 0) {
+    console.warn(
+      `Seed: program topic tag name(s) not in public.tags (skipped): ${missing.join(", ")}`,
+    );
+    console.warn(
+      "Seed: set SEED_PROGRAM_TOPIC_TAG_NAMES to comma-separated names that exist in your catalog, or edit seedMember.program.topicTagNames.",
+    );
+  }
+
+  return ids;
+}
+
+/** When unset, uses `seedMember.program.topicTagNames`. Set to empty string to skip tags. */
+function programTopicNamesForSeed() {
+  if (process.env.SEED_PROGRAM_TOPIC_TAG_NAMES !== undefined) {
+    return process.env.SEED_PROGRAM_TOPIC_TAG_NAMES.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return seedMember.program.topicTagNames ?? [];
+}
+
+async function upsertProgram(supabase, profileId, topicNames, topicIds) {
   const { data: existing, error: existingError } = await supabase
     .from("programs")
     .select("id")
@@ -137,6 +191,10 @@ async function upsertProgram(supabase, profileId) {
     price: seedMember.program.price,
     is_active: true,
   };
+
+  if (topicNames.length > 0) {
+    payload.tags = topicIds.length > 0 ? { tagIds: topicIds } : null;
+  }
 
   if (existing) {
     const { error } = await supabase.from("programs").update(payload).eq("id", existing.id);
@@ -185,12 +243,20 @@ async function main() {
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
 
-  const profileId = await upsertProfile(supabase);
-  const programId = await upsertProgram(supabase, profileId);
+  const topicNames = programTopicNamesForSeed();
+  const topicIds = await fetchTagIdsForProgramTopics(supabase, topicNames);
+
+  const profileId = await upsertProfile(supabase, topicIds);
+  const programId = await upsertProgram(supabase, profileId, topicNames, topicIds);
   await replaceSessions(supabase, programId);
 
   console.log("Seed complete.");
-  console.log({ profileId, programId, sessionCount: seedMember.program.sessions.length });
+  console.log({
+    profileId,
+    programId,
+    sessionCount: seedMember.program.sessions.length,
+    programTopicTagCount: topicIds.length,
+  });
 }
 
 main().catch((error) => {

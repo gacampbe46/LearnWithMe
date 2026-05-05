@@ -45,15 +45,15 @@ Details and tone match the in-app copy on [`/about`](https://learnwithme.fyi/abo
 | ---- | ------- |
 | `app/page.tsx` | Home |
 | `app/about/page.tsx` | Why this exists (product story) |
-| `app/conduct/page.tsx` | Code of conduct (renders `CODE_OF_CONDUCT.md`) |
+| `app/conduct/page.tsx` | Code of conduct (renders `docs/CODE_OF_CONDUCT.md`) |
 | `app/[username]/` | Profile/program/session routes (Supabase-backed) |
 | `app/login` | Google sign-in (Supabase Auth) |
 | `app/auth/callback` | OAuth code exchange → session cookies |
 | `proxy.ts` | Session refresh; see `lib/supabase/update-session.ts` |
 | `lib/supabase/`, `lib/auth/` | Supabase clients, safe redirects, nav account |
 | `components/auth/`, `components/home/` | Login + Google CTA; home account menu / sign out |
-| `data/member.ts` | Shared TypeScript content/domain types |
-| `data/members.ts` | DB mapper from Supabase rows to `MemberProfile` UI shape |
+| `lib/member/` | Member profile types, load from Supabase, hub links, layout query |
+| `lib/catalog/` | Shared tag catalog (`public.tags`) helpers for interests / program topics |
 | `tools/seed-supabase.mjs` | Phase 4 seed script for profile/program/sessions |
 | `components/` | Other shared UI (buttons, cards, video, CTAs, …) |
 
@@ -120,7 +120,7 @@ The live site is deployed from this repository (for example via [Vercel](https:/
 
 ## Community standards
 
-Participation in learnwithme spaces (product, future community features, and project-related channels) is governed by the **[Code of Conduct](CODE_OF_CONDUCT.md)**. The same document is published on the site at [`/conduct`](https://learnwithme.fyi/conduct).
+Participation in learnwithme spaces (product, future community features, and project-related channels) is governed by the **[Code of Conduct](docs/CODE_OF_CONDUCT.md)**. The same document is published on the site at [`/conduct`](https://learnwithme.fyi/conduct).
 
 ## License and contributions
 

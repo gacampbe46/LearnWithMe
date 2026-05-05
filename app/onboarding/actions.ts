@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { profileNeedsOnboarding } from "@/lib/auth/profile-onboarding";
-import { resolveProfileTagIds } from "@/lib/data/resolve-profile-tag-ids";
+import { resolveProfileTagIds } from "@/lib/catalog/resolve-profile-tag-ids";
 import { parseInterestTagIds } from "@/lib/onboarding/form-tags";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
 import {

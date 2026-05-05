@@ -4,7 +4,7 @@ import { useActionState, useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import type { InterestTagOption } from "@/lib/data/interest-tags";
+import type { InterestTagOption } from "@/lib/catalog/interest-tags";
 import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,

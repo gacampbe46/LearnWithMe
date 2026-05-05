@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditSessionForm } from "../../../edit-session-form";
 import { SectionHeader } from "@/components/SectionHeader";
-import { memberProgramSessionById } from "@/data/member";
+import { memberProgramSessionById } from "@/lib/member";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { navLinkClass } from "@/lib/ui/typography";
 import type { Metadata } from "next";

@@ -1,11 +1,13 @@
 import { MemberProfileFullContent } from "@/components/member/MemberProfileFullContent";
 import { MemberProfileLinkHub } from "@/components/member/MemberProfileLinkHub";
-import { getMemberByUsername } from "@/data/members";
+import {
+  getMemberByUsername,
+  parseProfileLayoutParam,
+  resolveRenderedProfileView,
+} from "@/lib/member";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { getIsMobileVisitor } from "@/lib/device";
-import { parseProfileLayoutParam } from "@/lib/profileLayoutQuery";
-import { resolveRenderedProfileView } from "@/lib/profileView";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 

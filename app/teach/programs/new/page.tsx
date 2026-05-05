@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/Button";
 import { SectionHeader } from "@/components/SectionHeader";
-import { listInterestTagOptions } from "@/lib/data/interest-tags";
+import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { navLinkClass } from "@/lib/ui/typography";

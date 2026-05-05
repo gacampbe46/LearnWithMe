@@ -1,4 +1,4 @@
-import type { ProfileViewPreference } from "@/data/member";
+import type { ProfileViewPreference } from "./types";
 
 export type RenderedProfileView = "link_hub" | "full_content";
 
