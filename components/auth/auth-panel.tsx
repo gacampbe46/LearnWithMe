@@ -8,11 +8,7 @@ import {
   titleDisplayClass,
 } from "@/lib/ui/typography";
 
-type Props = {
-  nextPath: string;
-};
-
-export function AuthPanel({ nextPath }: Props) {
+export function AuthPanel() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
@@ -23,7 +19,7 @@ export function AuthPanel({ nextPath }: Props) {
         </p>
       </div>
 
-      <GoogleOAuthButton nextPath={nextPath} />
+      <GoogleOAuthButton />
 
       <p className={ancillaryClass}>
         By continuing you agree to our{" "}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { AuthPanel } from "@/components/auth/auth-panel";
-import { safeNextPath } from "@/lib/auth/safe-next-path";
 
 export const metadata: Metadata = {
   title: "Sign in — learnwithme",
@@ -13,7 +12,6 @@ type Props = {
 
 export default async function LoginPage({ searchParams }: Props) {
   const params = await searchParams;
-  const nextPath = safeNextPath(params.next);
   const showConfigError = params.error === "config";
   const showAuthError = params.error === "auth";
 
@@ -30,7 +28,7 @@ export default async function LoginPage({ searchParams }: Props) {
               : "Something went wrong signing you in. Try again."}
           </div>
         )}
-        <AuthPanel nextPath={nextPath} />
+        <AuthPanel />
       </main>
     </div>
   );
