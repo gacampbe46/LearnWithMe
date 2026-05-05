@@ -47,12 +47,17 @@ Details and tone match the in-app copy on [`/about`](https://learnwithme.fyi/abo
 | `app/about/page.tsx` | Why this exists (product story) |
 | `app/conduct/page.tsx` | Code of conduct (renders `CODE_OF_CONDUCT.md`) |
 | `app/[username]/` | Profile/program/session routes (Supabase-backed) |
+| `app/login` | Google sign-in (Supabase Auth) |
+| `app/auth/callback` | OAuth code exchange → session cookies |
+| `proxy.ts` | Session refresh; see `lib/supabase/update-session.ts` |
+| `lib/supabase/`, `lib/auth/` | Supabase clients, safe redirects, nav account |
+| `components/auth/`, `components/home/` | Login + Google CTA; home account menu / sign out |
 | `data/member.ts` | Shared TypeScript content/domain types |
 | `data/members.ts` | DB mapper from Supabase rows to `MemberProfile` UI shape |
 | `tools/seed-supabase.mjs` | Phase 4 seed script for profile/program/sessions |
-| `components/` | Shared UI (buttons, cards, video embeds, sticky CTAs, etc.) |
+| `components/` | Other shared UI (buttons, cards, video, CTAs, …) |
 
-Legacy URL **`/kathleen-chu`** redirects to **`/kathleen`** (see `next.config.ts`).
+**Redirects in `next.config.ts`:** **`/signup`** → **`/login`**; legacy **`/kathleen-chu`** → **`/kathleen`**.
 
 ---
 
@@ -93,6 +98,17 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=  # seed script only
 SEED_PROFILE_USER_ID=       # optional; required if profile row doesn't exist yet
 ```
+
+The legacy anon key name `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported for local/dev.
+
+### Sign-in (Google + Supabase)
+
+1. **Supabase:** Authentication → Providers → **Google** (client ID/secret from [Google Cloud](https://console.cloud.google.com/)). In Google’s OAuth client, **Authorized redirect URIs** must include Supabase’s callback (`https://<project-ref>.supabase.co/auth/v1/callback`).
+2. **Supabase → URL configuration:** **Site URL** = your app origin. **Redirect URLs** must include `http://localhost:3000/auth/callback` and production `https://<domain>/auth/callback`.
+
+[`/signup`](/signup) → [`/login`](/login) via [`next.config.ts`](next.config.ts) (query string preserved). Optional [`?next=`](/login?next=/about) only allows same-origin paths (see `lib/auth/safe-next-path.ts`).
+
+**Profiles:** Link `profile.user_id` to `auth.users.id`; add RLS so users can read/update their row. [`tools/seed-supabase.mjs`](tools/seed-supabase.mjs) supports `SEED_PROFILE_USER_ID` for demo data.
 
 ---
 
