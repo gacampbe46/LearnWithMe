@@ -1,13 +1,28 @@
+import type { User } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseAnonKey, getSupabaseUrl } from "./env";
 
-export async function updateSession(request: NextRequest) {
+export type UpdateSessionResult = {
+  response: NextResponse;
+  supabase: ReturnType<typeof createServerClient> | null;
+  user: User | null;
+};
+
+/**
+ * Refreshes the Supabase session from cookies and returns the current user.
+ * Used by the root `proxy` (session + onboarding gate).
+ */
+export async function updateSession(request: NextRequest): Promise<UpdateSessionResult> {
   const url = getSupabaseUrl();
   const anonKey = getSupabaseAnonKey();
 
   if (!url || !anonKey) {
-    return NextResponse.next({ request });
+    return {
+      response: NextResponse.next({ request }),
+      supabase: null,
+      user: null,
+    };
   }
 
   const response = NextResponse.next({ request });
@@ -28,7 +43,9 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return response;
+  return { response, supabase, user };
 }

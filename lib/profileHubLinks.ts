@@ -5,19 +5,27 @@ export function getProfileHubLinks(member: MemberProfile): ProfileHubLink[] {
     return member.hubLinks;
   }
 
-  return [
-    {
+  const defaults: ProfileHubLink[] = [];
+
+  if (member.program) {
+    defaults.push({
       label: `View ${member.program.title}`,
       href: `/${member.slug}/${member.program.id}`,
-    },
-    {
+    });
+  }
+
+  if (member.channelUrl?.trim()) {
+    defaults.push({
       label: "YouTube channel",
       href: member.channelUrl,
       external: true,
-    },
-    {
-      label: "learnwithme home",
-      href: "/",
-    },
-  ];
+    });
+  }
+
+  defaults.push({
+    label: "learnwithme home",
+    href: "/",
+  });
+
+  return defaults;
 }

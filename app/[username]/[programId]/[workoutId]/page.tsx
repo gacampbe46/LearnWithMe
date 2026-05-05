@@ -15,8 +15,8 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { username, programId, workoutId } = await params;
   const member = await getMemberByUsername(username);
-  const workout = member?.program.workouts.find((w) => w.id === workoutId);
-  if (!member || member.program.id !== programId || !workout) {
+  const workout = member?.program?.workouts.find((w) => w.id === workoutId);
+  if (!member?.program || member.program.id !== programId || !workout) {
     return { title: "Workout" };
   }
   return {
@@ -29,7 +29,7 @@ export default async function WorkoutDayPage({ params }: PageProps) {
   const { username, programId, workoutId } = await params;
   const t = await getMemberByUsername(username);
 
-  if (!t || t.program.id !== programId) {
+  if (!t?.program || t.program.id !== programId) {
     notFound();
   }
 

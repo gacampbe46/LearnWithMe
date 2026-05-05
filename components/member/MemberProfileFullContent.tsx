@@ -1,5 +1,6 @@
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
@@ -17,7 +18,7 @@ export function MemberProfileFullContent({
   member: t,
   hasLayoutQuery = false,
 }: Props) {
-  const programPath = `/${t.slug}/${t.program.id}`;
+  const programPath = t.program ? `/${t.slug}/${t.program.id}` : null;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -36,9 +37,12 @@ export function MemberProfileFullContent({
             <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-500">
               Member
             </p>
-            <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              {t.name}
-            </h1>
+            <div className="flex flex-wrap items-center gap-4">
+              <ProfileAvatar name={t.name} size="md" />
+              <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                {t.name}
+              </h1>
+            </div>
             <p className="text-sm text-zinc-600 dark:text-zinc-500">
               Sample profile — members can both offer programs and subscribe to
               others.
@@ -67,29 +71,39 @@ export function MemberProfileFullContent({
 
           <ChannelVideoPreview videos={t.featuredPreviewVideos} />
 
-          <p>
-            <Link
-              href={programPath}
-              className="text-base font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50 dark:hover:decoration-zinc-300"
-            >
-              Open the full program — every session included
-            </Link>
-          </p>
+          {programPath && t.program ? (
+            <>
+              <p>
+                <Link
+                  href={programPath}
+                  className="text-base font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50 dark:hover:decoration-zinc-300"
+                >
+                  Open the full program — every session included
+                </Link>
+              </p>
 
-          <Card className="space-y-4">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                {t.program.title}
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400">{t.program.subtitle}</p>
-            </div>
-            <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-              {t.program.price}
+              <Card className="space-y-4">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                    {t.program.title}
+                  </h2>
+                  <p className="text-zinc-600 dark:text-zinc-400">
+                    {t.program.subtitle}
+                  </p>
+                </div>
+                <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+                  {t.program.price}
+                </p>
+                <Button href={programPath} className="w-full">
+                  View Program
+                </Button>
+              </Card>
+            </>
+          ) : (
+            <p className="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+              No public program on this profile yet.
             </p>
-            <Button href={programPath} className="w-full">
-              View Program
-            </Button>
-          </Card>
+          )}
 
           <div className="border-t border-zinc-200 pt-8 dark:border-zinc-800">
             <div className="text-center text-sm text-zinc-600 dark:text-zinc-500">
@@ -106,9 +120,11 @@ export function MemberProfileFullContent({
       </main>
 
       <StickyBottomCTA>
-        <Button href={programPath} className="min-h-12 flex-1">
-          View Program
-        </Button>
+        {programPath ? (
+          <Button href={programPath} className="min-h-12 flex-1">
+            View Program
+          </Button>
+        ) : null}
         <Button
           type="button"
           variant="ghost"

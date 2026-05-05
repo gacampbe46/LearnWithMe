@@ -16,8 +16,7 @@ export function AuthPanel({ nextPath }: Props) {
           Sign in
         </h1>
         <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Continue with Google. If you&apos;re new here, we&apos;ll create your account
-          automatically.
+          Continue with Google. If you&apos;re new here, you&apos;ll be guided through a quick profile setup.
         </p>
       </div>
 
