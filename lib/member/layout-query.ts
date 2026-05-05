@@ -1,4 +1,4 @@
-import type { RenderedProfileView } from "@/lib/profileView";
+import type { RenderedProfileView } from "./profile-view";
 
 /** `?layout=` on `/${slug}` — preview the other surface; not stored. */
 export type ProfileLayoutQueryValue = "hub" | "full";

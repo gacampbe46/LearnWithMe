@@ -1,21 +1,9 @@
-import { Suspense } from "react";
 import { Button } from "@/components/Button";
-import {
-  HomeAccountControl,
-  HomeAccountFallback,
-} from "@/components/home/home-account-control";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <div className="pointer-events-none fixed left-4 top-4 z-50 sm:left-6 sm:top-6">
-        <div className="pointer-events-auto">
-          <Suspense fallback={<HomeAccountFallback />}>
-            <HomeAccountControl />
-          </Suspense>
-        </div>
-      </div>
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-12 sm:px-6 sm:py-16 md:max-w-2xl lg:max-w-3xl lg:px-8 xl:max-w-4xl">
         <div className="space-y-6 lg:space-y-8">
           <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-500 lg:text-base">

@@ -1,12 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
+import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
+import {
+  PROGRAM_CHILDREN_EMBED_FIELDS,
+  PROGRAM_CHILDREN_EMBED_NO_TAGS,
+} from "@/lib/program/program-embed-select";
+import { parseProgramTagsColumn } from "@/lib/program/program-tags-json";
 import type {
-  Exercise,
   FeaturedPreviewVideo,
   MemberProfile,
+  Program,
+  ProgramSession,
+  ProgramTopicTag,
   ProfileHubLink,
   ProfileViewPreference,
-  Workout,
-} from "./member";
+  SessionMedia,
+} from "./types";
 
 type DbSession = {
   id: string;
@@ -17,13 +25,20 @@ type DbSession = {
   sort_order: number | null;
 };
 
-type DbProgram = {
+export type EmbeddedProgramRow = {
   id: string;
   title: string | null;
   description: string | null;
   price: number | null;
+  created_at?: string | null;
+  is_active?: boolean | null;
+  profile_id?: string | null;
   sessions: DbSession[] | null;
+  /** Catalog tag IDs JSON (`{ tagIds }`) on the `programs` row. */
+  tags?: unknown;
 };
+
+type DbProgram = EmbeddedProgramRow;
 
 type DbProfile = {
   id: string;
@@ -134,6 +149,9 @@ function formatPrice(price: number | null): string {
   if (typeof price !== "number" || Number.isNaN(price)) {
     return "Contact for pricing";
   }
+  if (price === 0) {
+    return "Free";
+  }
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -141,50 +159,93 @@ function formatPrice(price: number | null): string {
   }).format(price);
 }
 
-function mapSessionToWorkout(session: DbSession): Workout {
-  const exercise: Exercise = {
+function mapDbSessionToProgramSession(session: DbSession): ProgramSession {
+  const block: SessionMedia = {
     id: `${session.id}-video`,
-    title: session.title ?? "Session video",
+    title: session.title ?? "Video",
     videoId: normalizeYouTubeId(session.content_url),
-    setsReps: session.instructions ?? "Full session — follow along in the video",
+    caption: session.instructions?.trim() ?? "",
     notes: [],
   };
+
+  const rawUrl =
+    typeof session.content_url === "string" && session.content_url.trim()
+      ? session.content_url.trim()
+      : null;
 
   return {
     id: session.id,
     title: session.title ?? "Session",
     description: session.description ?? "",
-    exercises: [exercise],
+    media: [block],
+    storedContentUrl: rawUrl,
   };
 }
 
-function mapProfileToMember(profile: DbProfile): MemberProfile | undefined {
+/** Map nested `programs` row from Supabase (profile embed or standalone select). */
+export function mapEmbeddedProgramRow(
+  dbProgram: EmbeddedProgramRow,
+  catalogLabelById: Map<string, string>,
+): Program {
+  const sortedSessions = [...(dbProgram.sessions ?? [])].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+  );
+  const tagIds = parseProgramTagsColumn(dbProgram.tags);
+  const topicTags: ProgramTopicTag[] = tagIds
+    .map((id) => {
+      const label = catalogLabelById.get(id);
+      const name =
+        label ??
+        (id.length > 12 ? `${id.slice(0, 8)}…` : id);
+      return { id, name };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
+  const isActive = dbProgram.is_active !== false;
+
+  const rawPrice = dbProgram.price;
+  const priceValue =
+    typeof rawPrice === "number" && Number.isFinite(rawPrice) ? rawPrice : null;
+
+  return {
+    id: dbProgram.id,
+    title: dbProgram.title ?? "Program",
+    subtitle: dbProgram.description ?? "",
+    price: formatPrice(rawPrice),
+    priceValue,
+    sessions: sortedSessions.map(mapDbSessionToProgramSession),
+    topicTags,
+    isActive,
+  };
+}
+
+function mapProfileToMember(
+  profile: DbProfile,
+  catalogLabelById: Map<string, string>,
+): MemberProfile | undefined {
   const username = profile.username ?? undefined;
   if (!username) return undefined;
 
   const tags = parseProfileTags(profile.tags);
   const links = parseProfileLinks(profile.links);
-  const dbProgram = profile.programs?.[0];
 
   const firstName = profile.first_name?.trim() ?? "";
   const lastName = profile.last_name?.trim() ?? "";
   const displayName = `${firstName} ${lastName}`.trim() || username;
 
-  const program =
-    dbProgram != null
-      ? (() => {
-          const sortedSessions = [...(dbProgram.sessions ?? [])].sort(
-            (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-          );
-          return {
-            id: dbProgram.id,
-            title: dbProgram.title ?? "Program",
-            subtitle: dbProgram.description ?? "",
-            price: formatPrice(dbProgram.price),
-            workouts: sortedSessions.map(mapSessionToWorkout),
-          };
-        })()
-      : undefined;
+  const rawPrograms = profile.programs ?? [];
+  const programsSortedNewestFirst = [...rawPrograms]
+    .filter((row) => row.is_active !== false)
+    .sort((a, b) => {
+      const ta = a.created_at ? Date.parse(a.created_at) : 0;
+      const tb = b.created_at ? Date.parse(b.created_at) : 0;
+      if (tb !== ta) return tb - ta;
+      return a.id.localeCompare(b.id);
+    });
+  const programs = programsSortedNewestFirst.map((row) =>
+    mapEmbeddedProgramRow(row as EmbeddedProgramRow, catalogLabelById),
+  );
+  const program = programs[0];
 
   return {
     id: profile.id,
@@ -197,28 +258,71 @@ function mapProfileToMember(profile: DbProfile): MemberProfile | undefined {
     hubLinks: links.hubLinks,
     whatYouNeed: tags.whatYouNeed ?? [],
     featuredPreviewVideos: tags.featuredPreviewVideos ?? [],
+    programs,
     ...(program ? { program } : {}),
   };
 }
 
 export async function getMemberByUsername(username: string): Promise<MemberProfile | undefined> {
-  const supabase = getSupabaseClient();
-  if (!supabase) {
+  const client = getSupabaseClient();
+  if (!client) {
     return undefined;
   }
 
-  const { data, error } = await supabase
-    .from("profile")
-    .select(
-      "id, username, bio, first_name, last_name, tags, links, programs(id, title, description, price, sessions(id, title, description, instructions, content_url, sort_order))",
-    )
-    .eq("username", username)
-    .limit(1)
-    .maybeSingle();
+  const normalized = username.trim().toLowerCase();
+
+  async function fetchWithProgramEmbed(
+    sb: NonNullable<typeof client>,
+    embed: string,
+  ): Promise<{
+    data: unknown;
+    error: { message?: string } | null;
+  }> {
+    const profileSelect =
+      "id, username, bio, first_name, last_name, tags, links, programs(" +
+      embed +
+      ")";
+    return sb
+      .from("profile")
+      .select(profileSelect)
+      .eq("username", normalized)
+      .limit(1)
+      .maybeSingle();
+  }
+
+  let { data, error } = await fetchWithProgramEmbed(
+    client,
+    PROGRAM_CHILDREN_EMBED_FIELDS,
+  );
+
+  if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        "[getMemberByUsername] profile embed with tags failed, retrying without program tags:",
+        error.message ?? error,
+      );
+    }
+    const second = await fetchWithProgramEmbed(client, PROGRAM_CHILDREN_EMBED_NO_TAGS);
+    data = second.data;
+    error = second.error;
+  }
 
   if (error || !data) {
+    if (process.env.NODE_ENV === "development" && error) {
+      console.warn("[getMemberByUsername]", normalized, error.message ?? error);
+    }
     return undefined;
   }
 
-  return mapProfileToMember(data as DbProfile);
+  const dbProfile = data as unknown as DbProfile;
+  const rawPrograms = dbProfile.programs ?? [];
+  const allTagIds: string[] = [];
+  for (const row of rawPrograms) {
+    const r = row as EmbeddedProgramRow | undefined;
+    if (!r || typeof r !== "object") continue;
+    allTagIds.push(...parseProgramTagsColumn(r.tags));
+  }
+  const catalogLabelById = await fetchCatalogTagLabelMap(client, allTagIds);
+
+  return mapProfileToMember(dbProfile, catalogLabelById);
 }

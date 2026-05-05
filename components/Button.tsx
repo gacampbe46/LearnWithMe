@@ -32,6 +32,8 @@ type ButtonAsLink = Base & {
 type ButtonAsButton = Base & {
   href?: undefined;
   type?: "button" | "submit";
+  /** Associate submit with a `<form id="…">` outside this tree. */
+  form?: string;
   onClick?: () => void;
 };
 
@@ -63,11 +65,12 @@ export function Button(props: ButtonProps) {
     );
   }
 
-  const { type = "button", onClick } = props as ButtonAsButton;
+  const { type = "button", form, onClick } = props as ButtonAsButton;
 
   return (
     <button
       type={type}
+      form={form}
       className={classes}
       disabled={disabled}
       onClick={onClick}

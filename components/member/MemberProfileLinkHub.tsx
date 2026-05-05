@@ -1,8 +1,17 @@
 import { Button } from "@/components/Button";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import type { MemberProfile } from "@/data/member";
-import { getProfileHubLinks } from "@/lib/profileHubLinks";
-import { profilePageHref } from "@/lib/profileLayoutQuery";
+import {
+  type MemberProfile,
+  getProfileHubLinks,
+  profilePageHref,
+} from "@/lib/member";
+import {
+  ancillaryClass,
+  bodyMutedClass,
+  navLinkClass,
+  textLinkUnderlineClass,
+  titleMediumClass,
+} from "@/lib/ui/typography";
 import Link from "next/link";
 
 type Props = {
@@ -20,10 +29,7 @@ export function MemberProfileLinkHub({
     <div className="flex min-h-dvh flex-col bg-background">
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-12">
         <nav className="mb-8">
-          <Link
-            href="/"
-            className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
-          >
+          <Link href="/" className={navLinkClass}>
             ← Home
           </Link>
         </nav>
@@ -34,12 +40,8 @@ export function MemberProfileLinkHub({
             size="lg"
             className="mb-6 ring-4 ring-background"
           />
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            {member.name}
-          </h1>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            {member.tagline}
-          </p>
+          <h1 className={titleMediumClass}>{member.name}</h1>
+          <p className={`mt-2 max-w-sm ${bodyMutedClass}`}>{member.tagline}</p>
 
           <ul className="mt-10 flex w-full max-w-sm flex-col gap-3">
             {links.map((link) => (
@@ -62,11 +64,11 @@ export function MemberProfileLinkHub({
             ))}
           </ul>
 
-          <div className="mt-12 max-w-sm text-center text-sm text-zinc-600 dark:text-zinc-500">
+          <div className={`mt-12 max-w-sm ${ancillaryClass}`}>
             Want the full profile page?{" "}
             <Link
               href={profilePageHref(member.slug, "full")}
-              className="font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50"
+              className={textLinkUnderlineClass}
             >
               Open full profile
             </Link>

@@ -3,11 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/Button";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { safeNextPath } from "@/lib/auth/safe-next-path";
-
-type Props = {
-  nextPath: string;
-};
 
 function GoogleMark() {
   return (
@@ -37,15 +32,19 @@ function GoogleMark() {
   );
 }
 
-export function GoogleOAuthButton({ nextPath }: Props) {
+export function GoogleOAuthButton() {
   const [pending, setPending] = useState(false);
 
   async function handleClick() {
     setPending(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      const next = safeNextPath(nextPath);
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+      // Optional override helps keep OAuth callbacks stable across local/prod setups.
+      const callbackBase =
+        process.env.NEXT_PUBLIC_AUTH_CALLBACK_BASE_URL?.trim() ||
+        window.location.origin;
+      const redirectBase = callbackBase.replace(/\/+$/, "");
+      const redirectTo = `${redirectBase}/auth/callback`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo },

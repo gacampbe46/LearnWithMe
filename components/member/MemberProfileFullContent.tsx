@@ -1,67 +1,93 @@
+import { EditProgramIconLink } from "@/components/edit-program-icon-link";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import { ChannelVideoPreview } from "@/components/ChannelVideoPreview";
 import { SectionHeader } from "@/components/SectionHeader";
-import { StickyBottomCTA } from "@/components/StickyBottomCTA";
-import type { MemberProfile } from "@/data/member";
-import { profilePageHref } from "@/lib/profileLayoutQuery";
+import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
+import { type MemberProfile, profilePageHref } from "@/lib/member";
+import {
+  ancillaryClass,
+  bodyEmphasisClass,
+  bodyStrongClass,
+  bodyLeadClass,
+  bodyMutedClass,
+  bodyRelaxedLargeClass,
+  leadMutedClass,
+  navLinkClass,
+  textLinkUnderlineClass,
+  titleCardClass,
+  titleProfileClass,
+  titleSubsectionClass,
+} from "@/lib/ui/typography";
 import Link from "next/link";
 
 type Props = {
   member: MemberProfile;
   /** True when `?layout=` is present — show link back to automatic layout. */
   hasLayoutQuery?: boolean;
+  /** Signed-in viewer is this profile owner — show Edit on program cards. */
+  viewerOwnsProfile?: boolean;
 };
 
 export function MemberProfileFullContent({
   member: t,
   hasLayoutQuery = false,
+  viewerOwnsProfile = false,
 }: Props) {
-  const programPath = t.program ? `/${t.slug}/${t.program.id}` : null;
+  const programs = t.programs;
+  const primaryProgram = programs[0];
+  const primaryProgramPath = primaryProgram
+    ? `/${t.slug}/${primaryProgram.id}`
+    : null;
+
+  const taglineTrim = t.tagline.trim();
+  const bioTrim = t.bio.trim();
+  const taglineBioDuplicate =
+    taglineTrim.length > 0 && taglineTrim === bioTrim;
+
+  const programSubtitleRedundant = (subtitle: string) => {
+    const s = subtitle.trim();
+    return (
+      s.length === 0 || s === taglineTrim || s === bioTrim
+    );
+  };
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-28">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-14">
         <div className="space-y-12">
           <nav>
-            <Link
-              href="/"
-              className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
-            >
+            <Link href="/" className={navLinkClass}>
               ← Home
             </Link>
           </nav>
 
           <header className="space-y-4">
-            <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-500">
-              Member
-            </p>
             <div className="flex flex-wrap items-center gap-4">
               <ProfileAvatar name={t.name} size="md" />
-              <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-                {t.name}
-              </h1>
+              <h1 className={titleProfileClass}>{t.name}</h1>
             </div>
-            <p className="text-sm text-zinc-600 dark:text-zinc-500">
-              Sample profile — members can both offer programs and subscribe to
-              others.
-            </p>
-            <p className="text-xl font-medium text-zinc-800 dark:text-zinc-200">
-              {t.tagline}
-            </p>
-            <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-              {t.bio}
-            </p>
+            {taglineBioDuplicate ? (
+              <p className={bodyRelaxedLargeClass}>{taglineTrim}</p>
+            ) : (
+              <>
+                {taglineTrim ? (
+                  <p className={leadMutedClass}>{t.tagline}</p>
+                ) : null}
+                {bioTrim && bioTrim !== taglineTrim ? (
+                  <p className={bodyRelaxedLargeClass}>{t.bio}</p>
+                ) : null}
+              </>
+            )}
           </header>
 
           {t.whatYouNeed && t.whatYouNeed.length > 0 ? (
             <section className="space-y-4">
               <SectionHeader
                 title="What you'll need"
-                subtitle="For the free sample sessions below"
+                subtitle="Anything useful to gather before you start."
               />
-              <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+              <ul className={`list-disc space-y-2 pl-5 ${bodyLeadClass}`}>
                 {t.whatYouNeed.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -69,73 +95,90 @@ export function MemberProfileFullContent({
             </section>
           ) : null}
 
-          <ChannelVideoPreview videos={t.featuredPreviewVideos} />
-
-          {programPath && t.program ? (
-            <>
-              <p>
-                <Link
-                  href={programPath}
-                  className="text-base font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50 dark:hover:decoration-zinc-300"
-                >
-                  Open the full program — every session included
-                </Link>
+          <section className="space-y-4" id="programs">
+            <SectionHeader
+              title="Programs"
+              subtitle={`Open one below to follow along—it's structured session by session.`}
+            />
+            {programs.length === 0 ? (
+              <p className={bodyLeadClass}>
+                No public program on this profile yet.
               </p>
-
+            ) : programs.length === 1 && primaryProgram && primaryProgramPath ? (
               <Card className="space-y-4">
-                <div className="space-y-1">
-                  <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                    {t.program.title}
-                  </h2>
-                  <p className="text-zinc-600 dark:text-zinc-400">
-                    {t.program.subtitle}
-                  </p>
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <h2 className={titleSubsectionClass}>{primaryProgram.title}</h2>
+                    {!programSubtitleRedundant(primaryProgram.subtitle) ? (
+                      <p className={bodyMutedClass}>{primaryProgram.subtitle}</p>
+                    ) : null}
+                  </div>
+                  {viewerOwnsProfile ? (
+                    <EditProgramIconLink
+                      href={`/${t.slug}/${primaryProgram.id}/manage`}
+                    />
+                  ) : null}
                 </div>
-                <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                  {t.program.price}
-                </p>
-                <Button href={programPath} className="w-full">
+                <p className={bodyEmphasisClass}>{primaryProgram.price}</p>
+                <ReadonlyTopicChips
+                  tags={primaryProgram.topicTags}
+                  className="mt-3"
+                />
+                <Button href={primaryProgramPath} className="w-full">
                   View Program
                 </Button>
               </Card>
-            </>
-          ) : (
-            <p className="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-              No public program on this profile yet.
-            </p>
-          )}
+            ) : (
+              <ul className="space-y-3">
+                {programs.map((p) => (
+                  <li key={p.id}>
+                    <Card className="space-y-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <h2 className={titleCardClass}>{p.title}</h2>
+                          {!programSubtitleRedundant(p.subtitle) ? (
+                            <p className={bodyMutedClass}>{p.subtitle}</p>
+                          ) : null}
+                        </div>
+                        {viewerOwnsProfile ? (
+                          <EditProgramIconLink
+                            href={`/${t.slug}/${p.id}/manage`}
+                          />
+                        ) : null}
+                      </div>
+                      <p className={bodyStrongClass}>{p.price}</p>
+                      <ReadonlyTopicChips tags={p.topicTags} className="mt-2" />
+                      <Button href={`/${t.slug}/${p.id}`} className="w-full">
+                        View Program
+                      </Button>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {viewerOwnsProfile ? (
+              <div className="pt-1">
+                <Button
+                  href="/teach/programs/new"
+                  variant="outline"
+                  className="w-full min-h-10 justify-center px-5 text-sm font-medium"
+                >
+                  {programs.length === 0 ? "Create program" : "Create another program"}
+                </Button>
+              </div>
+            ) : null}
+          </section>
 
           <div className="border-t border-zinc-200 pt-8 dark:border-zinc-800">
-            <div className="text-center text-sm text-zinc-600 dark:text-zinc-500">
+            <div className={ancillaryClass}>
               Prefer a compact link list?{" "}
-              <Link
-                href={profilePageHref(t.slug, "hub")}
-                className="font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-950 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:text-zinc-50"
-              >
+              <Link href={profilePageHref(t.slug, "hub")} className={textLinkUnderlineClass}>
                 Open link hub
               </Link>
             </div>
           </div>
         </div>
       </main>
-
-      <StickyBottomCTA>
-        {programPath ? (
-          <Button href={programPath} className="min-h-12 flex-1">
-            View Program
-          </Button>
-        ) : null}
-        <Button
-          type="button"
-          variant="ghost"
-          className="min-h-12 shrink-0 px-4"
-          disabled
-          aria-disabled
-          title="Coming soon"
-        >
-          Subscribe
-        </Button>
-      </StickyBottomCTA>
     </div>
   );
 }

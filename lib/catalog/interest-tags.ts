@@ -20,7 +20,7 @@ function sortInterestTagOptions(rows: InterestTagOption[]): InterestTagOption[] 
   return [...rest, ...others];
 }
 
-/** Catalog rows from `public.tags` (id + name). */
+/** All rows from `public.tags` (id + name) — catalog for chips / interests. */
 export async function listInterestTagOptions(
   supabase: SupabaseClient,
 ): Promise<InterestTagsLoadResult> {

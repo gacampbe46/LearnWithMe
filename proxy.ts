@@ -25,6 +25,15 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  /**
+   * Only gate full page GET/HEAD navigations. Don't redirect POST/PUT/etc. —
+   * server actions and form posts use POST to the current URL; sending a 302
+   * to onboarding would cancel the mutation and the UI would look "stuck".
+   */
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return response;
+  }
+
   const returnTo = safeNextPath(
     `${request.nextUrl.pathname}${request.nextUrl.search}`,
   );

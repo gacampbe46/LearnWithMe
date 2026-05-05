@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { ProfileSetupForm } from "./profile-setup-form";
 import { oauthOnboardingSeed } from "@/lib/auth/oauth-user";
 import { profileNeedsOnboarding } from "@/lib/auth/profile-onboarding";
-import { listInterestTagOptions } from "@/lib/data/interest-tags";
+import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { navLinkClass, sectionEyebrowClass, titleDisplayClass } from "@/lib/ui/typography";
 
 export const metadata: Metadata = {
   title: "Set up your profile — learnwithme",
@@ -44,21 +45,14 @@ export default async function OnboardingPage({ searchParams }: Props) {
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-12 sm:px-6 sm:py-16">
         <nav className="mb-8 sm:mb-10">
-          <Link
-            href="/"
-            className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
-          >
+          <Link href="/" className={navLinkClass}>
             ← Home
           </Link>
         </nav>
 
         <div className="mb-8 space-y-3">
-          <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-500">
-            learnwithme
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
-            Finish your profile
-          </h1>
+          <p className={sectionEyebrowClass}>learnwithme</p>
+          <h1 className={titleDisplayClass}>Finish your profile</h1>
         </div>
 
         <ProfileSetupForm

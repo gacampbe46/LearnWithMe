@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
+import { Suspense } from "react";
+import {
+  HomeAccountControl,
+  HomeAccountFallback,
+} from "@/components/home/home-account-control";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
@@ -32,12 +37,19 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-dvh antialiased">
         <ThemeProvider>
+          <div className="pointer-events-none fixed left-4 top-4 z-50 sm:left-6 sm:top-6">
+            <div className="pointer-events-auto">
+              <Suspense fallback={<HomeAccountFallback />}>
+                <HomeAccountControl />
+              </Suspense>
+            </div>
+          </div>
           <div className="pointer-events-none fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
             <div className="pointer-events-auto">
               <ThemeToggle />
             </div>
           </div>
-          {children}
+          <div className="min-h-dvh pt-16">{children}</div>
         </ThemeProvider>
       </body>
     </html>

@@ -43,5 +43,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Local-only helpers (not pushed); untrack with: git rm -r --cached docs scripts
-/docs/
 /scripts/

@@ -10,5 +10,16 @@ export function isRlsOrPermissionError(err: {
 }
 
 export function friendlyDbPermissionMessage(): string {
-  return "Database rules blocked this save. In Supabase → SQL, run supabase/migrations/20260202120000_onboarding_profile_programs_rls.sql (adds profile insert/update/select-own and programs insert for your profile).";
+  return (
+    "Supabase RLS blocked this. In Dashboard → SQL Editor, paste and run " +
+    "`tools/sql/run-all-owner-policies.sql` from this repo, then retry."
+  );
+}
+
+/** Learner visibility uses RPC `set_program_is_active` + policies — see tools/sql. */
+export function friendlyLearnerVisibilityRlsMessage(): string {
+  return (
+    "Could not save learner visibility. In Supabase SQL Editor, run the latest `tools/sql/run-all-owner-policies.sql` (creates `set_program_is_active`). " +
+    "Use the same Supabase project as `NEXT_PUBLIC_SUPABASE_URL` in `.env.local`."
+  );
 }
