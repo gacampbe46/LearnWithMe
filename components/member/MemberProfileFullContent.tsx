@@ -15,6 +15,7 @@ import {
   leadMutedClass,
   navLinkClass,
   textLinkUnderlineClass,
+  titleSmallClass,
   titleCardClass,
   titleProfileClass,
   titleSubsectionClass,
@@ -27,12 +28,15 @@ type Props = {
   hasLayoutQuery?: boolean;
   /** Signed-in viewer is this profile owner — show Edit on program cards. */
   viewerOwnsProfile?: boolean;
+  /** Signed-in owner’s OAuth avatar URL (same as top-right account). */
+  viewerAvatarUrl?: string | null;
 };
 
 export function MemberProfileFullContent({
   member: t,
   hasLayoutQuery = false,
   viewerOwnsProfile = false,
+  viewerAvatarUrl = null,
 }: Props) {
   const programs = t.programs;
   const primaryProgram = programs[0];
@@ -63,9 +67,28 @@ export function MemberProfileFullContent({
           </nav>
 
           <header className="space-y-4">
-            <div className="flex flex-wrap items-center gap-4">
-              <ProfileAvatar name={t.name} size="md" />
-              <h1 className={titleProfileClass}>{t.name}</h1>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-4">
+                <ProfileAvatar
+                  name={t.name}
+                  imageUrl={viewerOwnsProfile ? viewerAvatarUrl : null}
+                  size="md"
+                />
+                <div className="min-w-0">
+                  <h1 className={titleProfileClass}>{t.name}</h1>
+                  <div className={titleSmallClass}>@{t.slug}</div>
+                </div>
+              </div>
+
+              {viewerOwnsProfile ? (
+                <Button
+                  href={`/${t.slug}/edit`}
+                  variant="outline"
+                  className="min-h-10 justify-center px-5 text-sm font-medium"
+                >
+                  Edit profile
+                </Button>
+              ) : null}
             </div>
             {taglineBioDuplicate ? (
               <p className={bodyRelaxedLargeClass}>{taglineTrim}</p>

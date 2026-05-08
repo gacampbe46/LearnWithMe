@@ -8,6 +8,7 @@ import {
 import {
   ancillaryClass,
   bodyMutedClass,
+  titleSmallClass,
   navLinkClass,
   textLinkUnderlineClass,
   titleMediumClass,
@@ -17,11 +18,15 @@ import Link from "next/link";
 type Props = {
   member: MemberProfile;
   hasLayoutQuery?: boolean;
+  viewerOwnsProfile?: boolean;
+  viewerAvatarUrl?: string | null;
 };
 
 export function MemberProfileLinkHub({
   member,
   hasLayoutQuery = false,
+  viewerOwnsProfile = false,
+  viewerAvatarUrl = null,
 }: Props) {
   const links = getProfileHubLinks(member);
 
@@ -29,18 +34,30 @@ export function MemberProfileLinkHub({
     <div className="flex min-h-dvh flex-col bg-background">
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-12">
         <nav className="mb-8">
-          <Link href="/" className={navLinkClass}>
-            ← Home
-          </Link>
+          <div className="flex items-center justify-between gap-3">
+            <Link href="/" className={navLinkClass}>
+              ← Home
+            </Link>
+            {viewerOwnsProfile ? (
+              <Link
+                href={`/${member.slug}/edit`}
+                className={`${navLinkClass} rounded-md px-2 py-1 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/40`}
+              >
+                Edit
+              </Link>
+            ) : null}
+          </div>
         </nav>
 
         <div className="flex flex-1 flex-col items-center text-center">
           <ProfileAvatar
             name={member.name}
+            imageUrl={viewerOwnsProfile ? viewerAvatarUrl : null}
             size="lg"
             className="mb-6 ring-4 ring-background"
           />
           <h1 className={titleMediumClass}>{member.name}</h1>
+          <div className={`mt-1 ${titleSmallClass}`}>@{member.slug}</div>
           <p className={`mt-2 max-w-sm ${bodyMutedClass}`}>{member.tagline}</p>
 
           <ul className="mt-10 flex w-full max-w-sm flex-col gap-3">
