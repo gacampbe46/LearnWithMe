@@ -263,11 +263,11 @@ export function ProfileEditForm({
         ) : null}
 
         <fieldset className="space-y-3 border-0 p-0">
-          <legend className={formLegendClass}>Default profile layout</legend>
+          <legend className={formLegendClass}>Default Profile Layout</legend>
           <div
             className={layoutChoiceRow}
             role="radiogroup"
-            aria-label="Default profile layout"
+            aria-label="Default Profile Layout"
           >
             <label className={layoutChoiceBtn}>
               <input
