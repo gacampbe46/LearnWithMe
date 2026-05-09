@@ -94,9 +94,10 @@ export async function completeOnboarding(
     first_name: firstName || null,
     last_name: lastName || null,
     bio: bio || "",
-    links: {},
-    tags: {
+    links: {
       profileViewPreference: "full_content" as const,
+    },
+    tags: {
       tagIds: resolvedTags.tagIds,
     },
     is_instructor: false,

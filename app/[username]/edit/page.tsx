@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { ProfileViewPreference } from "@/lib/member/types";
+import type { EditProfileLayoutDefault } from "./profile-edit-form";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import {
@@ -15,6 +18,26 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null
     ? (value as Record<string, unknown>)
     : null;
+}
+
+function parseProfileLayout(value: unknown): ProfileViewPreference | undefined {
+  if (value === "link_hub" || value === "full_content" || value === "device_adaptive") {
+    return value;
+  }
+  return undefined;
+}
+
+/** Edit UI only offers hub vs full; legacy `device_adaptive` maps to full. */
+function layoutDefaultForEditForm(raw: ProfileViewPreference | undefined): EditProfileLayoutDefault {
+  if (raw === "link_hub") return "link_hub";
+  return "full_content";
+}
+
+function tagIdsFromProfile(tags: unknown): string[] {
+  const rec = asRecord(tags);
+  const raw = rec?.tagIds;
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((id): id is string => typeof id === "string");
 }
 
 export default async function EditProfilePage({
@@ -47,7 +70,7 @@ export default async function EditProfilePage({
 
   const { data: profile } = await supabase
     .from("profile")
-    .select("id, user_id, username, first_name, last_name, bio, links")
+    .select("id, user_id, username, first_name, last_name, bio, links, tags")
     .eq("username", normalized)
     .maybeSingle();
 
@@ -60,10 +83,16 @@ export default async function EditProfilePage({
   }
 
   const linksRec = asRecord(profile.links);
-  const channelUrl =
-    linksRec && typeof linksRec.channelUrl === "string"
-      ? linksRec.channelUrl.trim()
-      : "";
+  const tagsRec = asRecord(profile.tags);
+  const layoutFromLinks = parseProfileLayout(linksRec?.profileViewPreference);
+  const layoutFromTags = parseProfileLayout(tagsRec?.profileViewPreference);
+  const storedLayout: ProfileViewPreference =
+    layoutFromLinks ?? layoutFromTags ?? "full_content";
+  const profileLayout = layoutDefaultForEditForm(storedLayout);
+
+  const { options: interestTags, error: tagsLoadError } =
+    await listInterestTagOptions(supabase);
+  const selectedInterestIds = tagIdsFromProfile(profile.tags);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -81,16 +110,17 @@ export default async function EditProfilePage({
 
         <ProfileEditForm
           username={normalized}
+          interestTags={interestTags}
+          tagsLoadError={tagsLoadError}
           defaults={{
             firstName: (profile.first_name ?? "").trim(),
             lastName: (profile.last_name ?? "").trim(),
             bio: (profile.bio ?? "").trim(),
-            channelUrl,
-            links: profile.links,
+            profileLayout,
+            selectedInterestIds,
           }}
         />
       </main>
     </div>
   );
 }
-

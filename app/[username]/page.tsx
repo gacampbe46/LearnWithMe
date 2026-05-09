@@ -62,13 +62,10 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     isMobile,
     layoutOverride ?? null,
   );
-  const hasLayoutQuery = layoutOverride !== null;
-
   if (view === "link_hub") {
     return (
       <MemberProfileLinkHub
         member={member}
-        hasLayoutQuery={hasLayoutQuery}
         viewerOwnsProfile={viewerOwnsProfile}
         viewerAvatarUrl={viewerAvatarUrl}
       />
@@ -78,7 +75,6 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
   return (
     <MemberProfileFullContent
       member={member}
-      hasLayoutQuery={hasLayoutQuery}
       viewerOwnsProfile={viewerOwnsProfile}
       viewerAvatarUrl={viewerAvatarUrl}
     />
