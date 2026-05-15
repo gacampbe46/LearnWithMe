@@ -1,12 +1,14 @@
-import { EditProgramIconLink } from "@/components/edit-program-icon-link";
+import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { ProfileEditIconLink } from "@/components/member/profile-edit-icon-link";
+import { ProfileLayoutToggle } from "@/components/member/profile-layout-toggle";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
-import { type MemberProfile, profilePageHref } from "@/lib/member";
+import { ShareProgramButton } from "@/components/program/share-program-button";
+import { type MemberProfile } from "@/lib/member";
 import {
-  ancillaryClass,
   bodyEmphasisClass,
   bodyStrongClass,
   bodyLeadClass,
@@ -14,7 +16,7 @@ import {
   bodyRelaxedLargeClass,
   leadMutedClass,
   navLinkClass,
-  textLinkUnderlineClass,
+  titleSmallClass,
   titleCardClass,
   titleProfileClass,
   titleSubsectionClass,
@@ -27,12 +29,14 @@ type Props = {
   hasLayoutQuery?: boolean;
   /** Signed-in viewer is this profile owner — show Edit on program cards. */
   viewerOwnsProfile?: boolean;
+  /** Signed-in owner’s OAuth avatar URL (same as top-right account). */
+  viewerAvatarUrl?: string | null;
 };
 
 export function MemberProfileFullContent({
   member: t,
-  hasLayoutQuery = false,
   viewerOwnsProfile = false,
+  viewerAvatarUrl = null,
 }: Props) {
   const programs = t.programs;
   const primaryProgram = programs[0];
@@ -64,8 +68,23 @@ export function MemberProfileFullContent({
 
           <header className="space-y-4">
             <div className="flex flex-wrap items-center gap-4">
-              <ProfileAvatar name={t.name} size="md" />
-              <h1 className={titleProfileClass}>{t.name}</h1>
+              <div className="flex min-w-0 flex-1 items-center gap-4">
+                <ProfileAvatar
+                  name={t.name}
+                  imageUrl={viewerOwnsProfile ? viewerAvatarUrl : null}
+                  size="md"
+                />
+                <div className="min-w-0">
+                  <h1 className={titleProfileClass}>{t.name}</h1>
+                  <div className={titleSmallClass}>@{t.slug}</div>
+                </div>
+              </div>
+              <div className="ml-auto flex shrink-0 items-center gap-2">
+                <ProfileLayoutToggle slug={t.slug} active="full" />
+                {viewerOwnsProfile ? (
+                  <ProfileEditIconLink href={`/${t.slug}/edit`} />
+                ) : null}
+              </div>
             </div>
             {taglineBioDuplicate ? (
               <p className={bodyRelaxedLargeClass}>{taglineTrim}</p>
@@ -106,17 +125,27 @@ export function MemberProfileFullContent({
               </p>
             ) : programs.length === 1 && primaryProgram && primaryProgramPath ? (
               <Card className="space-y-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <h2 className={titleSubsectionClass}>{primaryProgram.title}</h2>
-                    {!programSubtitleRedundant(primaryProgram.subtitle) ? (
-                      <p className={bodyMutedClass}>{primaryProgram.subtitle}</p>
-                    ) : null}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h2
+                      className={`min-w-0 flex-1 text-left ${titleSubsectionClass}`}
+                    >
+                      {primaryProgram.title}
+                    </h2>
+                    <div className="flex shrink-0 items-center gap-0.5">
+                      <ShareProgramButton
+                        urlPath={primaryProgramPath}
+                        title={primaryProgram.title}
+                      />
+                      {viewerOwnsProfile ? (
+                        <EditProgramIconLink
+                          href={`/${t.slug}/${primaryProgram.id}/manage`}
+                        />
+                      ) : null}
+                    </div>
                   </div>
-                  {viewerOwnsProfile ? (
-                    <EditProgramIconLink
-                      href={`/${t.slug}/${primaryProgram.id}/manage`}
-                    />
+                  {!programSubtitleRedundant(primaryProgram.subtitle) ? (
+                    <p className={bodyMutedClass}>{primaryProgram.subtitle}</p>
                   ) : null}
                 </div>
                 <p className={bodyEmphasisClass}>{primaryProgram.price}</p>
@@ -130,30 +159,40 @@ export function MemberProfileFullContent({
               </Card>
             ) : (
               <ul className="space-y-3">
-                {programs.map((p) => (
-                  <li key={p.id}>
-                    <Card className="space-y-3">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <h2 className={titleCardClass}>{p.title}</h2>
+                {programs.map((p) => {
+                  const href = `/${t.slug}/${p.id}`;
+                  return (
+                    <li key={p.id}>
+                      <Card className="space-y-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h2
+                              className={`min-w-0 flex-1 text-left ${titleCardClass}`}
+                            >
+                              {p.title}
+                            </h2>
+                            <div className="flex shrink-0 items-center gap-0.5">
+                              <ShareProgramButton urlPath={href} title={p.title} />
+                              {viewerOwnsProfile ? (
+                                <EditProgramIconLink
+                                  href={`/${t.slug}/${p.id}/manage`}
+                                />
+                              ) : null}
+                            </div>
+                          </div>
                           {!programSubtitleRedundant(p.subtitle) ? (
                             <p className={bodyMutedClass}>{p.subtitle}</p>
                           ) : null}
                         </div>
-                        {viewerOwnsProfile ? (
-                          <EditProgramIconLink
-                            href={`/${t.slug}/${p.id}/manage`}
-                          />
-                        ) : null}
-                      </div>
-                      <p className={bodyStrongClass}>{p.price}</p>
-                      <ReadonlyTopicChips tags={p.topicTags} className="mt-2" />
-                      <Button href={`/${t.slug}/${p.id}`} className="w-full">
-                        View Program
-                      </Button>
-                    </Card>
-                  </li>
-                ))}
+                        <p className={bodyStrongClass}>{p.price}</p>
+                        <ReadonlyTopicChips tags={p.topicTags} className="mt-2" />
+                        <Button href={href} className="w-full">
+                          View Program
+                        </Button>
+                      </Card>
+                    </li>
+                  );
+                })}
               </ul>
             )}
             {viewerOwnsProfile ? (
@@ -168,15 +207,6 @@ export function MemberProfileFullContent({
               </div>
             ) : null}
           </section>
-
-          <div className="border-t border-zinc-200 pt-8 dark:border-zinc-800">
-            <div className={ancillaryClass}>
-              Prefer a compact link list?{" "}
-              <Link href={profilePageHref(t.slug, "hub")} className={textLinkUnderlineClass}>
-                Open link hub
-              </Link>
-            </div>
-          </div>
         </div>
       </main>
     </div>

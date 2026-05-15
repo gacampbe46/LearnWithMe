@@ -6,6 +6,7 @@ import {
   resolveRenderedProfileView,
 } from "@/lib/member";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ssoAvatarUrlFromUser } from "@/lib/auth/oauth-user";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { getIsMobileVisitor } from "@/lib/device";
 import type { Metadata } from "next";
@@ -38,6 +39,20 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     notFound();
   }
 
+  let viewerOwnsProfile = false;
+  let viewerAvatarUrl: string | null = null;
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const teaching = await getTeachingProfile(supabase, user.id);
+    viewerOwnsProfile = Boolean(teaching && teaching.id === member.id);
+    if (viewerOwnsProfile) {
+      viewerAvatarUrl = ssoAvatarUrlFromUser(user);
+    }
+  }
+
   const sp = searchParams ? await searchParams : {};
   const layoutOverride = parseProfileLayoutParam(sp.layout);
 
@@ -47,32 +62,21 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     isMobile,
     layoutOverride ?? null,
   );
-  const hasLayoutQuery = layoutOverride !== null;
-
   if (view === "link_hub") {
     return (
       <MemberProfileLinkHub
         member={member}
-        hasLayoutQuery={hasLayoutQuery}
+        viewerOwnsProfile={viewerOwnsProfile}
+        viewerAvatarUrl={viewerAvatarUrl}
       />
     );
-  }
-
-  let viewerOwnsProfile = false;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    const teaching = await getTeachingProfile(supabase, user.id);
-    viewerOwnsProfile = Boolean(teaching && teaching.id === member.id);
   }
 
   return (
     <MemberProfileFullContent
       member={member}
-      hasLayoutQuery={hasLayoutQuery}
       viewerOwnsProfile={viewerOwnsProfile}
+      viewerAvatarUrl={viewerAvatarUrl}
     />
   );
 }

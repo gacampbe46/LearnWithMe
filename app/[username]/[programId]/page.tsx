@@ -1,4 +1,5 @@
-import { EditProgramIconLink } from "@/components/edit-program-icon-link";
+import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
+import { ShareProgramButton } from "@/components/program/share-program-button";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { Button } from "@/components/Button";
@@ -56,11 +57,17 @@ export default async function ProgramPage({ params }: PageProps) {
           <Link href={`/${profileSlug}`} className={navLinkClass}>
             ← {profileDisplayName}
           </Link>
-          {canManage ? (
-            <EditProgramIconLink
-              href={`/${profileSlug}/${programId}/manage`}
+          <div className="flex items-center gap-0.5">
+            <ShareProgramButton
+              urlPath={`/${profileSlug}/${programId}`}
+              title={p.title}
             />
-          ) : null}
+            {canManage ? (
+              <EditProgramIconLink
+                href={`/${profileSlug}/${programId}/manage`}
+              />
+            ) : null}
+          </div>
         </nav>
 
         <SectionHeader title={p.title} subtitle={p.subtitle} />
