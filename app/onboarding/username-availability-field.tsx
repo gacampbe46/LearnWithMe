@@ -32,11 +32,14 @@ type Props = {
   serverError: string | null;
   /** False until format is valid, availability check succeeded on blur, and no server username error. */
   onSubmitReadyChange?: (ready: boolean) => void;
+  /** Pre-fill for profile edit; unchanged value counts as ready without a blur check. */
+  defaultValue?: string;
 };
 
 export function UsernameAvailabilityField({
   serverError,
   onSubmitReadyChange,
+  defaultValue = "",
 }: Props) {
   const id = useId();
   const inputId = `${id}-username`;
@@ -44,7 +47,12 @@ export function UsernameAvailabilityField({
   const liveId = `${id}-live`;
   const serverId = `${id}-server`;
 
-  const [value, setValue] = useState("");
+  const normalizedDefault = (() => {
+    const check = parseAndValidateUsername(defaultValue);
+    return check.ok ? check.normalized : "";
+  })();
+
+  const [value, setValue] = useState(defaultValue);
   const [live, setLive] = useState<Live>({ kind: "idle" });
   const blurAbortRef = useRef<AbortController | null>(null);
 
@@ -60,8 +68,22 @@ export function UsernameAvailabilityField({
       onSubmitReadyChange(false);
       return;
     }
+    const trimmed = value.trim();
+    if (!trimmed) {
+      onSubmitReadyChange(false);
+      return;
+    }
+    const format = parseAndValidateUsername(trimmed);
+    if (!format.ok) {
+      onSubmitReadyChange(false);
+      return;
+    }
+    if (normalizedDefault && format.normalized === normalizedDefault) {
+      onSubmitReadyChange(true);
+      return;
+    }
     onSubmitReadyChange(live.kind === "available");
-  }, [live, serverError, onSubmitReadyChange]);
+  }, [live, serverError, onSubmitReadyChange, value, normalizedDefault]);
 
   const runAvailabilityCheck = useCallback(() => {
     blurAbortRef.current?.abort();

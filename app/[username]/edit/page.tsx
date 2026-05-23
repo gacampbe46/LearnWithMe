@@ -9,7 +9,6 @@ import { Button } from "@/components/Button";
 import {
   bodyMutedClass,
   navLinkClass,
-  subtitleSmClass,
   titlePrimaryClass,
 } from "@/lib/ui/typography";
 import { ProfileEditForm } from "./profile-edit-form";
@@ -105,7 +104,6 @@ export default async function EditProfilePage({
 
         <header className="space-y-1 border-b border-zinc-200 pb-4 dark:border-zinc-800">
           <h1 className={titlePrimaryClass}>Edit profile</h1>
-          <p className={subtitleSmClass}>@{normalized}</p>
         </header>
 
         <ProfileEditForm

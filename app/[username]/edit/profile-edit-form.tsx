@@ -24,6 +24,7 @@ import {
   optionalHintClass,
 } from "@/lib/ui/typography";
 import { updateProfileByUsername, type ProfileUpdateState } from "./actions";
+import { UsernameAvailabilityField } from "@/app/onboarding/username-availability-field";
 
 const inputNormal =
   "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
@@ -61,6 +62,7 @@ export function ProfileEditForm({
 
   const initial: ProfileUpdateState = {
     formError: null,
+    usernameError: null,
     interestsError: null,
   };
   const [state, formAction, pending] = useActionState<
@@ -69,6 +71,7 @@ export function ProfileEditForm({
   >(updateProfileByUsername, initial);
 
   const formRef = useRef<HTMLFormElement>(null);
+  const [usernameReady, setUsernameReady] = useState(true);
   const [hasInterestSelection, setHasInterestSelection] = useState(false);
   const [interestCount, setInterestCount] = useState(
     defaults.selectedInterestIds.length,
@@ -95,8 +98,13 @@ export function ProfileEditForm({
     if (state.interestsError) setInterestsOpen(true);
   }, [state.interestsError]);
 
+  const handleUsernameReady = useCallback((ready: boolean) => {
+    setUsernameReady(ready);
+  }, []);
+
   const canSubmit =
     !pending &&
+    usernameReady &&
     (!interestEditingEnabled || hasInterestSelection);
 
   const selected = new Set(defaults.selectedInterestIds);
@@ -108,7 +116,7 @@ export function ProfileEditForm({
       className="space-y-6"
       noValidate
     >
-      <input type="hidden" name="username" value={username} />
+      <input type="hidden" name="current_username" value={username} />
       <input
         type="hidden"
         name="interest_catalog_ok"
@@ -125,6 +133,12 @@ export function ProfileEditForm({
       ) : null}
 
       <Card className="space-y-6">
+        <UsernameAvailabilityField
+          defaultValue={username}
+          serverError={state.usernameError}
+          onSubmitReadyChange={handleUsernameReady}
+        />
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="profile-first" className={formLabelClass}>
