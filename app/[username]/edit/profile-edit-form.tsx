@@ -4,7 +4,7 @@ import {
   useActionState,
   useCallback,
   useEffect,
-  useRef,
+  useMemo,
   useState,
 } from "react";
 import { Button } from "@/components/Button";
@@ -23,6 +23,7 @@ import {
   inputFieldClass,
   optionalHintClass,
 } from "@/lib/ui/typography";
+import { parseAndValidateUsername } from "@/lib/onboarding/username";
 import { updateProfileByUsername, type ProfileUpdateState } from "./actions";
 import { UsernameAvailabilityField } from "@/app/onboarding/username-availability-field";
 
@@ -46,6 +47,10 @@ type Defaults = {
   selectedInterestIds: string[];
 };
 
+function interestFingerprint(ids: Iterable<string>): string {
+  return [...ids].sort().join("\0");
+}
+
 export function ProfileEditForm({
   username,
   interestTags,
@@ -60,6 +65,19 @@ export function ProfileEditForm({
   const interestEditingEnabled =
     tagsLoadError === null && interestTags.length > 0;
 
+  const catalogIds = useMemo(
+    () => new Set(interestTags.map((t) => t.id)),
+    [interestTags],
+  );
+
+  const initialInterestFingerprint = useMemo(
+    () =>
+      interestFingerprint(
+        defaults.selectedInterestIds.filter((id) => catalogIds.has(id)),
+      ),
+    [catalogIds, defaults.selectedInterestIds],
+  );
+
   const initial: ProfileUpdateState = {
     formError: null,
     usernameError: null,
@@ -70,29 +88,39 @@ export function ProfileEditForm({
     FormData
   >(updateProfileByUsername, initial);
 
-  const formRef = useRef<HTMLFormElement>(null);
-  const [usernameReady, setUsernameReady] = useState(true);
-  const [hasInterestSelection, setHasInterestSelection] = useState(false);
-  const [interestCount, setInterestCount] = useState(
-    defaults.selectedInterestIds.length,
+  const normalizedInitialUsername = useMemo(() => {
+    const check = parseAndValidateUsername(username);
+    return check.ok ? check.normalized : username.trim().toLowerCase();
+  }, [username]);
+
+  const [usernameValue, setUsernameValue] = useState(username);
+  const [firstName, setFirstName] = useState(defaults.firstName);
+  const [lastName, setLastName] = useState(defaults.lastName);
+  const [bio, setBio] = useState(defaults.bio);
+  const [profileLayout, setProfileLayout] = useState(defaults.profileLayout);
+  const [selectedInterestIds, setSelectedInterestIds] = useState(
+    () =>
+      new Set(
+        defaults.selectedInterestIds.filter((id) => catalogIds.has(id)),
+      ),
   );
+  const [usernameReady, setUsernameReady] = useState(true);
   const [interestsOpen, setInterestsOpen] = useState(false);
 
-  const syncInterestSelection = useCallback(() => {
-    const form = formRef.current;
-    if (!form) return;
-    const n = form.querySelectorAll('input[name="interest"]:checked').length;
-    setHasInterestSelection(n > 0);
-    setInterestCount(n);
-  }, []);
-
+  // Reset fields only when navigating to a different profile (not on every parent render).
   useEffect(() => {
-    const form = formRef.current;
-    if (!form) return;
-    syncInterestSelection();
-    form.addEventListener("change", syncInterestSelection);
-    return () => form.removeEventListener("change", syncInterestSelection);
-  }, [interestTags.length, syncInterestSelection]);
+    setUsernameValue(username);
+    setFirstName(defaults.firstName);
+    setLastName(defaults.lastName);
+    setBio(defaults.bio);
+    setProfileLayout(defaults.profileLayout);
+    setSelectedInterestIds(
+      new Set(
+        defaults.selectedInterestIds.filter((id) => catalogIds.has(id)),
+      ),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by profile slug
+  }, [username]);
 
   useEffect(() => {
     if (state.interestsError) setInterestsOpen(true);
@@ -102,20 +130,59 @@ export function ProfileEditForm({
     setUsernameReady(ready);
   }, []);
 
+  const hasInterestSelection = selectedInterestIds.size > 0;
+  const interestCount = selectedInterestIds.size;
+
+  const isDirty = useMemo(() => {
+    const usernameCheck = parseAndValidateUsername(usernameValue);
+    const normalizedUsername = usernameCheck.ok
+      ? usernameCheck.normalized
+      : usernameValue.trim().toLowerCase();
+    if (normalizedUsername !== normalizedInitialUsername) return true;
+    if (firstName.trim() !== defaults.firstName.trim()) return true;
+    if (lastName.trim() !== defaults.lastName.trim()) return true;
+    if (bio.trim() !== defaults.bio.trim()) return true;
+    if (profileLayout !== defaults.profileLayout) return true;
+    if (
+      interestEditingEnabled &&
+      interestFingerprint(selectedInterestIds) !== initialInterestFingerprint
+    ) {
+      return true;
+    }
+    return false;
+  }, [
+    usernameValue,
+    normalizedInitialUsername,
+    firstName,
+    lastName,
+    bio,
+    profileLayout,
+    defaults,
+    interestEditingEnabled,
+    selectedInterestIds,
+    initialInterestFingerprint,
+  ]);
+
   const canSubmit =
+    isDirty &&
     !pending &&
     usernameReady &&
     (!interestEditingEnabled || hasInterestSelection);
 
-  const selected = new Set(defaults.selectedInterestIds);
+  const toggleInterest = useCallback((tagId: string) => {
+    setSelectedInterestIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(tagId)) {
+        next.delete(tagId);
+      } else {
+        next.add(tagId);
+      }
+      return next;
+    });
+  }, []);
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      className="space-y-6"
-      noValidate
-    >
+    <form action={formAction} className="space-y-6" noValidate>
       <input type="hidden" name="current_username" value={username} />
       <input
         type="hidden"
@@ -137,6 +204,7 @@ export function ProfileEditForm({
           defaultValue={username}
           serverError={state.usernameError}
           onSubmitReadyChange={handleUsernameReady}
+          onValueChange={setUsernameValue}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -149,7 +217,8 @@ export function ProfileEditForm({
               name="first_name"
               type="text"
               autoComplete="given-name"
-              defaultValue={defaults.firstName}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               className={`${inputFieldClass} ${inputNormal}`}
             />
           </div>
@@ -162,7 +231,8 @@ export function ProfileEditForm({
               name="last_name"
               type="text"
               autoComplete="family-name"
-              defaultValue={defaults.lastName}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               className={`${inputFieldClass} ${inputNormal}`}
             />
           </div>
@@ -177,7 +247,8 @@ export function ProfileEditForm({
             name="bio"
             rows={5}
             maxLength={2000}
-            defaultValue={defaults.bio}
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
             placeholder="A slightly longer intro"
             className={`${inputFieldClass} ${inputNormal} resize-y`}
           />
@@ -242,7 +313,8 @@ export function ProfileEditForm({
                         type="checkbox"
                         name="interest"
                         value={t.id}
-                        defaultChecked={selected.has(t.id)}
+                        checked={selectedInterestIds.has(t.id)}
+                        onChange={() => toggleInterest(t.id)}
                         className="peer sr-only"
                       />
                       <span
@@ -288,7 +360,8 @@ export function ProfileEditForm({
                 type="radio"
                 name="profile_layout"
                 value="link_hub"
-                defaultChecked={defaults.profileLayout === "link_hub"}
+                checked={profileLayout === "link_hub"}
+                onChange={() => setProfileLayout("link_hub")}
                 className="sr-only"
               />
               <span className="pointer-events-none inline-flex items-center gap-2">
@@ -301,7 +374,8 @@ export function ProfileEditForm({
                 type="radio"
                 name="profile_layout"
                 value="full_content"
-                defaultChecked={defaults.profileLayout === "full_content"}
+                checked={profileLayout === "full_content"}
+                onChange={() => setProfileLayout("full_content")}
                 className="sr-only"
               />
               <span className="pointer-events-none inline-flex items-center gap-2">
@@ -313,7 +387,12 @@ export function ProfileEditForm({
         </fieldset>
       </Card>
 
-      <Button type="submit" className="w-full" disabled={!canSubmit}>
+      <Button
+        type="submit"
+        className={`w-full ${!canSubmit ? "cursor-not-allowed" : ""}`}
+        disabled={!canSubmit}
+        aria-disabled={!canSubmit}
+      >
         {pending ? "Saving…" : "Save profile"}
       </Button>
     </form>

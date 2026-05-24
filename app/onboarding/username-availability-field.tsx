@@ -34,12 +34,15 @@ type Props = {
   onSubmitReadyChange?: (ready: boolean) => void;
   /** Pre-fill for profile edit; unchanged value counts as ready without a blur check. */
   defaultValue?: string;
+  /** Fired on each keystroke (e.g. parent dirty-state tracking). */
+  onValueChange?: (value: string) => void;
 };
 
 export function UsernameAvailabilityField({
   serverError,
   onSubmitReadyChange,
   defaultValue = "",
+  onValueChange,
 }: Props) {
   const id = useId();
   const inputId = `${id}-username`;
@@ -181,6 +184,7 @@ export function UsernameAvailabilityField({
         onChange={(e) => {
           setValue(e.target.value);
           setLive({ kind: "idle" });
+          onValueChange?.(e.target.value);
         }}
         onBlur={handleBlur}
         aria-invalid={inputInvalidVisual}
