@@ -28,7 +28,7 @@ import { TrashIcon } from "@/components/icons/trash-icon";
 import { bodyLeadClass, bodyMutedClass, captionClass, titleSmallClass } from "@/lib/ui/typography";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
-import { EditProgramIconLink } from "@/components/edit-program-icon-link";
+import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
 
 export type ManageSessionRow = {
   id: string;

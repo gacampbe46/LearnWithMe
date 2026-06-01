@@ -53,7 +53,6 @@ type DbProfile = {
 
 type ProfileTags = {
   tagline?: string;
-  profileViewPreference?: ProfileViewPreference;
   /** Tag catalog UUIDs from `tags`, stored in profile.tags JSON. */
   tagIds?: string[];
   whatYouNeed?: string[];
@@ -62,6 +61,8 @@ type ProfileTags = {
 };
 
 type ProfileLinks = {
+  /** Default profile layout for `/{username}` (stored in `profile.links`). */
+  profileViewPreference?: ProfileViewPreference;
   channelUrl?: string;
   hubLinks?: ProfileHubLink[];
 };
@@ -85,16 +86,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+/** Legacy: layout used to live under `profile.tags.profileViewPreference`. */
+function parseLegacyTagsProfileView(tagsRaw: unknown): ProfileViewPreference | undefined {
+  if (!isRecord(tagsRaw)) return undefined;
+  const v = tagsRaw.profileViewPreference;
+  return v === "link_hub" || v === "full_content" || v === "device_adaptive" ? v : undefined;
+}
+
 function parseProfileTags(value: unknown): ProfileTags {
   if (!isRecord(value)) return {};
-  const maybeView = value.profileViewPreference;
-  const profileViewPreference: ProfileViewPreference | undefined =
-    maybeView === "link_hub" || maybeView === "full_content" || maybeView === "device_adaptive"
-      ? maybeView
-      : undefined;
   return {
     tagline: typeof value.tagline === "string" ? value.tagline : undefined,
-    profileViewPreference,
     tagIds: Array.isArray(value.tagIds)
       ? value.tagIds.filter((x): x is string => typeof x === "string")
       : undefined,
@@ -113,7 +115,13 @@ function parseProfileTags(value: unknown): ProfileTags {
 
 function parseProfileLinks(value: unknown): ProfileLinks {
   if (!isRecord(value)) return {};
+  const maybeView = value.profileViewPreference;
+  const profileViewPreference: ProfileViewPreference | undefined =
+    maybeView === "link_hub" || maybeView === "full_content" || maybeView === "device_adaptive"
+      ? maybeView
+      : undefined;
   return {
+    profileViewPreference,
     channelUrl: typeof value.channelUrl === "string" ? value.channelUrl : undefined,
     hubLinks: Array.isArray(value.hubLinks)
       ? value.hubLinks.filter(
@@ -228,6 +236,7 @@ function mapProfileToMember(
 
   const tags = parseProfileTags(profile.tags);
   const links = parseProfileLinks(profile.links);
+  const legacyLayout = parseLegacyTagsProfileView(profile.tags);
 
   const firstName = profile.first_name?.trim() ?? "";
   const lastName = profile.last_name?.trim() ?? "";
@@ -254,7 +263,8 @@ function mapProfileToMember(
     bio: profile.bio ?? "",
     tagline: tags.tagline ?? profile.bio ?? "",
     channelUrl: links.channelUrl ?? tags.channelUrl ?? "",
-    profileViewPreference: tags.profileViewPreference ?? "full_content",
+    profileViewPreference:
+      links.profileViewPreference ?? legacyLayout ?? "full_content",
     hubLinks: links.hubLinks,
     whatYouNeed: tags.whatYouNeed ?? [],
     featuredPreviewVideos: tags.featuredPreviewVideos ?? [],

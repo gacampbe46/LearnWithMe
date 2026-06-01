@@ -90,6 +90,7 @@ async function upsertProfile(supabase, profileTagIds) {
     first_name: seedMember.firstName,
     last_name: seedMember.lastName,
     links: {
+      profileViewPreference: seedMember.profileViewPreference,
       channelUrl: seedMember.channelUrl,
       hubLinks: [
         { label: "View Foundation Program", href: `/${username}` },
@@ -102,7 +103,6 @@ async function upsertProfile(supabase, profileTagIds) {
     },
     tags: {
       tagline: seedMember.tagline,
-      profileViewPreference: seedMember.profileViewPreference,
       whatYouNeed: seedMember.whatYouNeed,
       featuredPreviewVideos: seedMember.featuredPreviewVideos,
       ...(profileTagIds.length > 0 ? { tagIds: profileTagIds } : {}),

@@ -10,6 +10,8 @@ type Props = {
   ariaLabel?: string;
   /** Shown as native tooltip; falls back to `ariaLabel`. */
   titleProp?: string;
+  /** Merged after default link styles. */
+  className?: string;
 };
 
 /** Icon-only link to edit a program (`aria-label` + `title` for clarity). */
@@ -17,12 +19,13 @@ export function EditProgramIconLink({
   href,
   ariaLabel = "Edit program",
   titleProp,
+  className = "",
 }: Props) {
   const title = titleProp ?? ariaLabel;
   return (
     <Link
       href={href}
-      className={linkClasses}
+      className={`${linkClasses} ${className}`.trim()}
       aria-label={ariaLabel}
       title={title}
     >

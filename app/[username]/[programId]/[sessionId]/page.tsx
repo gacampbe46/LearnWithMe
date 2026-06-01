@@ -1,7 +1,7 @@
 import { SessionMediaCard } from "@/components/SessionMediaCard";
 import { SessionStickyNav } from "@/components/SessionStickyNav";
 import { SectionHeader } from "@/components/SectionHeader";
-import { EditProgramIconLink } from "@/components/edit-program-icon-link";
+import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
 import { memberProgramSessionById } from "@/lib/member";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { navLinkClass } from "@/lib/ui/typography";
