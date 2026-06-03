@@ -31,6 +31,13 @@ const seedMember = {
     topicTagNames: ["Fitness", "Yoga"],
     sessions: [
       {
+        title: "50 MINUTE | Full Body | Theraband",
+        description:
+          "Full-length theraband workout — follow along for a complete full-body session.",
+        contentUrl: "QvWW6M17CLw",
+        instructions: "Full session — follow along in the video",
+      },
+      {
         title: "Day 1 — 20 MINUTE | Express Glutes & Inner Thigh Focus | Ankle Weights",
         description:
           "Short, focused lower-body session targeting glutes and inner thighs; ankle weights optional.",

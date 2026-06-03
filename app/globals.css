@@ -3,23 +3,39 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
-  --selection-bg: #27272a;
-  --selection-fg: #fafafa;
+  --background: #f7f4ef;
+  --foreground: #1c1917;
+  --selection-bg: #44403c;
+  --selection-fg: #faf8f5;
+  --editorial-accent: #8b7355;
+  --editorial-accent-muted: #c4b5a0;
+  --editorial-border: #e7e0d6;
+  --editorial-card: #fdfbf7;
+  --editorial-overlay: rgba(28, 25, 23, 0.55);
 }
 
 .dark {
-  --background: #1a1a1a;
-  --foreground: #fafafa;
-  --selection-bg: #1a1a1a;
-  --selection-fg: #fafafa;
+  --background: #1a1816;
+  --foreground: #f5f2ed;
+  --selection-bg: #f5f2ed;
+  --selection-fg: #1a1816;
+  --editorial-accent: #c4b5a0;
+  --editorial-accent-muted: #78716c;
+  --editorial-border: #3f3a36;
+  --editorial-card: #242120;
+  --editorial-overlay: rgba(12, 10, 9, 0.72);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-editorial-accent: var(--editorial-accent);
+  --color-editorial-accent-muted: var(--editorial-accent-muted);
+  --color-editorial-border: var(--editorial-border);
+  --color-editorial-card: var(--editorial-card);
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-cormorant);
+  --font-ui: var(--font-inter);
 }
 
 html {
@@ -35,7 +51,11 @@ body {
   min-height: 100dvh;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.font-serif-display {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
 }
 
 ::selection {

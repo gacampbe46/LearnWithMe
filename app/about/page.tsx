@@ -1,8 +1,6 @@
 import {
   bodyLeadClass,
-  navLinkClass,
   proseStrongClass,
-  sectionEyebrowClass,
   textLinkUnderlineClass,
   titleCardClass,
   titleDisplayClass,
@@ -21,20 +19,8 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-16">
-        <nav className="mb-10 flex flex-wrap gap-x-4 gap-y-2">
-          <Link href="/" className={navLinkClass}>
-            ← Home
-          </Link>
-          <Link href="/conduct" className={navLinkClass}>
-            Code of conduct
-          </Link>
-        </nav>
-
         <article className="space-y-10">
-          <header className="space-y-4">
-            <p className={sectionEyebrowClass}>learnwithme</p>
-            <h1 className={`leading-tight ${titleDisplayClass}`}>Why we're building this</h1>
-          </header>
+          <h1 className={`leading-tight ${titleDisplayClass}`}>Why we&apos;re building this</h1>
 
           <section className="space-y-4">
             <h2 className={titleSubsectionClass}>Overview</h2>
