@@ -1,8 +1,6 @@
 import { EditPencilIcon } from "@/components/icons/edit-pencil-icon";
+import { iconButtonClass } from "@/lib/ui/typography";
 import Link from "next/link";
-
-const linkClasses =
-  "inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-zinc-600 transition hover:bg-zinc-100/80 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/40 dark:hover:text-zinc-100";
 
 type Props = {
   href: string;
@@ -25,7 +23,7 @@ export function EditProgramIconLink({
   return (
     <Link
       href={href}
-      className={`${linkClasses} ${className}`.trim()}
+      className={`${iconButtonClass} ${className}`.trim()}
       aria-label={ariaLabel}
       title={title}
     >

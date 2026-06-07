@@ -21,14 +21,12 @@ import {
   formLabelClass,
   formLegendClass,
   inputFieldClass,
+  inputFocusClass,
   optionalHintClass,
 } from "@/lib/ui/typography";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
 import { updateProfileByUsername, type ProfileUpdateState } from "./actions";
 import { UsernameAvailabilityField } from "@/app/onboarding/username-availability-field";
-
-const inputNormal =
-  "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
 
 /** Stored preference for edit form — only hub vs full (no device_adaptive). */
 export type EditProfileLayoutDefault = "link_hub" | "full_content";
@@ -37,7 +35,7 @@ const layoutChoiceRow =
   "flex flex-wrap items-stretch gap-2 sm:flex-nowrap";
 
 const layoutChoiceBtn =
-  "inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-zinc-200/90 bg-zinc-50/80 px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-100/90 hover:text-zinc-900 has-[:checked]:border-zinc-400 has-[:checked]:bg-zinc-200 has-[:checked]:text-zinc-950 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-zinc-400 dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-50 dark:has-[:checked]:border-zinc-500 dark:has-[:checked]:bg-zinc-800 dark:has-[:checked]:text-zinc-50 dark:focus-within:outline-zinc-500 sm:min-w-[8.5rem]";
+  "inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-editorial-border bg-editorial-card px-3 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-100/90 hover:text-stone-900 has-[:checked]:border-editorial-accent-muted has-[:checked]:bg-stone-200 has-[:checked]:text-stone-950 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-editorial-accent-muted dark:text-stone-300 dark:hover:bg-stone-800/50 dark:hover:text-stone-50 dark:has-[:checked]:border-editorial-accent dark:has-[:checked]:bg-stone-800 dark:has-[:checked]:text-stone-50 dark:focus-within:outline-stone-500 sm:min-w-[8.5rem]";
 
 type Defaults = {
   firstName: string;
@@ -193,7 +191,7 @@ export function ProfileEditForm({
       {state.formError ? (
         <div
           role="alert"
-          className="rounded-xl border border-zinc-200 border-l-4 border-l-red-500 bg-zinc-50/90 px-4 py-3 text-sm leading-relaxed text-zinc-800 dark:border-zinc-700 dark:border-l-red-400 dark:bg-zinc-900/50 dark:text-zinc-200"
+          className="rounded-xl border border-editorial-border border-l-4 border-l-red-500 bg-editorial-card px-4 py-3 text-sm leading-relaxed text-stone-800 dark:border-l-red-400 dark:text-stone-200"
         >
           {state.formError}
         </div>
@@ -219,7 +217,7 @@ export function ProfileEditForm({
               autoComplete="given-name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className={`${inputFieldClass} ${inputNormal}`}
+              className={`${inputFieldClass} ${inputFocusClass}`}
             />
           </div>
           <div className="space-y-2">
@@ -233,7 +231,7 @@ export function ProfileEditForm({
               autoComplete="family-name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className={`${inputFieldClass} ${inputNormal}`}
+              className={`${inputFieldClass} ${inputFocusClass}`}
             />
           </div>
         </div>
@@ -250,7 +248,7 @@ export function ProfileEditForm({
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="A slightly longer intro"
-            className={`${inputFieldClass} ${inputNormal} resize-y`}
+            className={`${inputFieldClass} ${inputFocusClass} resize-y`}
           />
         </div>
 
@@ -277,11 +275,11 @@ export function ProfileEditForm({
             className="border-0 p-0"
           >
             <summary
-              className={`${formLegendClass} flex cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 -mx-1 px-1 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/40 [&::-webkit-details-marker]:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 dark:focus-visible:outline-zinc-500`}
+              className={`${formLegendClass} flex cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 -mx-1 px-1 hover:bg-stone-100/80 dark:hover:bg-stone-800/40 [&::-webkit-details-marker]:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-editorial-accent-muted dark:focus-visible:outline-stone-500`}
             >
               <span
                 aria-hidden
-                className={`inline-flex w-5 shrink-0 justify-center text-zinc-400 transition-transform duration-200 ease-out dark:text-zinc-500 ${interestsOpen ? "rotate-90" : ""}`}
+                className={`inline-flex w-5 shrink-0 justify-center text-stone-400 transition-transform duration-200 ease-out dark:text-stone-500 ${interestsOpen ? "rotate-90" : ""}`}
               >
                 &gt;
               </span>

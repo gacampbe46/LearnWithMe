@@ -6,9 +6,9 @@ import Link from "next/link";
 const btnBase =
   "inline-flex shrink-0 items-center justify-center rounded-md p-1.5 transition";
 const inactive =
-  "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/40 dark:hover:text-zinc-100";
+  "text-stone-600 hover:bg-stone-200/80 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800/40 dark:hover:text-stone-100";
 const active =
-  "bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50";
+  "bg-stone-200 text-stone-900 dark:bg-stone-800 dark:text-stone-50";
 
 type LayoutMode = "hub" | "full";
 
@@ -24,7 +24,7 @@ export function ProfileLayoutToggle({ slug, active: activeLayout }: Props) {
   const fullHref = profilePageHref(slug, "full");
 
   return (
-    <div className="flex items-center gap-0.5 rounded-lg border border-zinc-200/90 bg-zinc-50/80 p-0.5 dark:border-zinc-700 dark:bg-zinc-900/60">
+    <div className="flex items-center gap-0.5 rounded-lg border border-editorial-border bg-editorial-card p-0.5">
       <Link
         href={hubHref}
         className={`${btnBase} ${activeLayout === "hub" ? active : inactive}`}

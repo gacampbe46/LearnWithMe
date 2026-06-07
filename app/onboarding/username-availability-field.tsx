@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
-import { bodyMutedClass, formLabelClass, inputFieldClass } from "@/lib/ui/typography";
-
-const inputNormal =
-  "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
+import { bodyMutedClass, formLabelClass, inputFieldClass, inputFocusClass } from "@/lib/ui/typography";
 
 const inputInvalid =
   "border-red-400/90 focus:border-red-500 focus:ring-red-400/40 dark:border-red-800/80 dark:focus:border-red-500 dark:focus:ring-red-500/30";
@@ -194,7 +191,7 @@ export function UsernameAvailabilityField({
             ? inputInvalid
             : inputAvailableVisual
               ? inputAvailable
-              : inputNormal
+              : inputFocusClass
         }`}
       />
 

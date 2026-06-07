@@ -1,22 +1,22 @@
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
+import { ProgramHiddenBadge } from "@/components/program/ProgramHiddenBadge";
+import { ProgramSessionCard } from "@/components/program/ProgramSessionCard";
 import { ShareProgramButton } from "@/components/program/share-program-button";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { Button } from "@/components/Button";
-import { Card } from "@/components/Card";
 import { SectionHeader } from "@/components/SectionHeader";
-import { VideoEmbed } from "@/components/VideoEmbed";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  bodyEmphasisClass,
   bodyLeadClass,
-  metaCapsClass,
   navLinkClass,
-  titleCardClass,
   titleSubsectionClass,
 } from "@/lib/ui/typography";
+import { pageMainStickyClass, sessionGridClass } from "@/lib/ui/page-layout";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string }>;
@@ -52,7 +52,7 @@ export default async function ProgramPage({ params }: PageProps) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-10 px-4 py-10 pb-28">
+      <main className={`${pageMainStickyClass} space-y-10`}>
         <nav className="flex flex-wrap items-center justify-between gap-3">
           <Link href={`/${profileSlug}`} className={navLinkClass}>
             ← {profileDisplayName}
@@ -70,78 +70,63 @@ export default async function ProgramPage({ params }: PageProps) {
           </div>
         </nav>
 
-        <SectionHeader title={p.title} subtitle={p.subtitle} />
+        <div className="space-y-6 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start lg:gap-10 lg:space-y-0">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <SectionHeader
+                eyebrow="Program"
+                title={p.title}
+                subtitle={p.subtitle}
+              />
+              {canManage && !p.isActive ? <ProgramHiddenBadge /> : null}
+            </div>
 
-        {canManage && !p.isActive ? (
-          <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-            Hidden from learners — learners won&apos;t find this listing until it&apos;s
-            active.{" "}
-            <Link
-              href={`/${profileSlug}/${programId}/manage`}
-              className="font-semibold underline decoration-amber-600 underline-offset-2 dark:decoration-amber-400"
-            >
-              Manage visibility
-            </Link>
-          </p>
-        ) : null}
+            {canManage && !p.isActive ? (
+              <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+                Only you can see this preview — learners won&apos;t find this listing
+                until visibility is on.{" "}
+                <Link
+                  href={`/${profileSlug}/${programId}/manage`}
+                  className="font-semibold underline decoration-amber-600 underline-offset-2 dark:decoration-amber-400"
+                >
+                  Manage visibility
+                </Link>
+              </p>
+            ) : null}
+          </div>
 
-        <ReadonlyTopicChips tags={p.topicTags} />
+          <div className="space-y-3 lg:pt-1">
+            <p className={bodyEmphasisClass}>{p.price}</p>
+            <ReadonlyTopicChips tags={p.topicTags} />
+            {hasSessions ? (
+              <p className={bodyLeadClass}>
+                {sessions.length} session{sessions.length === 1 ? "" : "s"} —
+                pick any tile below to start, or begin from the first session.
+              </p>
+            ) : null}
+          </div>
+        </div>
 
-        <section className="space-y-8">
+        <section className="space-y-5">
           <h2 className={titleSubsectionClass}>Sessions</h2>
           {hasSessions ? (
-            <ul className="space-y-6">
+            <ul className={sessionGridClass}>
               {sessions.map((s, index) => {
-                const videoId = s.media[0]?.videoId?.trim() ?? "";
                 const sessionHref = `/${profileSlug}/${p.id}/${s.id}`;
-                const n = index + 1;
-                const total = sessions.length;
                 return (
-                  <li key={s.id}>
-                    <Card className="space-y-0 !p-0 overflow-hidden shadow-md shadow-zinc-900/[0.06] dark:shadow-black/25">
-                      <div className="border-b border-zinc-200/80 bg-zinc-100/60 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-900/80">
-                        {total > 1 ? (
-                          <p className={metaCapsClass}>
-                            Session {n} of {total}
-                          </p>
-                        ) : null}
-                        <h3
-                          className={`${titleCardClass} ${total > 1 ? "mt-1" : ""}`}
-                        >
-                          {s.title}
-                        </h3>
-                      </div>
-                      <div className="space-y-4 px-5 pb-5 pt-4">
-                        {videoId ? (
-                          <VideoEmbed videoId={videoId} title={s.title} />
-                        ) : (
-                          <div
-                            className="flex aspect-video w-full items-center justify-center rounded-xl bg-zinc-200 text-sm text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
-                            role="presentation"
-                          >
-                            No video for this session yet
-                          </div>
-                        )}
-                        {s.description ? (
-                          <p className={bodyLeadClass}>{s.description}</p>
-                        ) : null}
-                        <div className="flex flex-wrap justify-end gap-3 border-t border-zinc-200/80 pt-4 dark:border-zinc-700/80">
-                          <Button
-                            href={sessionHref}
-                            variant="outline"
-                            className="min-h-10 shrink-0 px-5 text-sm font-medium"
-                          >
-                            View session
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
+                  <li key={s.id} className="min-w-0">
+                    <ProgramSessionCard
+                      session={s}
+                      href={sessionHref}
+                      sessionNumber={index + 1}
+                      sessionTotal={sessions.length}
+                    />
                   </li>
                 );
               })}
             </ul>
           ) : canManage ? (
-            <div className="space-y-4">
+            <div className="max-w-xl space-y-4">
               <p className={bodyLeadClass}>
                 No sessions yet. Add your first session so this program has
                 something for people to open.
@@ -149,7 +134,7 @@ export default async function ProgramPage({ params }: PageProps) {
               <Button
                 href={`/${profileSlug}/${programId}/sessions/new`}
                 variant="outline"
-                className="w-full min-h-10 justify-center px-5 text-sm font-medium"
+                className="w-full min-h-10 justify-center px-5 text-sm font-medium sm:w-auto"
               >
                 Add session
               </Button>

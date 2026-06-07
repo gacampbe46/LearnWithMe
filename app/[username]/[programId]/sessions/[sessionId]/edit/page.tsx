@@ -4,6 +4,7 @@ import { EditSessionForm } from "../../../edit-session-form";
 import { SectionHeader } from "@/components/SectionHeader";
 import { memberProgramSessionById } from "@/lib/member";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
+import { pageMainClass } from "@/lib/ui/page-layout";
 import { navLinkClass } from "@/lib/ui/typography";
 import type { Metadata } from "next";
 
@@ -47,7 +48,7 @@ export default async function EditProgramSessionPage({ params }: PageProps) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-10">
+      <main className={`${pageMainClass} space-y-8`}>
         <nav className="flex flex-wrap items-center gap-3">
           <Link href={backManage} className={navLinkClass}>
             ← Back to manage

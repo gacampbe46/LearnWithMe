@@ -1,4 +1,5 @@
 import { ConductMarkdown } from "@/components/ConductMarkdown";
+import { pageMainClass } from "@/lib/ui/page-layout";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { Metadata } from "next";
@@ -15,7 +16,7 @@ export default async function ConductPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-16">
+      <main className={pageMainClass}>
         <ConductMarkdown source={source} />
       </main>
     </div>

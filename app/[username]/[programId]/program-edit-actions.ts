@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import {
   friendlyDbPermissionMessage,
+  friendlyLearnerVisibilityRlsMessage,
   isRlsOrPermissionError,
 } from "@/lib/supabase/map-db-error";
 import {
@@ -68,6 +69,9 @@ export async function updateProgramBasics(
   const tagsPayload =
     topicIds.length > 0 ? serializeProgramTags(topicIds) : null;
 
+  const isActiveRaw = trimField(formText(formData, "is_active"), 8);
+  const wantActive = isActiveRaw === "true";
+
   /** Avoid `.update().select()` — RETURNING can be empty under SELECT RLS even when UPDATE applies. */
   const { error } = await supabase
     .from("programs")
@@ -89,7 +93,7 @@ export async function updateProgramBasics(
 
   const { data: check, error: checkErr } = await supabase
     .from("programs")
-    .select("title, description, price, tags")
+    .select("title, description, price, tags, is_active")
     .eq("id", programId)
     .maybeSingle();
 
@@ -110,22 +114,77 @@ export async function updateProgramBasics(
 
   const savedTags = [...parseProgramTagsColumn(check.tags)].sort().join("\0");
   const wantTags = [...topicIds].sort().join("\0");
-  const persisted =
+  const currentActive = check.is_active !== false;
+  let basicsPersisted =
     check.title === title &&
     (check.description ?? "") === (description || "") &&
     Number(check.price) === priceParsed.value &&
     savedTags === wantTags;
 
-  if (!persisted) {
+  if (!basicsPersisted) {
     return {
       formError:
         "Could not save: changes didn’t persist. Run `tools/sql/run-all-owner-policies.sql` in Supabase → SQL Editor.",
     };
   }
 
+  if (wantActive !== currentActive) {
+    const { data: rpcOk, error: rpcErr } = await supabase.rpc(
+      "set_program_is_active",
+      {
+        p_program_id: programId,
+        p_active: wantActive,
+      },
+    );
+
+    if (rpcErr) {
+      const rpcMsg = rpcErr.message ?? "";
+      const missingFn =
+        rpcErr.code === "42883" ||
+        /does not exist/i.test(rpcMsg) ||
+        (/function/i.test(rpcMsg) && /set_program_is_active/i.test(rpcMsg));
+
+      if (missingFn) {
+        return {
+          formError:
+            "Database is missing function `set_program_is_active`. Paste and run the latest `tools/sql/run-all-owner-policies.sql` in Supabase SQL Editor (bottom section), then try again.",
+        };
+      }
+
+      return {
+        formError: isRlsOrPermissionError(rpcErr)
+          ? friendlyLearnerVisibilityRlsMessage()
+          : rpcErr.message,
+      };
+    }
+
+    if (rpcOk !== true) {
+      return { formError: friendlyLearnerVisibilityRlsMessage() };
+    }
+  }
+
+  const { data: finalCheck, error: finalCheckErr } = await supabase
+    .from("programs")
+    .select("is_active")
+    .eq("id", programId)
+    .maybeSingle();
+
+  if (finalCheckErr) {
+    return {
+      formError: isRlsOrPermissionError(finalCheckErr)
+        ? friendlyDbPermissionMessage()
+        : finalCheckErr.message,
+    };
+  }
+
+  if (!finalCheck || (finalCheck.is_active !== false) !== wantActive) {
+    return { formError: friendlyLearnerVisibilityRlsMessage() };
+  }
+
   const managePath = safeNextPath(`/${username}/${programId}/manage`);
   revalidatePath(managePath);
   revalidatePath(safeNextPath(`/${username}/${programId}`));
+  revalidatePath(safeNextPath(`/${username}`));
 
   return {
     formError: null,

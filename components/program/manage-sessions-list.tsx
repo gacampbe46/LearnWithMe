@@ -54,7 +54,7 @@ function GripHandle({
       type="button"
       {...attributes}
       {...listeners}
-      className="touch-manipulation rounded-md px-2 py-1.5 text-zinc-400 transition hover:bg-zinc-200/80 hover:text-zinc-600 active:cursor-grabbing dark:text-zinc-500 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-300"
+      className="touch-manipulation rounded-md px-2 py-1.5 text-stone-400 transition hover:bg-stone-200/80 hover:text-stone-600 active:cursor-grabbing dark:text-stone-500 dark:hover:bg-stone-800/60 dark:hover:text-stone-300"
       aria-label="Drag to reorder"
       title="Drag to reorder"
     >
@@ -106,15 +106,15 @@ function SortableSessionRow({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const iconBtn =
-    "inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-zinc-600 transition enabled:cursor-pointer disabled:opacity-50 dark:text-zinc-400";
+    "inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-stone-600 transition enabled:cursor-pointer disabled:opacity-50 dark:text-stone-400";
 
   return (
     <li ref={setNodeRef} style={style}>
       <Card
         className={`transition-shadow ${
           isDragging
-            ? "border-zinc-300 shadow-lg shadow-zinc-900/15 ring-1 ring-zinc-300/70 dark:border-zinc-600 dark:ring-zinc-600"
-            : "hover:border-zinc-400/90 dark:hover:border-zinc-600"
+            ? "border-editorial-accent-muted shadow-lg shadow-stone-900/15 ring-1 ring-editorial-accent-muted/70 dark:ring-stone-600"
+            : "hover:border-editorial-accent dark:hover:border-editorial-accent-muted"
         }`}
       >
         <div className="flex flex-col gap-3">
@@ -137,7 +137,7 @@ function SortableSessionRow({
               {!confirmDelete ? (
                 <button
                   type="button"
-                  className={`${iconBtn} hover:bg-zinc-100/80 hover:text-red-700 dark:hover:bg-zinc-800/40 dark:hover:text-red-400`}
+                  className={`${iconBtn} hover:bg-stone-100/80 hover:text-red-700 dark:hover:bg-stone-800/40 dark:hover:text-red-400`}
                   aria-label="Remove session"
                   title="Remove session"
                   onClick={() => setConfirmDelete(true)}
@@ -159,7 +159,7 @@ function SortableSessionRow({
               <div className="flex shrink-0 items-center justify-end gap-2">
                 <button
                   type="button"
-                  className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  className="rounded-lg border border-editorial-border bg-editorial-card px-3 py-1.5 text-sm font-medium text-stone-800 transition hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-stone-800"
                   onClick={() => setConfirmDelete(false)}
                 >
                   Cancel

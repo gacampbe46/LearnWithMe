@@ -1,4 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
 import {
   PROGRAM_CHILDREN_EMBED_FIELDS,
@@ -230,6 +231,7 @@ export function mapEmbeddedProgramRow(
 function mapProfileToMember(
   profile: DbProfile,
   catalogLabelById: Map<string, string>,
+  options?: { includeInactivePrograms?: boolean },
 ): MemberProfile | undefined {
   const username = profile.username ?? undefined;
   if (!username) return undefined;
@@ -244,7 +246,7 @@ function mapProfileToMember(
 
   const rawPrograms = profile.programs ?? [];
   const programsSortedNewestFirst = [...rawPrograms]
-    .filter((row) => row.is_active !== false)
+    .filter((row) => options?.includeInactivePrograms || row.is_active !== false)
     .sort((a, b) => {
       const ta = a.created_at ? Date.parse(a.created_at) : 0;
       const tb = b.created_at ? Date.parse(b.created_at) : 0;
@@ -273,18 +275,19 @@ function mapProfileToMember(
   };
 }
 
-export async function getMemberByUsername(username: string): Promise<MemberProfile | undefined> {
-  const client = getSupabaseClient();
-  if (!client) {
-    return undefined;
-  }
-
+async function fetchMemberProfileRow(
+  client: SupabaseClient,
+  username: string,
+): Promise<
+  | {
+      dbProfile: DbProfile;
+      catalogLabelById: Map<string, string>;
+    }
+  | undefined
+> {
   const normalized = username.trim().toLowerCase();
 
-  async function fetchWithProgramEmbed(
-    sb: NonNullable<typeof client>,
-    embed: string,
-  ): Promise<{
+  async function fetchWithProgramEmbed(embed: string): Promise<{
     data: unknown;
     error: { message?: string } | null;
   }> {
@@ -292,7 +295,7 @@ export async function getMemberByUsername(username: string): Promise<MemberProfi
       "id, username, bio, first_name, last_name, tags, links, programs(" +
       embed +
       ")";
-    return sb
+    return client
       .from("profile")
       .select(profileSelect)
       .eq("username", normalized)
@@ -300,10 +303,7 @@ export async function getMemberByUsername(username: string): Promise<MemberProfi
       .maybeSingle();
   }
 
-  let { data, error } = await fetchWithProgramEmbed(
-    client,
-    PROGRAM_CHILDREN_EMBED_FIELDS,
-  );
+  let { data, error } = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_FIELDS);
 
   if (error) {
     if (process.env.NODE_ENV === "development") {
@@ -312,7 +312,7 @@ export async function getMemberByUsername(username: string): Promise<MemberProfi
         error.message ?? error,
       );
     }
-    const second = await fetchWithProgramEmbed(client, PROGRAM_CHILDREN_EMBED_NO_TAGS);
+    const second = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_NO_TAGS);
     data = second.data;
     error = second.error;
   }
@@ -334,5 +334,37 @@ export async function getMemberByUsername(username: string): Promise<MemberProfi
   }
   const catalogLabelById = await fetchCatalogTagLabelMap(client, allTagIds);
 
-  return mapProfileToMember(dbProfile, catalogLabelById);
+  return { dbProfile, catalogLabelById };
+}
+
+export async function getMemberByUsername(
+  username: string,
+  options?: { includeInactivePrograms?: boolean },
+): Promise<MemberProfile | undefined> {
+  const client = getSupabaseClient();
+  if (!client) {
+    return undefined;
+  }
+
+  const loaded = await fetchMemberProfileRow(client, username);
+  if (!loaded) return undefined;
+
+  return mapProfileToMember(
+    loaded.dbProfile,
+    loaded.catalogLabelById,
+    options,
+  );
+}
+
+/** Authenticated owner read — includes hidden programs RLS may omit for anon. */
+export async function getMemberByUsernameForOwner(
+  username: string,
+): Promise<MemberProfile | undefined> {
+  const client = await createSupabaseServerClient();
+  const loaded = await fetchMemberProfileRow(client, username);
+  if (!loaded) return undefined;
+
+  return mapProfileToMember(loaded.dbProfile, loaded.catalogLabelById, {
+    includeInactivePrograms: true,
+  });
 }

@@ -53,7 +53,7 @@ const components: Components = {
     </strong>
   ),
   em: ({ children, ...props }) => (
-    <em className="italic text-zinc-600 dark:text-zinc-400" {...props}>
+    <em className="italic text-stone-600 dark:text-stone-400" {...props}>
       {children}
     </em>
   ),
@@ -62,7 +62,7 @@ const components: Components = {
       {children}
     </a>
   ),
-  hr: () => <hr className="my-8 border-zinc-200 dark:border-zinc-800" />,
+  hr: () => <hr className="my-8 border-editorial-border" />,
 };
 
 type ConductMarkdownProps = {

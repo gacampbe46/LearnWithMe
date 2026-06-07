@@ -7,6 +7,7 @@ import { profileNeedsOnboarding } from "@/lib/auth/profile-onboarding";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { pageContainerClass, pageFocusedColumnClass } from "@/lib/ui/page-layout";
 import { navLinkClass, sectionEyebrowClass, titleDisplayClass } from "@/lib/ui/typography";
 
 export const metadata: Metadata = {
@@ -43,26 +44,28 @@ export default async function OnboardingPage({ searchParams }: Props) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-12 sm:px-6 sm:py-16">
-        <nav className="mb-8 sm:mb-10">
-          <Link href="/" className={navLinkClass}>
-            ← Home
-          </Link>
-        </nav>
+      <main className={`${pageContainerClass} flex flex-1 flex-col justify-center py-12 sm:py-16`}>
+        <div className={pageFocusedColumnClass}>
+          <nav className="mb-8 sm:mb-10">
+            <Link href="/" className={navLinkClass}>
+              ← Home
+            </Link>
+          </nav>
 
-        <div className="mb-8 space-y-3">
-          <p className={sectionEyebrowClass}>learnwithme</p>
-          <h1 className={titleDisplayClass}>Finish your profile</h1>
+          <div className="mb-8 space-y-3">
+            <p className={sectionEyebrowClass}>learnwithme</p>
+            <h1 className={titleDisplayClass}>Finish your profile</h1>
+          </div>
+
+          <ProfileSetupForm
+            nextPath={nextPath}
+            defaultFirstName={oauth.defaultFirstName}
+            defaultLastName={oauth.defaultLastName}
+            oauthAvatar={oauth.avatar}
+            interestTags={interestTags}
+            tagsLoadError={tagsLoadError}
+          />
         </div>
-
-        <ProfileSetupForm
-          nextPath={nextPath}
-          defaultFirstName={oauth.defaultFirstName}
-          defaultLastName={oauth.defaultLastName}
-          oauthAvatar={oauth.avatar}
-          interestTags={interestTags}
-          tagsLoadError={tagsLoadError}
-        />
       </main>
     </div>
   );

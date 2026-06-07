@@ -1,3 +1,4 @@
+import { pageMainClass } from "@/lib/ui/page-layout";
 import {
   bodyLeadClass,
   proseStrongClass,
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10 pb-16">
+      <main className={pageMainClass}>
         <article className="space-y-10">
           <h1 className={`leading-tight ${titleDisplayClass}`}>Why we&apos;re building this</h1>
 
@@ -185,7 +186,7 @@ export default function AboutPage() {
             </div>
           </section>
 
-          <section className="space-y-3 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+          <section className="space-y-3 border-t border-editorial-border pt-8">
             <h2 className={titleSubsectionClass}>This prototype</h2>
             <p className={bodyLeadClass}>
               If we sat down with you, we&apos;d ask: does a setup like this feel

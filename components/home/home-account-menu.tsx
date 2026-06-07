@@ -13,10 +13,10 @@ type Props = {
 };
 
 const triggerBase =
-  "inline-flex min-h-10 max-w-[min(100vw-8rem,15rem)] items-center gap-1.5 rounded-full border border-zinc-300 bg-white/50 px-5 text-sm font-medium text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-100/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 dark:border-zinc-600 dark:bg-zinc-900/40 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800/60 dark:focus-visible:outline-zinc-500";
+  "inline-flex min-h-10 max-w-[min(100vw-8rem,15rem)] items-center gap-1.5 rounded-full border border-stone-800 bg-editorial-card/50 px-5 text-sm font-medium text-stone-900 transition hover:border-editorial-accent-muted hover:bg-stone-900/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-editorial-accent-muted dark:border-stone-300 dark:bg-editorial-card/40 dark:text-stone-100 dark:hover:border-editorial-accent dark:hover:bg-stone-800/40 dark:focus-visible:outline-stone-500";
 
 const menuItem =
-  "flex w-full items-center px-4 py-2.5 text-left text-sm text-zinc-800 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80";
+  "flex w-full items-center px-4 py-2.5 text-left text-sm text-stone-800 transition hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-stone-800/80";
 
 export function HomeAccountMenu({
   displayName,
@@ -92,7 +92,7 @@ export function HomeAccountMenu({
       {open && (
         <div
           role="menu"
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-[60] min-w-[11rem] overflow-hidden rounded-2xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-[60] min-w-[11rem] overflow-hidden rounded-xl border border-editorial-border bg-editorial-card py-1 shadow-lg dark:shadow-black/30"
         >
           {profilePath ? (
             <Link
@@ -133,7 +133,7 @@ function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg
       aria-hidden
-      className={`h-4 w-4 shrink-0 text-zinc-500 transition dark:text-zinc-400 ${open ? "rotate-180" : ""}`}
+      className={`h-4 w-4 shrink-0 text-stone-500 transition dark:text-stone-400 ${open ? "rotate-180" : ""}`}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

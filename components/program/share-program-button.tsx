@@ -1,14 +1,12 @@
 "use client";
 
 import { ShareIcon } from "@/components/icons/share-icon";
+import { iconButtonClass } from "@/lib/ui/typography";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-const btnClasses =
-  "inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-zinc-600 transition hover:bg-zinc-100/80 hover:text-zinc-900 disabled:opacity-60 dark:text-zinc-400 dark:hover:bg-zinc-800/40 dark:hover:text-zinc-100";
-
 const toastBaseClasses =
-  "pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full border border-zinc-200/90 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-50 shadow-lg transition-opacity duration-300 ease-out motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-100 dark:text-zinc-950";
+  "pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full border border-editorial-border bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 shadow-lg transition-opacity duration-300 ease-out motion-reduce:transition-none dark:bg-stone-100 dark:text-stone-900";
 
 const TOAST_VISIBLE_MS = 2000;
 const TOAST_FADE_MS = 300;
@@ -114,7 +112,7 @@ export function ShareProgramButton({
     <>
       <button
         type="button"
-        className={`${btnClasses} ${className}`.trim()}
+        className={`${iconButtonClass} ${className}`.trim()}
         aria-label={label}
         title={toastVisible ? "Link copied" : ariaLabel}
         disabled={busy}

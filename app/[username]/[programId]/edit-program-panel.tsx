@@ -9,6 +9,7 @@ import {
 } from "@/components/program/topic-chip-styles";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { LearnerVisibilityToggle } from "@/components/program/LearnerVisibilityToggle";
 import { PROGRAM_CATALOG_TOPIC_FIELD } from "@/lib/program/program-catalog-topic-form";
 import { priceAllowsSubmit } from "@/lib/program/program-price-form";
 import {
@@ -16,6 +17,7 @@ import {
   formLabelClass,
   formLegendClass,
   inputFieldClass,
+  inputFocusClass,
 } from "@/lib/ui/typography";
 import { updateProgramBasics } from "./program-edit-actions";
 import {
@@ -30,9 +32,6 @@ type Props = {
   catalogTagOptions: InterestTagOption[];
   catalogTagsLoadError: string | null;
 };
-
-const inputNormal =
-  "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
 
 function tagDefaultPrice(p: Program): string {
   if (p.priceValue != null && Number.isFinite(p.priceValue)) {
@@ -82,19 +81,29 @@ export function EditProgramPanel({
   const [selectedTopicIds, setSelectedTopicIds] = useState(
     () => new Set(program.topicTags.map((t) => t.id)),
   );
+  const [learnerVisible, setLearnerVisible] = useState(program.isActive);
 
   useEffect(() => {
     setTitle(program.title);
     setDescription(program.subtitle);
     setPrice(tagDefaultPrice(program));
     setSelectedTopicIds(new Set(program.topicTags.map((t) => t.id)));
-  }, [program.id, program.title, program.subtitle, program.priceValue, serverTopicFingerprint]);
+    setLearnerVisible(program.isActive);
+  }, [
+    program.id,
+    program.title,
+    program.subtitle,
+    program.priceValue,
+    program.isActive,
+    serverTopicFingerprint,
+  ]);
 
   const isDirty =
     title !== program.title ||
     description !== program.subtitle ||
     price.trim() !== tagDefaultPrice(program).trim() ||
-    fingerprintFromSelectedIds(selectedTopicIds) !== serverTopicFingerprint;
+    fingerprintFromSelectedIds(selectedTopicIds) !== serverTopicFingerprint ||
+    learnerVisible !== program.isActive;
 
   const canSubmit =
     isDirty &&
@@ -128,7 +137,7 @@ export function EditProgramPanel({
             maxLength={240}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className={`${inputFieldClass} ${inputNormal}`}
+            className={`${inputFieldClass} ${inputFocusClass}`}
           />
         </div>
 
@@ -143,7 +152,7 @@ export function EditProgramPanel({
             maxLength={8000}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={`${inputFieldClass} ${inputNormal} resize-y`}
+            className={`${inputFieldClass} ${inputFocusClass} resize-y`}
           />
         </div>
 
@@ -207,12 +216,20 @@ export function EditProgramPanel({
             placeholder="0 for free, or e.g. 29.99"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className={`${inputFieldClass} ${inputNormal}`}
+            className={`${inputFieldClass} ${inputFocusClass}`}
           />
           <p className={captionClass}>
             Whole numbers or decimals; use{" "}
             <span className="font-medium">0</span> for free programs.
           </p>
+        </div>
+
+        <div className="border-t border-editorial-border pt-5">
+          <LearnerVisibilityToggle
+            isActive={learnerVisible}
+            onChange={setLearnerVisible}
+            formFieldName="is_active"
+          />
         </div>
 
         <div className="flex justify-end pt-1">
