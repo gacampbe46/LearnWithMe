@@ -26,7 +26,7 @@ export function ProfileAvatar({
   if (imageUrl?.trim()) {
     return (
       <span
-        className={`inline-block shrink-0 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800 ${dim} ${className}`.trim()}
+        className={`inline-block shrink-0 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-800 ${dim} ${className}`.trim()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- remote OAuth URLs; avoid remotePatterns churn */}
         <img
@@ -43,7 +43,7 @@ export function ProfileAvatar({
 
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-full bg-zinc-200 font-semibold text-zinc-700 ${dim} ${className}`.trim()}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-stone-200 font-semibold text-stone-700 ${dim} ${className}`.trim()}
       aria-hidden
     >
       {initial}

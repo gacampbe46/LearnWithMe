@@ -4,6 +4,7 @@ import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { LearnerVisibilityToggle } from "@/components/program/LearnerVisibilityToggle";
 import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,
@@ -16,6 +17,7 @@ import {
   formLabelClass,
   formLegendClass,
   inputFieldClass,
+  inputFocusClass,
   subtitleSmClass,
   titleSubsectionClass,
 } from "@/lib/ui/typography";
@@ -36,9 +38,6 @@ type Props = {
   catalogTagsLoadError: string | null;
 };
 
-const inputNormal =
-  "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
-
 export function ProgramCreateForm({
   profile,
   catalogTags,
@@ -55,6 +54,7 @@ export function ProgramCreateForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [learnerVisible, setLearnerVisible] = useState(false);
 
   const canSubmit =
     title.trim().length > 0 &&
@@ -104,16 +104,16 @@ export function ProgramCreateForm({
   }
 
   return (
-    <Card className="space-y-6">
-      <header className="space-y-1 border-b border-zinc-200 pb-5 dark:border-zinc-800">
-        <h2 className={titleSubsectionClass}>New program</h2>
-        <p className={subtitleSmClass}>
-          Published as @{profile.username}. You can add sessions after the
-          program exists.
-        </p>
-      </header>
+    <form action={formAction} className="space-y-6">
+      <Card className="space-y-6">
+        <header className="space-y-1 border-b border-editorial-border pb-5">
+          <h2 className={titleSubsectionClass}>Program details</h2>
+          <p className={subtitleSmClass}>
+            Published as @{profile.username}. You can add sessions after the
+            program is created.
+          </p>
+        </header>
 
-      <form action={formAction} className="space-y-5">
         {state.formError ? (
           <p
             role="alert"
@@ -124,10 +124,7 @@ export function ProgramCreateForm({
         ) : null}
 
         <div className="space-y-2">
-          <label
-            htmlFor="program-title"
-            className={formLabelClass}
-          >
+          <label htmlFor="program-title" className={formLabelClass}>
             Title
           </label>
           <input
@@ -137,17 +134,14 @@ export function ProgramCreateForm({
             maxLength={240}
             autoComplete="off"
             placeholder="Example: Foundations for beginners"
-            className={`${inputFieldClass} ${inputNormal}`}
+            className={`${inputFieldClass} ${inputFocusClass}`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="program-description"
-            className={formLabelClass}
-          >
+          <label htmlFor="program-description" className={formLabelClass}>
             Description
           </label>
           <textarea
@@ -156,16 +150,14 @@ export function ProgramCreateForm({
             rows={4}
             maxLength={8000}
             placeholder="What people get, how it is structured, who it is for…"
-            className={`${inputFieldClass} ${inputNormal} resize-y`}
+            className={`${inputFieldClass} ${inputFocusClass} resize-y`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <fieldset className="space-y-3 border-0 p-0">
-          <legend className={formLegendClass}>
-            Topic tags
-          </legend>
+          <legend className={formLegendClass}>Topic tags</legend>
           {catalogTagsLoadError ? (
             <div
               role="alert"
@@ -202,10 +194,7 @@ export function ProgramCreateForm({
         </fieldset>
 
         <div className="space-y-2">
-          <label
-            htmlFor="program-price"
-            className={formLabelClass}
-          >
+          <label htmlFor="program-price" className={formLabelClass}>
             Price (USD)
           </label>
           <input
@@ -215,7 +204,7 @@ export function ProgramCreateForm({
             required
             maxLength={32}
             placeholder="0 for free, or e.g. 29.99"
-            className={`${inputFieldClass} ${inputNormal}`}
+            className={`${inputFieldClass} ${inputFocusClass}`}
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
@@ -224,17 +213,25 @@ export function ProgramCreateForm({
             <span className="font-medium">0</span> for free programs.
           </p>
         </div>
+      </Card>
 
-        <div className="flex justify-end pt-1">
-          <Button
-            type="submit"
-            className="min-h-10 justify-center px-4 py-2 text-sm font-medium sm:px-5"
-            disabled={!canSubmit}
-          >
-            {pending ? "Creating…" : "Create program"}
-          </Button>
-        </div>
-      </form>
-    </Card>
+      <Card>
+        <LearnerVisibilityToggle
+          isActive={learnerVisible}
+          onChange={setLearnerVisible}
+          formFieldName="is_active"
+        />
+      </Card>
+
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          className="min-h-10 justify-center px-4 py-2 text-sm font-medium sm:px-5"
+          disabled={!canSubmit}
+        >
+          {pending ? "Creating…" : "Create program"}
+        </Button>
+      </div>
+    </form>
   );
 }

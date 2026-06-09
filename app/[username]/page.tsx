@@ -2,6 +2,7 @@ import { MemberProfileFullContent } from "@/components/member/MemberProfileFullC
 import { MemberProfileLinkHub } from "@/components/member/MemberProfileLinkHub";
 import {
   getMemberByUsername,
+  getMemberByUsernameForOwner,
   parseProfileLayoutParam,
   resolveRenderedProfileView,
 } from "@/lib/member";
@@ -33,11 +34,7 @@ export async function generateMetadata({
 
 export default async function MemberProfilePage({ params, searchParams }: PageProps) {
   const { username } = await params;
-  const member = await getMemberByUsername(username);
-
-  if (!member) {
-    notFound();
-  }
+  const normalized = username.trim().toLowerCase();
 
   let viewerOwnsProfile = false;
   let viewerAvatarUrl: string | null = null;
@@ -47,10 +44,19 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
   } = await supabase.auth.getUser();
   if (user) {
     const teaching = await getTeachingProfile(supabase, user.id);
-    viewerOwnsProfile = Boolean(teaching && teaching.id === member.id);
+    viewerOwnsProfile = teaching?.username === normalized;
     if (viewerOwnsProfile) {
       viewerAvatarUrl = ssoAvatarUrlFromUser(user);
     }
+  }
+
+  const member = viewerOwnsProfile
+    ? (await getMemberByUsernameForOwner(normalized)) ??
+      (await getMemberByUsername(normalized))
+    : await getMemberByUsername(normalized);
+
+  if (!member) {
+    notFound();
   }
 
   const sp = searchParams ? await searchParams : {};

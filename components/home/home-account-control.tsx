@@ -5,7 +5,7 @@ import { getNavAccount } from "@/lib/auth/nav-account";
 export function HomeAccountFallback() {
   return (
     <div
-      className="h-10 min-w-[5.5rem] animate-pulse rounded-full bg-zinc-200/90 dark:bg-zinc-800"
+      className="h-10 min-w-[5.5rem] animate-pulse rounded-full bg-stone-200/90 dark:bg-stone-800"
       aria-hidden
     />
   );

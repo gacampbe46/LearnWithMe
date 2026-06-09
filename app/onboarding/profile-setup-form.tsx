@@ -21,6 +21,7 @@ import {
   formLabelClass,
   formLegendClass,
   inputFieldClass,
+  inputFocusClass,
   optionalHintClass,
 } from "@/lib/ui/typography";
 
@@ -32,9 +33,6 @@ type Props = {
   interestTags: InterestTagOption[];
   tagsLoadError: string | null;
 };
-
-const inputNormal =
-  "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
 
 export function ProfileSetupForm({
   nextPath,
@@ -81,12 +79,12 @@ export function ProfileSetupForm({
 
   return (
     <Card className="space-y-6">
-      <div className="flex flex-col items-center gap-2 border-b border-zinc-200 pb-6 text-center dark:border-zinc-800">
+      <div className="flex flex-col items-center gap-2 border-b border-editorial-border pb-6 text-center">
         <ProfileAvatar
           name={oauthAvatar.label}
           imageUrl={oauthAvatar.pictureUrl}
           size="lg"
-          className="ring-2 ring-zinc-100 dark:ring-zinc-800"
+          className="ring-2 ring-stone-100 dark:ring-stone-800"
         />
       </div>
 
@@ -101,7 +99,7 @@ export function ProfileSetupForm({
         {state.formError ? (
           <div
             role="alert"
-            className="rounded-xl border border-zinc-200 border-l-4 border-l-red-500 bg-zinc-50/90 px-4 py-3 text-sm leading-relaxed text-zinc-800 dark:border-zinc-700 dark:border-l-red-400 dark:bg-zinc-900/50 dark:text-zinc-200"
+            className="rounded-xl border border-editorial-border border-l-4 border-l-red-500 bg-editorial-card px-4 py-3 text-sm leading-relaxed text-stone-800 dark:border-l-red-400 dark:text-stone-200"
           >
             {state.formError}
           </div>
@@ -143,7 +141,7 @@ export function ProfileSetupForm({
               type="text"
               autoComplete="given-name"
               defaultValue={defaultFirstName}
-              className={`${inputFieldClass} ${inputNormal}`}
+              className={`${inputFieldClass} ${inputFocusClass}`}
             />
           </div>
           <div className="space-y-2">
@@ -159,7 +157,7 @@ export function ProfileSetupForm({
               type="text"
               autoComplete="family-name"
               defaultValue={defaultLastName}
-              className={`${inputFieldClass} ${inputNormal}`}
+              className={`${inputFieldClass} ${inputFocusClass}`}
             />
           </div>
         </div>
@@ -178,7 +176,7 @@ export function ProfileSetupForm({
             rows={4}
             maxLength={2000}
             placeholder="A short introduction for your profile"
-            className={`${inputFieldClass} ${inputNormal} resize-y`}
+            className={`${inputFieldClass} ${inputFocusClass} resize-y`}
           />
         </div>
 

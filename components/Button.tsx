@@ -5,11 +5,11 @@ const base =
 
 const variants = {
   primary:
-    "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 focus-visible:outline-zinc-500 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white dark:focus-visible:outline-zinc-400",
+    "bg-stone-900 text-stone-50 hover:bg-stone-800 focus-visible:outline-stone-500 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white dark:focus-visible:outline-stone-400",
   outline:
-    "border border-zinc-300 bg-white/50 text-zinc-900 hover:border-zinc-400 hover:bg-zinc-100/80 focus-visible:outline-zinc-400 dark:border-zinc-600 dark:bg-zinc-900/40 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800/60 dark:focus-visible:outline-zinc-500",
+    "border border-stone-800 bg-editorial-card/50 text-stone-900 hover:border-editorial-accent-muted hover:bg-stone-900/5 focus-visible:outline-editorial-accent-muted dark:border-stone-300 dark:bg-editorial-card/40 dark:text-stone-100 dark:hover:border-editorial-accent dark:hover:bg-stone-800/40 dark:focus-visible:outline-stone-500",
   ghost:
-    "text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 focus-visible:outline-zinc-400 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-100 dark:focus-visible:outline-zinc-500",
+    "text-stone-600 hover:bg-stone-200/80 hover:text-stone-900 focus-visible:outline-editorial-accent-muted dark:text-stone-400 dark:hover:bg-stone-800/80 dark:hover:text-stone-100 dark:focus-visible:outline-stone-500",
 } as const;
 
 type Variant = keyof typeof variants;

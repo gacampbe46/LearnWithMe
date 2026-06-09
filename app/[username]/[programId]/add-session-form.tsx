@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { addProgramSession } from "./actions";
-import { formLabelClass, inputFieldClass } from "@/lib/ui/typography";
+import { formLabelClass, inputFieldClass, inputFocusClass } from "@/lib/ui/typography";
 import {
   addSessionInitialState,
   type AddSessionFormState,
@@ -14,9 +14,6 @@ type Props = {
   username: string;
   programId: string;
 };
-
-const inputNormal =
-  "border-zinc-300 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-400/40 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25";
 
 export function AddSessionForm({ username, programId }: Props) {
   const [state, formAction, pending] = useActionState<
@@ -60,7 +57,7 @@ export function AddSessionForm({ username, programId }: Props) {
             maxLength={280}
             autoComplete="off"
             placeholder="Example: Getting started with the tools"
-            className={`${inputFieldClass} ${inputNormal}`}
+            className={`${inputFieldClass} ${inputFocusClass}`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -79,7 +76,7 @@ export function AddSessionForm({ username, programId }: Props) {
             rows={3}
             maxLength={8000}
             placeholder="What this session covers"
-            className={`${inputFieldClass} ${inputNormal} resize-y`}
+            className={`${inputFieldClass} ${inputFocusClass} resize-y`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -99,7 +96,7 @@ export function AddSessionForm({ username, programId }: Props) {
             maxLength={2000}
             autoComplete="off"
             placeholder="https://www.youtube.com/watch?v=… or paste the video ID"
-            className={`${inputFieldClass} ${inputNormal}`}
+            className={`${inputFieldClass} ${inputFocusClass}`}
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
           />

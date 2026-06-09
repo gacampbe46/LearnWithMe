@@ -11,6 +11,7 @@ import {
   navLinkClass,
   titlePrimaryClass,
 } from "@/lib/ui/typography";
+import { pageContainerClass, pageMainStickyClass } from "@/lib/ui/page-layout";
 import { ProfileEditForm } from "./profile-edit-form";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -55,7 +56,7 @@ export default async function EditProfilePage({
 
   if (!user) {
     return (
-      <main className="mx-auto w-full max-w-lg px-4 py-10">
+      <main className={`${pageContainerClass} py-10`}>
         <Card className="space-y-4">
           <h1 className={titlePrimaryClass}>Edit profile</h1>
           <p className={bodyMutedClass}>You need to sign in first.</p>
@@ -95,14 +96,14 @@ export default async function EditProfilePage({
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-10 pb-28">
+      <main className={`${pageMainStickyClass} space-y-8`}>
         <nav>
           <Link href={`/${normalized}`} className={navLinkClass}>
             ← Back to profile
           </Link>
         </nav>
 
-        <header className="space-y-1 border-b border-zinc-200 pb-4 dark:border-zinc-800">
+        <header className="space-y-1 border-b border-editorial-border pb-4">
           <h1 className={titlePrimaryClass}>Edit profile</h1>
         </header>
 

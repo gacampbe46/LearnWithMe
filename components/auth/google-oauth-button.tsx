@@ -64,7 +64,7 @@ export function GoogleOAuthButton() {
       type="button"
       variant="outline"
       disabled={pending}
-      className="w-full gap-3 border-zinc-300 bg-white/80 dark:border-zinc-600 dark:bg-zinc-900/40"
+      className="w-full gap-3"
       onClick={handleClick}
     >
       <GoogleMark />

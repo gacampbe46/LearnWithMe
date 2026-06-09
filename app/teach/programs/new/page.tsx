@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/Button";
-import { SectionHeader } from "@/components/SectionHeader";
+import { CreateProgramSessionsAside } from "@/components/program/CreateProgramSessionsAside";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
-import { navLinkClass } from "@/lib/ui/typography";
+import { pageMainStickyClass } from "@/lib/ui/page-layout";
+import { navLinkClass, subtitleSmClass, titlePrimaryClass } from "@/lib/ui/typography";
 import { ProgramCreateForm } from "./program-create-form";
 import type { Metadata } from "next";
 
@@ -34,32 +34,32 @@ export default async function NewProgramPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10">
-        <div className="space-y-10">
-          <nav className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link href="/" className={navLinkClass}>
-              ← Home
-            </Link>
-            <Link href={`/${profile.username}`} className={navLinkClass}>
-              Your profile
-            </Link>
-          </nav>
+      <main className={`${pageMainStickyClass} space-y-10`}>
+        <nav className="flex flex-wrap gap-x-4 gap-y-2">
+          <Link href="/" className={navLinkClass}>
+            ← Home
+          </Link>
+          <Link href={`/${profile.username}`} className={navLinkClass}>
+            Your profile
+          </Link>
+        </nav>
 
-          <SectionHeader
-            title="Offer a program"
-            subtitle="Set the basics here, then open the program to add sessions."
-          />
+        <header className="space-y-1 border-b border-editorial-border pb-4">
+          <h1 className={titlePrimaryClass}>Create program</h1>
+          <p className={subtitleSmClass}>
+            Set the basics and visibility, then add sessions on the right.
+          </p>
+        </header>
 
+        <div className="space-y-10 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-10 lg:space-y-0">
           <ProgramCreateForm
             profile={profile}
             catalogTags={catalogTags}
             catalogTagsLoadError={catalogTagsError}
           />
 
-          <div className="text-center">
-            <Button href="/conduct" variant="ghost" className="text-sm">
-              Code of conduct
-            </Button>
+          <div className="lg:sticky lg:top-20">
+            <CreateProgramSessionsAside />
           </div>
         </div>
       </main>

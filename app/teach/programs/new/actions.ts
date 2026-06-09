@@ -103,6 +103,9 @@ export async function createProgram(
   const tagsPayload =
     topicIds.length > 0 ? serializeProgramTags(topicIds) : null;
 
+  const isActiveRaw = trimField(formText(formData, "is_active"), 8);
+  const isActive = isActiveRaw === "true";
+
   const { data: inserted, error: insertErr } = await supabase
     .from("programs")
     .insert({
@@ -110,7 +113,7 @@ export async function createProgram(
       title,
       description: description || null,
       price: priceParsed.value,
-      is_active: true,
+      is_active: isActive,
       tags: tagsPayload,
     })
     .select("id")
@@ -128,5 +131,5 @@ export async function createProgram(
     return { formError: "Could not create the program. Try again." };
   }
 
-  redirect(`/${profile.username}/${inserted.id}`);
+  redirect(`/${profile.username}/${inserted.id}/manage`);
 }
