@@ -24,8 +24,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deleteProgramSession } from "@/app/[username]/[programId]/actions";
 import { reorderProgramSessions } from "@/app/[username]/[programId]/manage-actions";
+import { EditPencilIcon } from "@/components/icons/edit-pencil-icon";
 import { TrashIcon } from "@/components/icons/trash-icon";
-import { bodyLeadClass, bodyMutedClass, captionClass, titleSmallClass } from "@/lib/ui/typography";
+import { bodyLeadClass, bodyMutedClass, captionClass, iconButtonClass, titleSmallClass } from "@/lib/ui/typography";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
@@ -34,12 +35,17 @@ export type ManageSessionRow = {
   id: string;
   title: string;
   description: string;
+  videoInput: string;
 };
 
 type Props = {
   profileSlug: string;
   programId: string;
   sessionsStamp: string;
+  /** Hide links to `/sessions/new` when add form is inline (create wizard). */
+  hideAddLinks?: boolean;
+  editingSessionId?: string | null;
+  onEditSession?: (session: ManageSessionRow) => void;
 };
 
 function GripHandle({
@@ -79,11 +85,15 @@ function SortableSessionRow({
   profileSlug,
   programId,
   onDeleteSession,
+  isEditing,
+  onEditSession,
 }: {
   session: ManageSessionRow;
   profileSlug: string;
   programId: string;
   onDeleteSession: (sessionId: string) => Promise<void>;
+  isEditing?: boolean;
+  onEditSession?: (session: ManageSessionRow) => void;
 }) {
   const {
     attributes,
@@ -114,7 +124,9 @@ function SortableSessionRow({
         className={`transition-shadow ${
           isDragging
             ? "border-editorial-accent-muted shadow-lg shadow-stone-900/15 ring-1 ring-editorial-accent-muted/70 dark:ring-stone-600"
-            : "hover:border-editorial-accent dark:hover:border-editorial-accent-muted"
+            : isEditing
+              ? "border-editorial-accent-muted ring-1 ring-editorial-accent-muted/70"
+              : "hover:border-editorial-accent dark:hover:border-editorial-accent-muted"
         }`}
       >
         <div className="flex flex-col gap-3">
@@ -129,11 +141,24 @@ function SortableSessionRow({
               ) : null}
             </Link>
             <div className="flex shrink-0 items-center gap-3 sm:gap-4">
-              <EditProgramIconLink
-                href={editHref}
-                ariaLabel="Edit session"
-                titleProp="Edit session"
-              />
+              {onEditSession ? (
+                <button
+                  type="button"
+                  className={`${iconButtonClass} ${isEditing ? "text-editorial-accent" : ""}`.trim()}
+                  aria-label="Edit session"
+                  title="Edit session"
+                  aria-pressed={isEditing}
+                  onClick={() => onEditSession(session)}
+                >
+                  <EditPencilIcon />
+                </button>
+              ) : (
+                <EditProgramIconLink
+                  href={editHref}
+                  ariaLabel="Edit session"
+                  titleProp="Edit session"
+                />
+              )}
               {!confirmDelete ? (
                 <button
                   type="button"
@@ -195,26 +220,42 @@ export function ManageSessionsList({
   profileSlug,
   programId,
   sessionsStamp,
+  hideAddLinks = false,
+  editingSessionId = null,
+  onEditSession,
 }: Props) {
   const router = useRouter();
-  const [items, setItems] = useState<ManageSessionRow[]>(() => {
+  const parseRows = (stamp: string): ManageSessionRow[] => {
     try {
-      const p = JSON.parse(sessionsStamp) as unknown;
-      return Array.isArray(p) ? (p as ManageSessionRow[]) : [];
+      const parsed = JSON.parse(stamp) as unknown;
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter(
+          (row): row is ManageSessionRow =>
+            row != null &&
+            typeof row === "object" &&
+            typeof (row as ManageSessionRow).id === "string" &&
+            typeof (row as ManageSessionRow).title === "string",
+        )
+        .map((row) => ({
+          id: row.id,
+          title: row.title,
+          description:
+            typeof row.description === "string" ? row.description : "",
+          videoInput:
+            typeof row.videoInput === "string" ? row.videoInput : "",
+        }));
     } catch {
       return [];
     }
-  });
+  };
+
+  const [items, setItems] = useState<ManageSessionRow[]>(() =>
+    parseRows(sessionsStamp),
+  );
 
   useEffect(() => {
-    try {
-      const next = JSON.parse(sessionsStamp) as unknown;
-      if (Array.isArray(next)) {
-        setItems(next as ManageSessionRow[]);
-      }
-    } catch {
-      setItems([]);
-    }
+    setItems(parseRows(sessionsStamp));
   }, [sessionsStamp]);
 
   const itemsRef = useRef(items);
@@ -322,13 +363,15 @@ export function ManageSessionsList({
     return (
       <div className="space-y-3">
         <p className={bodyLeadClass}>No sessions yet.</p>
-        <Button
-          href={`/${profileSlug}/${programId}/sessions/new`}
-          variant="outline"
-          className="w-full min-h-10 justify-center px-5 text-sm font-medium"
-        >
-          Add session
-        </Button>
+        {hideAddLinks ? null : (
+          <Button
+            href={`/${profileSlug}/${programId}/sessions/new`}
+            variant="outline"
+            className="w-full min-h-10 justify-center px-5 text-sm font-medium"
+          >
+            Add session
+          </Button>
+        )}
       </div>
     );
   }
@@ -368,20 +411,24 @@ export function ManageSessionsList({
                 profileSlug={profileSlug}
                 programId={programId}
                 onDeleteSession={deleteSession}
+                isEditing={editingSessionId === s.id}
+                onEditSession={onEditSession}
               />
             ))}
           </ul>
         </SortableContext>
       </DndContext>
-      <div className="pt-1">
-        <Button
-          href={`/${profileSlug}/${programId}/sessions/new`}
-          variant="outline"
-          className="w-full min-h-10 justify-center px-5 text-sm font-medium"
-        >
-          Add another session
-        </Button>
-      </div>
+      {hideAddLinks ? null : (
+        <div className="pt-1">
+          <Button
+            href={`/${profileSlug}/${programId}/sessions/new`}
+            variant="outline"
+            className="w-full min-h-10 justify-center px-5 text-sm font-medium"
+          >
+            Add another session
+          </Button>
+        </div>
+      )}
     </>
   );
 }

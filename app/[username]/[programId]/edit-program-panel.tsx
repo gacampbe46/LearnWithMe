@@ -58,6 +58,8 @@ export function EditProgramPanel({
   catalogTagOptions,
   catalogTagsLoadError,
 }: Props) {
+  const hasSessions = program.sessions.length > 0;
+  const visibilityEditable = hasSessions;
   const [basicState, basicAction, basicPending] = useActionState<
     EditProgramBasicsState,
     FormData
@@ -98,12 +100,14 @@ export function EditProgramPanel({
     serverTopicFingerprint,
   ]);
 
+  const effectiveLearnerVisible = visibilityEditable ? learnerVisible : false;
+
   const isDirty =
     title !== program.title ||
     description !== program.subtitle ||
     price.trim() !== tagDefaultPrice(program).trim() ||
     fingerprintFromSelectedIds(selectedTopicIds) !== serverTopicFingerprint ||
-    learnerVisible !== program.isActive;
+    (visibilityEditable && learnerVisible !== program.isActive);
 
   const canSubmit =
     isDirty &&
@@ -116,7 +120,6 @@ export function EditProgramPanel({
       <form action={basicAction} className="space-y-5">
         <input type="hidden" name="username" value={username} />
         <input type="hidden" name="program_id" value={programId} />
-
         {basicState.formError ? (
           <p
             role="alert"
@@ -226,8 +229,11 @@ export function EditProgramPanel({
 
         <div className="border-t border-editorial-border pt-5">
           <LearnerVisibilityToggle
-            isActive={learnerVisible}
-            onChange={setLearnerVisible}
+            isActive={effectiveLearnerVisible}
+            onChange={visibilityEditable ? setLearnerVisible : undefined}
+            disabled={!visibilityEditable}
+            lockedReason="Add at least one session before you can publish to users."
+            inactiveHelperText="Hidden from users — turn this on when you’re ready to publish."
             formFieldName="is_active"
           />
         </div>

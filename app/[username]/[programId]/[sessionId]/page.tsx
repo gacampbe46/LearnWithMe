@@ -74,7 +74,7 @@ export default async function ProgramSessionPage({ params }: PageProps) {
             </Link>
             {canManage ? (
               <EditProgramIconLink
-                href={`/${profileSlug}/${programId}/sessions/${sessionId}/edit`}
+                href={`/${profileSlug}/${programId}/manage#edit-${encodeURIComponent(sessionId)}`}
                 ariaLabel="Edit session"
                 titleProp="Edit session"
               />

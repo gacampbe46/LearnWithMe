@@ -1,5 +1,6 @@
 import type { HomeSession } from "@/lib/home/placeholder-data";
 import { sessionDisplayTitle } from "@/lib/home/session-display-title";
+import { sessionThumbnailShellClass } from "@/lib/ui/page-layout";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -31,7 +32,7 @@ export function SessionCard({ session, className = "" }: SessionCardProps) {
       href={session.href}
       className={`group relative block overflow-hidden rounded-xl border border-editorial-border bg-editorial-card shadow-sm shadow-stone-900/5 transition hover:border-editorial-accent-muted hover:shadow-md dark:shadow-black/30 ${className}`.trim()}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-stone-200 dark:bg-stone-800 sm:aspect-[5/4]">
+      <div className={sessionThumbnailShellClass}>
         <Image
           src={session.imageSrc}
           alt={session.imageAlt}

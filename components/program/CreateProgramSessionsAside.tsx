@@ -8,11 +8,13 @@ export function CreateProgramSessionsAside() {
       <h2 className={titleSubsectionClass}>Sessions</h2>
       <Card className="space-y-4">
         <p className={bodyLeadClass}>
-          After you create the program, add sessions here — one tile per lesson,
-          with video and notes for learners.
+          Create the program on the left first. You&apos;ll add sessions on the
+          manage screen right after — one lesson at a time, with video for
+          learners.
         </p>
         <p className={captionClass}>
-          You&apos;ll land on the manage screen right after creating the program.
+          Programs start hidden from users until you add a session and turn
+          visibility on.
         </p>
         <Button
           type="button"

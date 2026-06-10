@@ -4,7 +4,6 @@ import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
-import { LearnerVisibilityToggle } from "@/components/program/LearnerVisibilityToggle";
 import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,
@@ -54,8 +53,6 @@ export function ProgramCreateForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [learnerVisible, setLearnerVisible] = useState(false);
-
   const canSubmit =
     title.trim().length > 0 &&
     priceAllowsSubmit(price) &&
@@ -109,8 +106,8 @@ export function ProgramCreateForm({
         <header className="space-y-1 border-b border-editorial-border pb-5">
           <h2 className={titleSubsectionClass}>Program details</h2>
           <p className={subtitleSmClass}>
-            Published as @{profile.username}. You can add sessions after the
-            program is created.
+            Saved as a draft under @{profile.username}. You&apos;ll go to manage
+            next to add sessions and publish.
           </p>
         </header>
 
@@ -213,14 +210,6 @@ export function ProgramCreateForm({
             <span className="font-medium">0</span> for free programs.
           </p>
         </div>
-      </Card>
-
-      <Card>
-        <LearnerVisibilityToggle
-          isActive={learnerVisible}
-          onChange={setLearnerVisible}
-          formFieldName="is_active"
-        />
       </Card>
 
       <div className="flex justify-end">

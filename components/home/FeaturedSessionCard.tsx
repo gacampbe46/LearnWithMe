@@ -1,4 +1,5 @@
 import type { HomeSession } from "@/lib/home/placeholder-data";
+import { sessionThumbnailShellClass } from "@/lib/ui/page-layout";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,7 +15,7 @@ export function FeaturedSessionCard({ session }: FeaturedSessionCardProps) {
       href={session.href}
       className="group block overflow-hidden rounded-xl ring-1 ring-stone-900/8 transition hover:ring-stone-900/15"
     >
-      <div className="relative aspect-[4/3]">
+      <div className={sessionThumbnailShellClass}>
         <Image
           src={session.imageSrc}
           alt={session.imageAlt}

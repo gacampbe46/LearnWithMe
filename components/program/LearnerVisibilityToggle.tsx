@@ -4,6 +4,10 @@ type LearnerVisibilityToggleProps = {
   isActive: boolean;
   onChange?: (next: boolean) => void;
   disabled?: boolean;
+  /** Shown under the label when the toggle is disabled. */
+  lockedReason?: string;
+  /** Shown when off but the toggle is interactive (e.g. draft with sessions). */
+  inactiveHelperText?: string;
   /** When set, syncs toggle state into a hidden form field. */
   formFieldName?: string;
   error?: string | null;
@@ -13,19 +17,24 @@ export function LearnerVisibilityToggle({
   isActive,
   onChange,
   disabled = false,
+  lockedReason,
+  inactiveHelperText,
   formFieldName,
   error,
 }: LearnerVisibilityToggleProps) {
+  const helperText = disabled && lockedReason
+    ? lockedReason
+    : isActive
+      ? "Users can see this program on your profile."
+      : inactiveHelperText ??
+        "Users won\u2019t see this program until you turn this on.";
+
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className={labelStrongSmClass}>Learner visibility</p>
-          <p className={`mt-0.5 ${captionClass}`}>
-            {isActive
-              ? "Learners can see this program on your profile."
-              : "Learners won\u2019t see this program until you turn this on."}
-          </p>
+          <p className={labelStrongSmClass}>User visibility</p>
+          <p className={`mt-0.5 ${captionClass}`}>{helperText}</p>
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-2">
@@ -48,7 +57,7 @@ export function LearnerVisibilityToggle({
             role="switch"
             aria-checked={isActive}
             aria-label={
-              isActive ? "Hide program from learners" : "Show program to learners"
+              isActive ? "Hide program from users" : "Show program to users"
             }
           >
             <span

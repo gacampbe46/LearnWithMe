@@ -1,11 +1,6 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { AddSessionForm } from "../../add-session-form";
-import { SectionHeader } from "@/components/SectionHeader";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
-import { pageMainClass } from "@/lib/ui/page-layout";
-import { navLinkClass } from "@/lib/ui/typography";
 import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string }>;
@@ -25,6 +20,7 @@ export async function generateMetadata({
   };
 }
 
+/** Add session lives inline on manage — keep this route as a redirect. */
 export default async function NewProgramSessionPage({ params }: PageProps) {
   const { username, programId } = await params;
   const loaded = await loadProgramDetail(username, programId);
@@ -33,25 +29,5 @@ export default async function NewProgramSessionPage({ params }: PageProps) {
     notFound();
   }
 
-  const { profileSlug, program: p } = loaded;
-  const backHref = `/${profileSlug}/${programId}/manage`;
-
-  return (
-    <div className="flex min-h-dvh flex-col">
-      <main className={`${pageMainClass} space-y-8`}>
-        <nav className="flex flex-wrap items-center gap-3">
-          <Link href={backHref} className={navLinkClass}>
-            ← Back to manage
-          </Link>
-        </nav>
-
-        <SectionHeader
-          title="Add session"
-          subtitle={`You’re adding this to “${p.title}.” Saved sessions appear on your program page.`}
-        />
-
-        <AddSessionForm username={profileSlug} programId={programId} />
-      </main>
-    </div>
-  );
+  redirect(`/${loaded.profileSlug}/${programId}/manage#sessions`);
 }
