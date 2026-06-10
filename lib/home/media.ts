@@ -1,6 +1,6 @@
-/** YouTube still for Kathleen spotlight session previews. */
+/** YouTube still — 16:9 assets (`hqdefault` is 4:3 and letterboxes widescreen videos). */
 export function youtubeThumb(videoId: string, quality: "hq" | "max" = "hq") {
-  const file = quality === "max" ? "maxresdefault" : "hqdefault";
+  const file = quality === "max" ? "maxresdefault" : "mqdefault";
   return `https://i.ytimg.com/vi/${videoId}/${file}.jpg`;
 }
 

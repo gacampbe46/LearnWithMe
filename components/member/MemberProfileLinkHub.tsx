@@ -26,8 +26,14 @@ type Props = {
 const hubProgramPillOuter =
   "relative flex h-10 w-full min-h-10 items-center overflow-hidden rounded-full bg-stone-900 px-4 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-stone-500 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white dark:focus-within:outline-stone-400";
 
+const hubProgramPillHidden =
+  "relative flex h-10 w-full min-h-10 items-center overflow-hidden rounded-full border-2 border-dashed border-stone-400 bg-stone-100 px-4 text-sm font-medium text-stone-600 transition-colors hover:border-stone-500 hover:bg-stone-50 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-stone-400 dark:border-stone-500 dark:bg-stone-900/60 dark:text-stone-300 dark:hover:border-stone-400 dark:hover:bg-stone-900 dark:focus-within:outline-stone-500";
+
 const hubProgramPillIconTone =
   "!text-stone-50 hover:!bg-white/15 hover:!text-white dark:!text-stone-900 dark:hover:!bg-black/10 dark:hover:!text-stone-900";
+
+const hubProgramPillHiddenIconTone =
+  "!text-stone-600 hover:!bg-stone-200/80 hover:!text-stone-800 dark:!text-stone-300 dark:hover:!bg-stone-800/80 dark:hover:!text-stone-100";
 
 /** Full-width primary pill (matches program `Button` width); title link + share/manage in one bar. */
 function CompactProgramRow({
@@ -45,35 +51,39 @@ function CompactProgramRow({
   manageHref: string;
   hiddenFromLearners?: boolean;
 }) {
+  const iconTone = hiddenFromLearners
+    ? hubProgramPillHiddenIconTone
+    : hubProgramPillIconTone;
+
   return (
     <li className="w-full">
-      <div className={hubProgramPillOuter}>
+      <div className={hiddenFromLearners ? hubProgramPillHidden : hubProgramPillOuter}>
         <Link
           href={href}
           className="absolute inset-0 z-0 rounded-full outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400 dark:focus-visible:outline-stone-500"
           title={title}
-          aria-label={`Open program: ${title}`}
+          aria-label={`Open program: ${title}${hiddenFromLearners ? " (hidden from users)" : ""}`}
         />
         {/* Match Create button content box; symmetric inset keeps title centered over full pill width */}
-        <div className="relative z-10 flex h-full min-h-0 w-full flex-col items-center justify-center gap-1 px-[2.75rem] pointer-events-none sm:px-[3rem]">
-          <span className="w-full truncate text-center text-sm font-medium leading-normal">
+        <div className="relative z-10 flex h-full min-h-0 w-full items-center justify-center gap-2 px-[2.75rem] pointer-events-none sm:px-[3rem]">
+          {hiddenFromLearners ? (
+            <ProgramHiddenBadge variant="compact" className="pointer-events-none shrink-0" />
+          ) : null}
+          <span className="min-w-0 truncate text-center text-sm font-medium leading-normal">
             {title}
           </span>
-          {hiddenFromLearners ? (
-            <ProgramHiddenBadge className="pointer-events-none scale-90" />
-          ) : null}
         </div>
         <div className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 items-center gap-0.5 sm:right-4">
           <ShareProgramButton
             urlPath={href}
             title={shareTitle}
-            className={hubProgramPillIconTone}
+            className={iconTone}
           />
           {viewerOwnsProfile ? (
             <EditProgramIconLink
               href={manageHref}
               ariaLabel="Manage program"
-              className={hubProgramPillIconTone}
+              className={iconTone}
             />
           ) : null}
         </div>

@@ -1,5 +1,4 @@
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
-import { ProgramHiddenBadge } from "@/components/program/ProgramHiddenBadge";
 import { ProgramSessionCard } from "@/components/program/ProgramSessionCard";
 import { ShareProgramButton } from "@/components/program/share-program-button";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
@@ -78,12 +77,11 @@ export default async function ProgramPage({ params }: PageProps) {
                 title={p.title}
                 subtitle={p.subtitle}
               />
-              {canManage && !p.isActive ? <ProgramHiddenBadge /> : null}
             </div>
 
             {canManage && !p.isActive ? (
               <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-                Only you can see this preview — learners won&apos;t find this listing
+                Only you can see this preview — users won&apos;t find this listing
                 until visibility is on.{" "}
                 <Link
                   href={`/${profileSlug}/${programId}/manage`}
@@ -132,7 +130,7 @@ export default async function ProgramPage({ params }: PageProps) {
                 something for people to open.
               </p>
               <Button
-                href={`/${profileSlug}/${programId}/sessions/new`}
+                href={`/${profileSlug}/${programId}/manage#sessions`}
                 variant="outline"
                 className="w-full min-h-10 justify-center px-5 text-sm font-medium sm:w-auto"
               >

@@ -47,7 +47,8 @@ export default async function NewProgramPage() {
         <header className="space-y-1 border-b border-editorial-border pb-4">
           <h1 className={titlePrimaryClass}>Create program</h1>
           <p className={subtitleSmClass}>
-            Set the basics and visibility, then add sessions on the right.
+            Set the basics here as a draft — you&apos;ll add sessions and publish
+            from manage right after.
           </p>
         </header>
 

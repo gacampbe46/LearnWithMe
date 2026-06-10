@@ -103,9 +103,6 @@ export async function createProgram(
   const tagsPayload =
     topicIds.length > 0 ? serializeProgramTags(topicIds) : null;
 
-  const isActiveRaw = trimField(formText(formData, "is_active"), 8);
-  const isActive = isActiveRaw === "true";
-
   const { data: inserted, error: insertErr } = await supabase
     .from("programs")
     .insert({
@@ -113,7 +110,7 @@ export async function createProgram(
       title,
       description: description || null,
       price: priceParsed.value,
-      is_active: isActive,
+      is_active: false,
       tags: tagsPayload,
     })
     .select("id")

@@ -70,7 +70,58 @@ export async function updateProgramBasics(
     topicIds.length > 0 ? serializeProgramTags(topicIds) : null;
 
   const isActiveRaw = trimField(formText(formData, "is_active"), 8);
-  const wantActive = isActiveRaw === "true";
+  let wantActive = isActiveRaw === "true";
+
+  const { count: sessionCount, error: sessionCountErr } = await supabase
+    .from("sessions")
+    .select("id", { count: "exact", head: true })
+    .eq("program_id", programId);
+
+  if (sessionCountErr) {
+    return {
+      formError: isRlsOrPermissionError(sessionCountErr)
+        ? friendlyDbPermissionMessage()
+        : sessionCountErr.message,
+    };
+  }
+
+  if (wantActive && (sessionCount ?? 0) < 1) {
+    wantActive = false;
+  }
+
+  const programViewPath = safeNextPath(`/${username}/${programId}`);
+
+  const { data: existing, error: readErr } = await supabase
+    .from("programs")
+    .select("title, description, price, tags, is_active")
+    .eq("id", programId)
+    .maybeSingle();
+
+  if (readErr) {
+    return {
+      formError: isRlsOrPermissionError(readErr)
+        ? friendlyDbPermissionMessage()
+        : readErr.message,
+    };
+  }
+
+  if (!existing) {
+    return { formError: "This program wasn’t found." };
+  }
+
+  const existingTags = [...parseProgramTagsColumn(existing.tags)].sort().join("\0");
+  const wantTags = [...topicIds].sort().join("\0");
+  const currentActive = existing.is_active === true;
+  const basicsUnchanged =
+    existing.title === title &&
+    (existing.description ?? "") === (description || "") &&
+    Number(existing.price) === priceParsed.value &&
+    existingTags === wantTags;
+  const visibilityUnchanged = wantActive === currentActive;
+
+  if (basicsUnchanged && visibilityUnchanged) {
+    return { formError: null };
+  }
 
   /** Avoid `.update().select()` — RETURNING can be empty under SELECT RLS even when UPDATE applies. */
   const { error } = await supabase
@@ -113,8 +164,6 @@ export async function updateProgramBasics(
   }
 
   const savedTags = [...parseProgramTagsColumn(check.tags)].sort().join("\0");
-  const wantTags = [...topicIds].sort().join("\0");
-  const currentActive = check.is_active !== false;
   let basicsPersisted =
     check.title === title &&
     (check.description ?? "") === (description || "") &&
@@ -177,18 +226,18 @@ export async function updateProgramBasics(
     };
   }
 
-  if (!finalCheck || (finalCheck.is_active !== false) !== wantActive) {
+  const finalActive = finalCheck?.is_active === true;
+  if (!finalCheck || finalActive !== wantActive) {
     return { formError: friendlyLearnerVisibilityRlsMessage() };
   }
 
-  const managePath = safeNextPath(`/${username}/${programId}/manage`);
-  revalidatePath(managePath);
-  revalidatePath(safeNextPath(`/${username}/${programId}`));
+  revalidatePath(safeNextPath(`/${username}/${programId}/manage`));
+  revalidatePath(programViewPath);
   revalidatePath(safeNextPath(`/${username}`));
 
   return {
     formError: null,
-    redirectTo: managePath,
+    redirectTo: programViewPath,
     savedAt: Date.now(),
   };
 }

@@ -19,7 +19,7 @@ export function friendlyDbPermissionMessage(): string {
 /** Learner visibility uses RPC `set_program_is_active` + policies — see tools/sql. */
 export function friendlyLearnerVisibilityRlsMessage(): string {
   return (
-    "Could not save learner visibility. In Supabase SQL Editor, run the latest `tools/sql/run-all-owner-policies.sql` (creates `set_program_is_active`). " +
+    "Could not save user visibility. In Supabase SQL Editor, run the latest `tools/sql/run-all-owner-policies.sql` (creates `set_program_is_active`). " +
     "Use the same Supabase project as `NEXT_PUBLIC_SUPABASE_URL` in `.env.local`."
   );
 }

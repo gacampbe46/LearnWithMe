@@ -4,12 +4,11 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ManageSessionsList } from "@/components/program/manage-sessions-list";
+import { ManageSessionsSection } from "@/components/program/manage-sessions-section";
 import {
   navLinkClass,
   subtitleSmClass,
   titlePrimaryClass,
-  titleSubsectionClass,
 } from "@/lib/ui/typography";
 import { pageMainStickyClass } from "@/lib/ui/page-layout";
 import { EditProgramPanel } from "../edit-program-panel";
@@ -53,6 +52,7 @@ export default async function ManageProgramPage({ params }: PageProps) {
       id: s.id,
       title: s.title,
       description: s.description ?? "",
+      videoInput: s.storedContentUrl ?? s.media[0]?.videoId ?? "",
     })),
   );
 
@@ -75,8 +75,9 @@ export default async function ManageProgramPage({ params }: PageProps) {
 
         {!p.isActive ? (
           <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-            Hidden from learners — you can still preview the program page; learners
-            won&apos;t see it on your profile until visibility is on.
+            {sessions.length === 0
+              ? "Draft — add your first session on the right, then turn on user visibility to publish."
+              : "Hidden from users — turn on visibility below when you\u2019re ready to publish."}
           </p>
         ) : null}
 
@@ -96,14 +97,12 @@ export default async function ManageProgramPage({ params }: PageProps) {
             />
           </div>
 
-          <section className="space-y-4 lg:sticky lg:top-20">
-            <h3 className={titleSubsectionClass}>Sessions</h3>
-            <ManageSessionsList
-              profileSlug={profileSlug}
-              programId={programId}
-              sessionsStamp={sessionsStamp}
-            />
-          </section>
+          <ManageSessionsSection
+            profileSlug={profileSlug}
+            programId={programId}
+            sessionsStamp={sessionsStamp}
+            sessionCount={sessions.length}
+          />
         </div>
       </main>
     </div>

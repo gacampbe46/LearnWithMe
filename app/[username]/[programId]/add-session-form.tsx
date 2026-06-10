@@ -13,9 +13,17 @@ import {
 type Props = {
   username: string;
   programId: string;
+  /** After save, return here instead of manage (create wizard). */
+  returnPath?: string;
+  submitLabel?: string;
 };
 
-export function AddSessionForm({ username, programId }: Props) {
+export function AddSessionForm({
+  username,
+  programId,
+  returnPath,
+  submitLabel = "Add session",
+}: Props) {
   const [state, formAction, pending] = useActionState<
     AddSessionFormState,
     FormData
@@ -33,6 +41,9 @@ export function AddSessionForm({ username, programId }: Props) {
       <form action={formAction} className="space-y-4">
         <input type="hidden" name="username" value={username} />
         <input type="hidden" name="program_id" value={programId} />
+        {returnPath ? (
+          <input type="hidden" name="return_path" value={returnPath} />
+        ) : null}
 
         {state.formError ? (
           <p
@@ -103,7 +114,7 @@ export function AddSessionForm({ username, programId }: Props) {
         </div>
 
         <Button type="submit" className="w-full sm:w-auto" disabled={!canSubmit}>
-          {pending ? "Saving…" : "Add session"}
+          {pending ? "Saving…" : submitLabel}
         </Button>
       </form>
     </Card>

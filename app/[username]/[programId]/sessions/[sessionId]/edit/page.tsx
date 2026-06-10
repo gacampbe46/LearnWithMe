@@ -1,12 +1,7 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { EditSessionForm } from "../../../edit-session-form";
-import { SectionHeader } from "@/components/SectionHeader";
 import { memberProgramSessionById } from "@/lib/member";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
-import { pageMainClass } from "@/lib/ui/page-layout";
-import { navLinkClass } from "@/lib/ui/typography";
 import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string; sessionId: string }>;
@@ -28,6 +23,7 @@ export async function generateMetadata({
   };
 }
 
+/** Edit session lives inline on manage — keep this route as a redirect. */
 export default async function EditProgramSessionPage({ params }: PageProps) {
   const { username, programId, sessionId } = await params;
   const loaded = await loadProgramDetail(username, programId);
@@ -36,39 +32,12 @@ export default async function EditProgramSessionPage({ params }: PageProps) {
     notFound();
   }
 
-  const { profileSlug, program: p } = loaded;
-  const session = memberProgramSessionById(p, sessionId);
+  const session = memberProgramSessionById(loaded.program, sessionId);
   if (!session) {
     notFound();
   }
 
-  const backManage = `/${profileSlug}/${programId}/manage`;
-  const initialVideo =
-    session.storedContentUrl ?? session.media[0]?.videoId ?? "";
-
-  return (
-    <div className="flex min-h-dvh flex-col">
-      <main className={`${pageMainClass} space-y-8`}>
-        <nav className="flex flex-wrap items-center gap-3">
-          <Link href={backManage} className={navLinkClass}>
-            ← Back to manage
-          </Link>
-        </nav>
-
-        <SectionHeader
-          title="Edit session"
-          subtitle={`Update “${session.title}” in “${p.title}.”`}
-        />
-
-        <EditSessionForm
-          username={profileSlug}
-          programId={programId}
-          sessionId={sessionId}
-          initialTitle={session.title}
-          initialDescription={session.description}
-          initialVideoInput={initialVideo}
-        />
-      </main>
-    </div>
+  redirect(
+    `/${loaded.profileSlug}/${programId}/manage#edit-${encodeURIComponent(sessionId)}`,
   );
 }

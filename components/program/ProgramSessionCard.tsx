@@ -1,5 +1,6 @@
 import type { ProgramSession } from "@/lib/member";
-import { youtubeThumb } from "@/lib/home/media";
+import { sessionThumbnailSrc } from "@/lib/program/thumbnail";
+import { sessionThumbnailShellClass } from "@/lib/ui/page-layout";
 import { metaCapsClass, titleCardClass } from "@/lib/ui/typography";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +20,7 @@ export function ProgramSessionCard({
   sessionTotal,
   className = "",
 }: ProgramSessionCardProps) {
-  const videoId = session.media[0]?.videoId?.trim() ?? "";
+  const thumbnailSrc = sessionThumbnailSrc(session);
   const showNumber =
     sessionTotal != null && sessionTotal > 1 && sessionNumber != null;
   const description = session.description.trim();
@@ -29,10 +30,10 @@ export function ProgramSessionCard({
       href={href}
       className={`group relative block h-full overflow-hidden rounded-xl border border-editorial-border bg-editorial-card shadow-sm shadow-stone-900/5 transition hover:border-editorial-accent-muted hover:shadow-md dark:shadow-black/30 ${className}`.trim()}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-stone-200 dark:bg-stone-800 sm:aspect-[5/4]">
-        {videoId ? (
+      <div className={sessionThumbnailShellClass}>
+        {thumbnailSrc ? (
           <Image
-            src={youtubeThumb(videoId)}
+            src={thumbnailSrc}
             alt=""
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 400px"

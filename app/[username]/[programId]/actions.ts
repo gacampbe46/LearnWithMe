@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   friendlyDbPermissionMessage,
@@ -26,8 +27,11 @@ export async function addProgramSession(
 ): Promise<AddSessionFormState> {
   const username = trimField(formText(formData, "username"), 80);
   const programId = trimField(formText(formData, "program_id"), 64);
-  const backPath =
-    username && programId ? `/${username}/${programId}/manage` : "/";
+  const returnPathRaw = trimField(formText(formData, "return_path"), 200);
+  const backPath = safeNextPath(
+    returnPathRaw ||
+      (username && programId ? `/${username}/${programId}/manage` : "/"),
+  );
 
   if (!username || !programId) {
     return { formError: "Missing program. Go back and try again." };
@@ -87,6 +91,10 @@ export async function addProgramSession(
         : "";
     return { formError: `${baseMsg}${hint}` };
   }
+
+  revalidatePath(backPath);
+  revalidatePath(safeNextPath(`/${username}/${programId}/manage`));
+  revalidatePath(safeNextPath(`/${username}/${programId}`));
 
   redirect(safeNextPath(backPath));
 }
