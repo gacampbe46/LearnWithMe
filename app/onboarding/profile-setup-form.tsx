@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState, startTransition, type FormEvent } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
-import { ProfileAvatar } from "@/components/profile-avatar";
+import { ProfileAvatarUpload } from "@/components/profile-avatar-upload";
 import type { InterestTagOption } from "@/lib/catalog/interest-tags";
 import {
   profileSetupInterestChipClasses,
@@ -15,6 +15,7 @@ import {
   type OnboardingFormState,
 } from "./onboarding-state";
 import { UsernameAvailabilityField } from "./username-availability-field";
+import { uploadAvatarFile } from "@/lib/profile/upload-avatar-client";
 import type { OauthAvatarPreview } from "@/lib/auth/oauth-user";
 import {
   bodyMutedClass,
@@ -27,6 +28,7 @@ import {
 
 type Props = {
   nextPath: string;
+  userId: string;
   defaultFirstName: string;
   defaultLastName: string;
   oauthAvatar: OauthAvatarPreview;
@@ -36,6 +38,7 @@ type Props = {
 
 export function ProfileSetupForm({
   nextPath,
+  userId,
   defaultFirstName,
   defaultLastName,
   oauthAvatar,
@@ -50,6 +53,12 @@ export function ProfileSetupForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [usernameReady, setUsernameReady] = useState(false);
   const [hasInterestSelection, setHasInterestSelection] = useState(false);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  const displayName =
+    `${defaultFirstName} ${defaultLastName}`.trim() || oauthAvatar.label;
 
   const syncInterestSelection = useCallback(() => {
     const form = formRef.current;
@@ -72,25 +81,59 @@ export function ProfileSetupForm({
 
   const canSubmit =
     !pending &&
+    !uploadingAvatar &&
     tagsLoadError === null &&
     interestTags.length > 0 &&
     usernameReady &&
     hasInterestSelection;
 
+  const handleAvatarFile = useCallback((file: File | null) => {
+    setPendingAvatarFile(file);
+    setAvatarError(null);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!canSubmit) return;
+
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+
+      if (pendingAvatarFile) {
+        setUploadingAvatar(true);
+        setAvatarError(null);
+        const upload = await uploadAvatarFile(userId, pendingAvatarFile);
+        setUploadingAvatar(false);
+        if (!upload.ok) {
+          setAvatarError(upload.error);
+          return;
+        }
+        formData.set("avatar_url", upload.publicUrl);
+      }
+
+      startTransition(() => {
+        formAction(formData);
+      });
+    },
+    [canSubmit, pendingAvatarFile, userId, formAction],
+  );
+
   return (
     <Card className="space-y-6">
-      <div className="flex flex-col items-center gap-2 border-b border-editorial-border pb-6 text-center">
-        <ProfileAvatar
-          name={oauthAvatar.label}
+      <div className="border-b border-editorial-border pb-6">
+        <ProfileAvatarUpload
+          name={displayName}
           imageUrl={oauthAvatar.pictureUrl}
-          size="lg"
-          className="ring-2 ring-stone-100 dark:ring-stone-800"
+          disabled={pending || uploadingAvatar}
+          error={avatarError}
+          onFileChange={handleAvatarFile}
         />
       </div>
 
       <form
         ref={formRef}
-        action={formAction}
+        onSubmit={handleSubmit}
         className="space-y-6"
         noValidate
       >
@@ -229,7 +272,7 @@ export function ProfileSetupForm({
         </fieldset>
 
         <Button type="submit" className="w-full" disabled={!canSubmit}>
-          {pending ? "Saving…" : "Finish setup"}
+          {pending || uploadingAvatar ? "Saving…" : "Finish setup"}
         </Button>
       </form>
     </Card>

@@ -6,6 +6,8 @@ import {
   useEffect,
   useMemo,
   useState,
+  startTransition,
+  type FormEvent,
 } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -27,6 +29,8 @@ import {
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
 import { updateProfileByUsername, type ProfileUpdateState } from "./actions";
 import { UsernameAvailabilityField } from "@/app/onboarding/username-availability-field";
+import { ProfileAvatarUpload } from "@/components/profile-avatar-upload";
+import { uploadAvatarFile } from "@/lib/profile/upload-avatar-client";
 
 /** Stored preference for edit form — only hub vs full (no device_adaptive). */
 export type EditProfileLayoutDefault = "link_hub" | "full_content";
@@ -41,6 +45,7 @@ type Defaults = {
   firstName: string;
   lastName: string;
   bio: string;
+  avatarUrl: string | null;
   profileLayout: EditProfileLayoutDefault;
   selectedInterestIds: string[];
 };
@@ -51,11 +56,13 @@ function interestFingerprint(ids: Iterable<string>): string {
 
 export function ProfileEditForm({
   username,
+  userId,
   interestTags,
   tagsLoadError,
   defaults,
 }: {
   username: string;
+  userId: string;
   interestTags: InterestTagOption[];
   tagsLoadError: string | null;
   defaults: Defaults;
@@ -80,6 +87,7 @@ export function ProfileEditForm({
     formError: null,
     usernameError: null,
     interestsError: null,
+    avatarError: null,
   };
   const [state, formAction, pending] = useActionState<
     ProfileUpdateState,
@@ -95,6 +103,10 @@ export function ProfileEditForm({
   const [firstName, setFirstName] = useState(defaults.firstName);
   const [lastName, setLastName] = useState(defaults.lastName);
   const [bio, setBio] = useState(defaults.bio);
+  const [avatarUrl, setAvatarUrl] = useState(defaults.avatarUrl);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [profileLayout, setProfileLayout] = useState(defaults.profileLayout);
   const [selectedInterestIds, setSelectedInterestIds] = useState(
     () =>
@@ -111,6 +123,9 @@ export function ProfileEditForm({
     setFirstName(defaults.firstName);
     setLastName(defaults.lastName);
     setBio(defaults.bio);
+    setAvatarUrl(defaults.avatarUrl);
+    setPendingAvatarFile(null);
+    setAvatarError(null);
     setProfileLayout(defaults.profileLayout);
     setSelectedInterestIds(
       new Set(
@@ -123,6 +138,10 @@ export function ProfileEditForm({
   useEffect(() => {
     if (state.interestsError) setInterestsOpen(true);
   }, [state.interestsError]);
+
+  useEffect(() => {
+    if (state.avatarError) setAvatarError(state.avatarError);
+  }, [state.avatarError]);
 
   const handleUsernameReady = useCallback((ready: boolean) => {
     setUsernameReady(ready);
@@ -141,6 +160,7 @@ export function ProfileEditForm({
     if (lastName.trim() !== defaults.lastName.trim()) return true;
     if (bio.trim() !== defaults.bio.trim()) return true;
     if (profileLayout !== defaults.profileLayout) return true;
+    if (pendingAvatarFile) return true;
     if (
       interestEditingEnabled &&
       interestFingerprint(selectedInterestIds) !== initialInterestFingerprint
@@ -155,6 +175,7 @@ export function ProfileEditForm({
     lastName,
     bio,
     profileLayout,
+    pendingAvatarFile,
     defaults,
     interestEditingEnabled,
     selectedInterestIds,
@@ -164,8 +185,41 @@ export function ProfileEditForm({
   const canSubmit =
     isDirty &&
     !pending &&
+    !uploadingAvatar &&
     usernameReady &&
     (!interestEditingEnabled || hasInterestSelection);
+
+  const handleAvatarFile = useCallback((file: File | null) => {
+    setPendingAvatarFile(file);
+    setAvatarError(null);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!canSubmit) return;
+
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+
+      if (pendingAvatarFile) {
+        setUploadingAvatar(true);
+        setAvatarError(null);
+        const upload = await uploadAvatarFile(userId, pendingAvatarFile);
+        setUploadingAvatar(false);
+        if (!upload.ok) {
+          setAvatarError(upload.error);
+          return;
+        }
+        formData.set("avatar_url", upload.publicUrl);
+      }
+
+      startTransition(() => {
+        formAction(formData);
+      });
+    },
+    [canSubmit, pendingAvatarFile, userId, formAction],
+  );
 
   const toggleInterest = useCallback((tagId: string) => {
     setSelectedInterestIds((prev) => {
@@ -180,7 +234,7 @@ export function ProfileEditForm({
   }, []);
 
   return (
-    <form action={formAction} className="space-y-6" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       <input type="hidden" name="current_username" value={username} />
       <input
         type="hidden"
@@ -198,6 +252,14 @@ export function ProfileEditForm({
       ) : null}
 
       <Card className="space-y-6">
+        <ProfileAvatarUpload
+          name={`${firstName} ${lastName}`.trim() || username}
+          imageUrl={avatarUrl}
+          disabled={pending || uploadingAvatar}
+          error={avatarError}
+          onFileChange={handleAvatarFile}
+        />
+
         <UsernameAvailabilityField
           defaultValue={username}
           serverError={state.usernameError}
@@ -391,7 +453,7 @@ export function ProfileEditForm({
         disabled={!canSubmit}
         aria-disabled={!canSubmit}
       >
-        {pending ? "Saving…" : "Save profile"}
+        {pending || uploadingAvatar ? "Saving…" : "Save profile"}
       </Button>
     </form>
   );

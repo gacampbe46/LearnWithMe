@@ -44,6 +44,7 @@ type DbProgram = EmbeddedProgramRow;
 type DbProfile = {
   id: string;
   username: string | null;
+  avatar_url: string | null;
   bio: string | null;
   first_name: string | null;
   last_name: string | null;
@@ -258,10 +259,16 @@ function mapProfileToMember(
   );
   const program = programs[0];
 
+  const avatarUrl =
+    typeof profile.avatar_url === "string" && profile.avatar_url.trim()
+      ? profile.avatar_url.trim()
+      : null;
+
   return {
     id: profile.id,
     name: displayName,
     slug: username,
+    avatarUrl,
     bio: profile.bio ?? "",
     tagline: tags.tagline ?? profile.bio ?? "",
     channelUrl: links.channelUrl ?? tags.channelUrl ?? "",
@@ -292,7 +299,7 @@ async function fetchMemberProfileRow(
     error: { message?: string } | null;
   }> {
     const profileSelect =
-      "id, username, bio, first_name, last_name, tags, links, programs(" +
+      "id, username, avatar_url, bio, first_name, last_name, tags, links, programs(" +
       embed +
       ")";
     return client

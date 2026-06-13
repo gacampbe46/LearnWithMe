@@ -59,6 +59,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
 
           <ProfileSetupForm
             nextPath={nextPath}
+            userId={user.id}
             defaultFirstName={oauth.defaultFirstName}
             defaultLastName={oauth.defaultLastName}
             oauthAvatar={oauth.avatar}

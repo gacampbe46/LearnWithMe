@@ -7,7 +7,6 @@ import {
   resolveRenderedProfileView,
 } from "@/lib/member";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { ssoAvatarUrlFromUser } from "@/lib/auth/oauth-user";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { getIsMobileVisitor } from "@/lib/device";
 import type { Metadata } from "next";
@@ -37,7 +36,6 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
   const normalized = username.trim().toLowerCase();
 
   let viewerOwnsProfile = false;
-  let viewerAvatarUrl: string | null = null;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -45,9 +43,6 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
   if (user) {
     const teaching = await getTeachingProfile(supabase, user.id);
     viewerOwnsProfile = teaching?.username === normalized;
-    if (viewerOwnsProfile) {
-      viewerAvatarUrl = ssoAvatarUrlFromUser(user);
-    }
   }
 
   const member = viewerOwnsProfile
@@ -73,7 +68,6 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
       <MemberProfileLinkHub
         member={member}
         viewerOwnsProfile={viewerOwnsProfile}
-        viewerAvatarUrl={viewerAvatarUrl}
       />
     );
   }
@@ -82,7 +76,6 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     <MemberProfileFullContent
       member={member}
       viewerOwnsProfile={viewerOwnsProfile}
-      viewerAvatarUrl={viewerAvatarUrl}
     />
   );
 }

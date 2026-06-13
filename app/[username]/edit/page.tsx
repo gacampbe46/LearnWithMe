@@ -70,7 +70,7 @@ export default async function EditProfilePage({
 
   const { data: profile } = await supabase
     .from("profile")
-    .select("id, user_id, username, first_name, last_name, bio, links, tags")
+    .select("id, user_id, username, first_name, last_name, bio, avatar_url, links, tags")
     .eq("username", normalized)
     .maybeSingle();
 
@@ -109,12 +109,17 @@ export default async function EditProfilePage({
 
         <ProfileEditForm
           username={normalized}
+          userId={user.id}
           interestTags={interestTags}
           tagsLoadError={tagsLoadError}
           defaults={{
             firstName: (profile.first_name ?? "").trim(),
             lastName: (profile.last_name ?? "").trim(),
             bio: (profile.bio ?? "").trim(),
+            avatarUrl:
+              typeof profile.avatar_url === "string" && profile.avatar_url.trim()
+                ? profile.avatar_url.trim()
+                : null,
             profileLayout,
             selectedInterestIds,
           }}
