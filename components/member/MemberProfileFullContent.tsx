@@ -22,14 +22,11 @@ type Props = {
   hasLayoutQuery?: boolean;
   /** Signed-in viewer is this profile owner — show Edit on program cards. */
   viewerOwnsProfile?: boolean;
-  /** Signed-in owner’s OAuth avatar URL (same as top-right account). */
-  viewerAvatarUrl?: string | null;
 };
 
 export function MemberProfileFullContent({
   member: t,
   viewerOwnsProfile = false,
-  viewerAvatarUrl = null,
 }: Props) {
   const programs = t.programs;
 
@@ -61,7 +58,7 @@ export function MemberProfileFullContent({
                 <div className="flex min-w-0 flex-1 items-center gap-4">
                   <ProfileAvatar
                     name={t.name}
-                    imageUrl={viewerOwnsProfile ? viewerAvatarUrl : null}
+                    imageUrl={t.avatarUrl}
                     size="md"
                   />
                   <div className="min-w-0">

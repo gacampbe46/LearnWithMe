@@ -19,7 +19,6 @@ import Link from "next/link";
 type Props = {
   member: MemberProfile;
   viewerOwnsProfile?: boolean;
-  viewerAvatarUrl?: string | null;
 };
 
 /** Same footprint as hub “Create … program” `Button`: `w-full min-h-10 px-4 text-sm rounded-full` */
@@ -95,7 +94,6 @@ function CompactProgramRow({
 export function MemberProfileLinkHub({
   member,
   viewerOwnsProfile = false,
-  viewerAvatarUrl = null,
 }: Props) {
   const programs = member.programs;
   const primary = programs[0];
@@ -120,7 +118,7 @@ export function MemberProfileLinkHub({
           <div className="text-center">
             <ProfileAvatar
               name={member.name}
-              imageUrl={viewerOwnsProfile ? viewerAvatarUrl : null}
+              imageUrl={member.avatarUrl}
               size="lg"
               className="mx-auto mb-4 ring-4 ring-background"
             />

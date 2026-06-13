@@ -1,8 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import type { ProfileViewPreference } from "@/lib/member/types";
+import { parseAvatarUrlField } from "@/lib/profile/avatar-form";
 import { resolveProfileTagIds } from "@/lib/catalog/resolve-profile-tag-ids";
 import { parseInterestTagIds } from "@/lib/onboarding/form-tags";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
@@ -36,12 +38,14 @@ const emptyErrors: ProfileUpdateState = {
   formError: null,
   usernameError: null,
   interestsError: null,
+  avatarError: null,
 };
 
 export type ProfileUpdateState = {
   formError: string | null;
   usernameError: string | null;
   interestsError: string | null;
+  avatarError: string | null;
 };
 
 export async function updateProfileByUsername(
@@ -140,6 +144,17 @@ export async function updateProfileByUsername(
     links: nextLinks,
   };
 
+  const avatarField = formText(formData, "avatar_url");
+  if (avatarField !== null) {
+    const parsedAvatar = parseAvatarUrlField(avatarField);
+    if (!parsedAvatar.ok) {
+      return { ...emptyErrors, avatarError: parsedAvatar.error };
+    }
+    if (parsedAvatar.avatarUrl) {
+      rowUpdate.avatar_url = parsedAvatar.avatarUrl;
+    }
+  }
+
   const catalogOk =
     trimField(formText(formData, "interest_catalog_ok"), 8) === "1";
 
@@ -184,6 +199,10 @@ export async function updateProfileByUsername(
         : updErr.message,
     };
   }
+
+  revalidatePath("/", "layout");
+  revalidatePath(safeNextPath(`/${nextUsername}`));
+  revalidatePath(safeNextPath(`/${nextUsername}/edit`));
 
   redirect(safeNextPath(`/${nextUsername}`));
 }

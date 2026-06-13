@@ -1,8 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { profileNeedsOnboarding } from "@/lib/auth/profile-onboarding";
+import { parseAvatarUrlField } from "@/lib/profile/avatar-form";
 import { resolveProfileTagIds } from "@/lib/catalog/resolve-profile-tag-ids";
 import { parseInterestTagIds } from "@/lib/onboarding/form-tags";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
@@ -57,6 +59,15 @@ export async function completeOnboarding(
   const bio = trimField(formText(formData, "bio"), 2000);
   const interestCandidates = parseInterestTagIds(formData);
 
+  const avatarUrlRaw = trimField(formText(formData, "avatar_url"), 2000);
+  const parsedAvatar = parseAvatarUrlField(avatarUrlRaw || null);
+  if (!parsedAvatar.ok) {
+    return mergeOnboardingState({
+      formError: parsedAvatar.error,
+    });
+  }
+  const avatarUrl = parsedAvatar.avatarUrl;
+
   const resolvedTags = await resolveProfileTagIds(supabase, interestCandidates);
   if (!resolvedTags.ok) {
     return mergeOnboardingState({ interestsError: resolvedTags.error });
@@ -94,6 +105,7 @@ export async function completeOnboarding(
     first_name: firstName || null,
     last_name: lastName || null,
     bio: bio || "",
+    avatar_url: avatarUrl,
     links: {
       profileViewPreference: "full_content" as const,
     },
@@ -111,6 +123,7 @@ export async function completeOnboarding(
         first_name: profilePayload.first_name,
         last_name: profilePayload.last_name,
         bio: profilePayload.bio,
+        avatar_url: profilePayload.avatar_url,
         links: profilePayload.links,
         tags: profilePayload.tags,
         is_instructor: profilePayload.is_instructor,
@@ -151,5 +164,6 @@ export async function completeOnboarding(
     }
   }
 
+  revalidatePath("/", "layout");
   redirect(safeNextPath(formText(formData, "next")));
 }

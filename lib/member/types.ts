@@ -61,6 +61,8 @@ export type MemberProfile = {
   id: string;
   name: string;
   slug: string;
+  /** Public profile picture URL (`profile.avatar_url`), when set. */
+  avatarUrl: string | null;
   bio: string;
   tagline: string;
   channelUrl: string;

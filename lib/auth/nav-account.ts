@@ -10,7 +10,7 @@ export type NavAccount = {
   profilePath: string | null;
   /** Create / manage programs (requires onboarding with a username). */
   teachNewProgramHref: string | null;
-  /** Picture from the signed-in SSO account (`user_metadata`), when the provider supplies one. */
+  /** Picture from profile storage, else SSO `user_metadata` when available. */
   avatarUrl: string | null;
 };
 
@@ -26,7 +26,7 @@ export async function getNavAccount(): Promise<NavAccount | null> {
 
   const { data: profile } = await supabase
     .from("profile")
-    .select("username")
+    .select("username, avatar_url")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -37,7 +37,11 @@ export async function getNavAccount(): Promise<NavAccount | null> {
   const profilePath = username ? `/${username}` : null;
   const teachNewProgramHref = username ? "/teach/programs/new" : null;
   const displayName = username ?? oauthAccountMenuLabel(user);
-  const avatarUrl = ssoAvatarUrlFromUser(user);
+  const storedAvatar =
+    profile && typeof profile.avatar_url === "string" && profile.avatar_url.trim()
+      ? profile.avatar_url.trim()
+      : null;
+  const avatarUrl = storedAvatar ?? ssoAvatarUrlFromUser(user);
 
   return { displayName, profilePath, teachNewProgramHref, avatarUrl };
 }
