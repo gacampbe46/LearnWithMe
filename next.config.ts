@@ -32,6 +32,16 @@ const nextConfig: NextConfig = {
         destination: "/kathleen/:path*",
         permanent: true,
       },
+      {
+        source: "/PCAP-cohort-1",
+        destination: "/pcap-cohort-1",
+        permanent: true,
+      },
+      {
+        source: "/PCAP-cohort-1/:path*",
+        destination: "/pcap-cohort-1/:path*",
+        permanent: true,
+      },
     ];
   },
 };
