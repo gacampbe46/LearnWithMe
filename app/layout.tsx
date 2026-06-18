@@ -52,19 +52,17 @@ export default function RootLayout({
     >
       <body className="min-h-dvh antialiased">
         <ThemeProvider>
-          <div className="pointer-events-none fixed left-4 top-4 z-50 sm:left-6 sm:top-6">
-            <div className="pointer-events-auto">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 pt-4 sm:px-6 lg:px-8">
+            <div>
               <Suspense fallback={<HomeAccountFallback />}>
                 <HomeAccountControl />
               </Suspense>
             </div>
-          </div>
-          <div className="pointer-events-none fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
-            <div className="pointer-events-auto">
+            <div>
               <ThemeToggle />
             </div>
           </div>
-          <div className="min-h-dvh pt-16">{children}</div>
+          <div className="min-h-dvh">{children}</div>
         </ThemeProvider>
       </body>
     </html>

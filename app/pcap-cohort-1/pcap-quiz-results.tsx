@@ -22,6 +22,7 @@ import {
 } from "@/lib/ui/typography";
 import Link from "next/link";
 import { postQuestionDiscussion, requestQuestionHelp } from "./actions";
+import { PcapQuestionPrompt } from "./pcap-question-prompt";
 
 type Props = {
   state: PcapCohortState;
@@ -156,9 +157,7 @@ export function PcapQuizResults({ state, error }: Props) {
               <div className="space-y-2">
                 <p className={captionClass}>Question {index + 1}</p>
                 <h3 className={titleCardClass}>{question.concept}</h3>
-                <p className="whitespace-pre-line text-base leading-relaxed text-stone-800 dark:text-stone-200">
-                  {question.prompt}
-                </p>
+                <PcapQuestionPrompt prompt={question.prompt} />
                 <p
                   className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
                     gotCorrect
