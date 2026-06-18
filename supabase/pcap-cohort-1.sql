@@ -73,6 +73,8 @@ drop policy if exists "pcap_submissions_update_self_member" on public.cohort_qui
 
 drop policy if exists "pcap_discussions_select_members" on public.cohort_question_discussions;
 drop policy if exists "pcap_discussions_insert_self_member" on public.cohort_question_discussions;
+drop policy if exists "pcap_discussions_update_self_member" on public.cohort_question_discussions;
+drop policy if exists "pcap_discussions_delete_self_member" on public.cohort_question_discussions;
 
 drop policy if exists "pcap_help_select_members" on public.cohort_question_help_requests;
 drop policy if exists "pcap_help_insert_self_member" on public.cohort_question_help_requests;
@@ -172,6 +174,29 @@ create policy "pcap_discussions_insert_self_member"
       where cm.cohort_slug = cohort_question_discussions.cohort_slug
         and cm.user_id = auth.uid()
     )
+  );
+
+create policy "pcap_discussions_update_self_member"
+  on public.cohort_question_discussions
+  for update
+  to authenticated
+  using (
+    cohort_slug = 'pcap-cohort-1'
+    and user_id = auth.uid()
+  )
+  with check (
+    cohort_slug = 'pcap-cohort-1'
+    and user_id = auth.uid()
+    and length(trim(body)) between 1 and 1000
+  );
+
+create policy "pcap_discussions_delete_self_member"
+  on public.cohort_question_discussions
+  for delete
+  to authenticated
+  using (
+    cohort_slug = 'pcap-cohort-1'
+    and user_id = auth.uid()
   );
 
 create policy "pcap_help_select_members"

@@ -21,7 +21,13 @@ import {
   titleSubsectionClass,
 } from "@/lib/ui/typography";
 import Link from "next/link";
-import { postQuestionDiscussion, requestQuestionHelp } from "./actions";
+import {
+  deleteQuestionDiscussion,
+  postQuestionDiscussion,
+  requestQuestionHelp,
+  updateQuestionDiscussion,
+} from "./actions";
+import { PendingSubmitButton } from "./discussion-form-buttons";
 import { PcapQuestionPrompt } from "./pcap-question-prompt";
 
 type Props = {
@@ -129,6 +135,22 @@ export function PcapQuizResults({ state, error }: Props) {
           className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-100"
         >
           Could not save that discussion post. Try again.
+        </div>
+      ) : null}
+      {error === "discussion-update" ? (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-100"
+        >
+          Could not update that discussion post. Try again.
+        </div>
+      ) : null}
+      {error === "discussion-delete" ? (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-100"
+        >
+          Could not delete that discussion post. Try again.
         </div>
       ) : null}
       {error === "help" ? (
@@ -242,16 +264,16 @@ export function PcapQuizResults({ state, error }: Props) {
                     name="return_to"
                     value={`${PCAP_COHORT_PATH}?view=results#${question.id}`}
                   />
-                  <Button
-                    type="submit"
+                  <PendingSubmitButton
                     variant={currentUserNeedsHelp ? "outline" : "primary"}
                     className="w-full sm:w-auto"
                     disabled={currentUserNeedsHelp}
+                    pendingChildren="Adding help request..."
                   >
                     {currentUserNeedsHelp
                       ? "Help request added"
                       : "I need help with this concept"}
-                  </Button>
+                  </PendingSubmitButton>
                 </form>
               </div>
 
@@ -271,21 +293,101 @@ export function PcapQuizResults({ state, error }: Props) {
                     {discussions.map((post) => (
                       <div
                         key={post.id}
-                        className="flex gap-3 rounded-2xl border border-editorial-border bg-stone-50/70 p-3 dark:bg-stone-900/30"
+                        className="rounded-2xl border border-editorial-border bg-stone-50/70 p-3 dark:bg-stone-900/30"
                       >
-                        <ProfileAvatar
-                          name={post.member?.name ?? "Member"}
-                          imageUrl={post.member?.avatarUrl}
-                          size="sm"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-stone-900 dark:text-stone-50">
-                            {post.member?.name ?? "Cohort member"}
-                          </p>
-                          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-stone-700 dark:text-stone-300">
-                            {post.body}
-                          </p>
+                        <div className="flex gap-3">
+                          <ProfileAvatar
+                            name={post.member?.name ?? "Member"}
+                            imageUrl={post.member?.avatarUrl}
+                            size="sm"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-stone-900 dark:text-stone-50">
+                              {post.member?.name ?? "Cohort member"}
+                              {post.member?.isCurrentUser ? " (you)" : ""}
+                            </p>
+                            <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-stone-700 dark:text-stone-300">
+                              {post.body}
+                            </p>
+                          </div>
                         </div>
+
+                        {post.member?.isCurrentUser ? (
+                          <div className="mt-3 space-y-3 border-t border-editorial-border pt-3">
+                            <details className="group">
+                              <summary className="cursor-pointer text-sm font-medium text-stone-700 underline decoration-editorial-accent-muted underline-offset-4 dark:text-stone-300">
+                                Edit comment
+                              </summary>
+                              <form
+                                action={updateQuestionDiscussion}
+                                className="mt-3 space-y-2"
+                              >
+                                <input
+                                  type="hidden"
+                                  name="post_id"
+                                  value={post.id}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="question_id"
+                                  value={question.id}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="return_to"
+                                  value={`${PCAP_COHORT_PATH}?view=results#${question.id}`}
+                                />
+                                <label
+                                  htmlFor={`edit-discussion-${post.id}`}
+                                  className={formLabelClass}
+                                >
+                                  Update your comment
+                                </label>
+                                <textarea
+                                  id={`edit-discussion-${post.id}`}
+                                  name="body"
+                                  rows={3}
+                                  maxLength={1000}
+                                  required
+                                  defaultValue={post.body}
+                                  className={`${inputFieldClass} ${inputFocusClass} resize-y`}
+                                />
+                                <PendingSubmitButton
+                                  variant="outline"
+                                  className="w-full sm:w-auto"
+                                  pendingChildren="Updating..."
+                                >
+                                  Update Comment
+                                </PendingSubmitButton>
+                              </form>
+                            </details>
+
+                            <form action={deleteQuestionDiscussion}>
+                              <input
+                                type="hidden"
+                                name="post_id"
+                                value={post.id}
+                              />
+                              <input
+                                type="hidden"
+                                name="question_id"
+                                value={question.id}
+                              />
+                              <input
+                                type="hidden"
+                                name="return_to"
+                                value={`${PCAP_COHORT_PATH}?view=results#${question.id}`}
+                              />
+                              <PendingSubmitButton
+                                variant="ghost"
+                                className="min-h-9 w-full px-4 text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100 sm:w-auto"
+                                pendingChildren="Deleting..."
+                              >
+                                Delete Comment
+                              </PendingSubmitButton>
+                            </form>
+                          </div>
+                        ) : null}
                       </div>
                     ))}
                   </div>
@@ -314,9 +416,13 @@ export function PcapQuizResults({ state, error }: Props) {
                     placeholder="Example: I chose B because I thought tuples were mutable. What am I missing?"
                     className={`${inputFieldClass} ${inputFocusClass} resize-y`}
                   />
-                  <Button type="submit" variant="outline" className="w-full sm:w-auto">
+                  <PendingSubmitButton
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    pendingChildren="Posting..."
+                  >
                     Post to Discussion
-                  </Button>
+                  </PendingSubmitButton>
                 </form>
               </div>
             </Card>

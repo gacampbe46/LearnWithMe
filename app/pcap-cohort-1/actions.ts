@@ -145,6 +145,61 @@ export async function postQuestionDiscussion(formData: FormData) {
   redirect(returnTo);
 }
 
+export async function updateQuestionDiscussion(formData: FormData) {
+  const { supabase, user } = await requireCurrentMember();
+  const postId = trimField(formText(formData, "post_id"), 80);
+  const questionId = trimField(formText(formData, "question_id"), 80);
+  const body = trimField(formText(formData, "body"), 1000);
+  const returnTo = safeNextPath(formText(formData, "return_to")) || returnToResults(questionId);
+
+  if (!postId || !pcapQuestionById(questionId) || !body) {
+    redirect(returnTo);
+  }
+
+  const { error } = await supabase
+    .from("cohort_question_discussions")
+    .update({ body })
+    .eq("id", postId)
+    .eq("cohort_slug", PCAP_COHORT_SLUG)
+    .eq("quiz_id", PCAP_QUIZ_ID)
+    .eq("question_id", questionId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    redirect(`${PCAP_COHORT_PATH}?view=results&error=discussion-update#${questionId}`);
+  }
+
+  revalidatePath(PCAP_COHORT_PATH);
+  redirect(returnTo);
+}
+
+export async function deleteQuestionDiscussion(formData: FormData) {
+  const { supabase, user } = await requireCurrentMember();
+  const postId = trimField(formText(formData, "post_id"), 80);
+  const questionId = trimField(formText(formData, "question_id"), 80);
+  const returnTo = safeNextPath(formText(formData, "return_to")) || returnToResults(questionId);
+
+  if (!postId || !pcapQuestionById(questionId)) {
+    redirect(returnTo);
+  }
+
+  const { error } = await supabase
+    .from("cohort_question_discussions")
+    .delete()
+    .eq("id", postId)
+    .eq("cohort_slug", PCAP_COHORT_SLUG)
+    .eq("quiz_id", PCAP_QUIZ_ID)
+    .eq("question_id", questionId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    redirect(`${PCAP_COHORT_PATH}?view=results&error=discussion-delete#${questionId}`);
+  }
+
+  revalidatePath(PCAP_COHORT_PATH);
+  redirect(returnTo);
+}
+
 export async function requestQuestionHelp(formData: FormData) {
   const { supabase, user } = await requireCurrentMember();
   const questionId = trimField(formText(formData, "question_id"), 80);
