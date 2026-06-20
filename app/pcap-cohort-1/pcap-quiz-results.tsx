@@ -8,7 +8,6 @@ import type {
 import {
   PCAP_COHORT_PATH,
   pcapQuiz,
-  type PcapChoiceId,
 } from "@/lib/pcap-cohort-1/quiz-data";
 import {
   bodyMutedClass,
@@ -27,14 +26,13 @@ import {
 } from "./actions";
 import { DiscussionPostCard } from "./discussion-post-card";
 import { PendingSubmitButton } from "./discussion-form-buttons";
+import { PcapQuestionAttribution } from "./pcap-question-attribution";
 import { PcapQuestionPrompt } from "./pcap-question-prompt";
 
 type Props = {
   state: PcapCohortState;
   error?: string;
 };
-
-const choiceIds: PcapChoiceId[] = ["A", "B", "C", "D"];
 
 function percent(score: number, total: number): number {
   return Math.round((score / Math.max(total, 1)) * 100);
@@ -178,6 +176,7 @@ export function PcapQuizResults({ state, error }: Props) {
               <div className="space-y-2">
                 <p className={captionClass}>Question {index + 1}</p>
                 <h3 className={titleCardClass}>{question.concept}</h3>
+                <PcapQuestionAttribution question={question} />
                 <PcapQuestionPrompt prompt={question.prompt} />
                 <p
                   className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
@@ -238,6 +237,22 @@ export function PcapQuizResults({ state, error }: Props) {
                 </p>
                 <p className={bodyMutedClass}>{question.explanation}</p>
               </div>
+
+              {!gotCorrect ? (
+                <div className="space-y-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/30">
+                  <p className="text-sm font-medium text-amber-950 dark:text-amber-100">
+                    Recommended next steps
+                  </p>
+                  <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed text-amber-950 dark:text-amber-100">
+                    <li>Review {question.sourceLesson.title}.</li>
+                    {question.refresherLesson ? (
+                      <li>Take the refresher: {question.refresherLesson.title}.</li>
+                    ) : null}
+                    <li>Ask the cohort to explain their reasoning in the discussion below.</li>
+                    <li>Use the AI Liferaft once the discussion-based threshold is available.</li>
+                  </ul>
+                </div>
+              ) : null}
 
               <div className="space-y-3 rounded-2xl border border-editorial-border bg-stone-50/70 p-4 dark:bg-stone-900/30">
                 <div className="space-y-1">
