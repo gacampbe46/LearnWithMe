@@ -10,6 +10,7 @@ import {
 } from "@/lib/ui/typography";
 import Link from "next/link";
 import { submitPcapQuiz } from "./actions";
+import { PcapQuestionAttribution } from "./pcap-question-attribution";
 import { PcapQuestionPrompt } from "./pcap-question-prompt";
 
 type Props = {
@@ -58,6 +59,7 @@ export function PcapQuizForm({ error }: Props) {
               <div className="space-y-2">
                 <p className={captionClass}>Question {index + 1}</p>
                 <h3 className={titleCardClass}>{question.concept}</h3>
+                <PcapQuestionAttribution question={question} />
                 <PcapQuestionPrompt prompt={question.prompt} />
               </div>
 

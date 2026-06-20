@@ -9,6 +9,11 @@ export type PcapQuizChoice = {
   label: string;
 };
 
+export type PcapLessonReference = {
+  title: string;
+  href?: string;
+};
+
 export type PcapQuizQuestion = {
   id: string;
   prompt: string;
@@ -16,6 +21,14 @@ export type PcapQuizQuestion = {
   correctChoiceId: PcapChoiceId;
   explanation: string;
   concept: string;
+  /** Learner-facing concept label shown as `Testing Topic`. */
+  primaryTopic: string;
+  /** Additional concepts reinforced by the question for spiral learning. */
+  secondaryTopics: string[];
+  /** Current-module questions teach new concepts; refresher questions revisit older ones. */
+  questionRole: "current" | "refresher";
+  sourceLesson: PcapLessonReference;
+  refresherLesson?: PcapLessonReference;
 };
 
 export type PcapQuiz = {
@@ -41,6 +54,15 @@ export const pcapQuiz: PcapQuiz = {
     {
       id: "q1",
       concept: "List mutation",
+      primaryTopic: "List Mutation",
+      secondaryTopics: ["Built-In Functions", "Collection Length"],
+      questionRole: "current",
+      sourceLesson: {
+        title: "List Mutation and append()",
+      },
+      refresherLesson: {
+        title: "len(), type(), and Inspecting Values",
+      },
       prompt:
         "What is printed by this code?\n\nitems = [1, 2, 3]\nitems.append([4, 5])\nprint(len(items))",
       choices: [
@@ -56,6 +78,15 @@ export const pcapQuiz: PcapQuiz = {
     {
       id: "q2",
       concept: "Boolean operators",
+      primaryTopic: "Truthiness",
+      secondaryTopics: ["Built-In Functions", "Boolean Values"],
+      questionRole: "refresher",
+      sourceLesson: {
+        title: "Booleans and Truthiness",
+      },
+      refresherLesson: {
+        title: "int(), float(), str(), bool()",
+      },
       prompt: "Which expression evaluates to True?",
       choices: [
         { id: "A", label: "bool(0)" },
@@ -70,6 +101,15 @@ export const pcapQuiz: PcapQuiz = {
     {
       id: "q3",
       concept: "Collection constructors",
+      primaryTopic: "Collection Constructors",
+      secondaryTopics: ["Mutable vs Immutable Values", "Built-In Functions"],
+      questionRole: "current",
+      sourceLesson: {
+        title: "Lists, Tuples, Dictionaries, and Sets",
+      },
+      refresherLesson: {
+        title: "type() and Inspecting Values",
+      },
       prompt:
         "Which constructor creates a mutable sequence that can be changed in place?",
       choices: [
@@ -85,6 +125,15 @@ export const pcapQuiz: PcapQuiz = {
     {
       id: "q4",
       concept: "Exception handling",
+      primaryTopic: "Exception Flow",
+      secondaryTopics: ["Control Flow", "Code Tracing"],
+      questionRole: "current",
+      sourceLesson: {
+        title: "else and finally",
+      },
+      refresherLesson: {
+        title: "Reading Code Top to Bottom",
+      },
       prompt:
         "What does the else block in a try/except statement do?",
       choices: [
@@ -112,6 +161,15 @@ export const pcapQuiz: PcapQuiz = {
     {
       id: "q5",
       concept: "Function return values",
+      primaryTopic: "Function Return Values",
+      secondaryTopics: ["None", "Built-In Functions"],
+      questionRole: "current",
+      sourceLesson: {
+        title: "return and None",
+      },
+      refresherLesson: {
+        title: "None and Missing Results",
+      },
       prompt:
         "What is returned by a Python function that reaches the end without a return statement?",
       choices: [

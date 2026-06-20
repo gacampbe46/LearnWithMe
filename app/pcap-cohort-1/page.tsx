@@ -15,8 +15,10 @@ import {
 } from "@/lib/ui/typography";
 import { JoinCohortButton } from "./join-cohort-button";
 import { PcapCohortDashboard } from "./pcap-cohort-dashboard";
+import { PcapCurriculumDashboard } from "./pcap-curriculum-dashboard";
 import { PcapQuizForm } from "./pcap-quiz-form";
 import { PcapQuizResults } from "./pcap-quiz-results";
+import { loadPcapCurriculumState } from "@/lib/pcap-cohort-1/schema-data";
 
 export const dynamic = "force-dynamic";
 
@@ -151,6 +153,9 @@ function Landing({
 export default async function PcapCohortPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const state = await loadPcapCohortState();
+  const curriculum = state.isMember
+    ? await loadPcapCurriculumState()
+    : null;
   const view = params.view;
 
   let body: React.ReactNode;
@@ -171,10 +176,15 @@ export default async function PcapCohortPage({ searchParams }: PageProps) {
       <>
         <SectionHeader
           eyebrow="PCAP Cohort 1"
-          title="Learn together, then explain together."
-          subtitle="Take the same checkpoint, compare answers, signal where you need help, and leave explanations for the cohort."
+          title="Build PCAP readiness together."
+          subtitle="Move through short lessons, revisit earlier topics, compare reasoning, and use the cohort discussion when concepts get sticky."
           className="mb-6"
         />
+        {curriculum ? (
+          <div className="mb-8">
+            <PcapCurriculumDashboard curriculum={curriculum} />
+          </div>
+        ) : null}
         <PcapCohortDashboard state={state} />
       </>
     );

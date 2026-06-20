@@ -88,15 +88,16 @@ npm run lint    # ESLint
 npm run seed:supabase  # seed Kathleen profile/program/sessions into Supabase
 ```
 
-### Supabase environment
+### Supabase and AI environment
 
-Copy `.env.local.example` to `.env.local` and set:
+Copy `.env.example` to `.env.local` and set:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-SUPABASE_SERVICE_ROLE_KEY=  # seed script only
+SUPABASE_SERVICE_ROLE_KEY=  # seed script + server-side AI response writes
 SEED_PROFILE_USER_ID=       # optional; required if profile row doesn't exist yet
+OPENAI_API_KEY=             # server-side AI Liferaft calls
 ```
 
 The legacy anon key name `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported for local/dev.
