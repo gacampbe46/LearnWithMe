@@ -40,6 +40,17 @@ function lessonStatusLabel(status: string | null): string {
   return "Not started";
 }
 
+function CompletedCheckmark() {
+  return (
+    <span
+      aria-label="Lesson completed"
+      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-300 bg-emerald-100 text-sm font-semibold text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-100"
+    >
+      ✓
+    </span>
+  );
+}
+
 function CompletedMembers({ members }: { members: PcapCurriculumMember[] }) {
   if (members.length === 0) {
     return (
@@ -122,36 +133,48 @@ export default async function PcapModulePage({ params }: PageProps) {
         <section className="space-y-4">
           <h2 className={titleSubsectionClass}>Lessons</h2>
           <ul className="grid gap-4 sm:grid-cols-2">
-            {currentModule.lessons.map((lesson) => (
-              <li key={lesson.id}>
-                <Card className="flex h-full flex-col gap-4">
-                  <div className="space-y-2">
-                    <p className={captionClass}>
-                      Lesson {lesson.sortOrder + 1} · {lesson.estimatedMinutes} min ·{" "}
-                      {lessonStatusLabel(lesson.progressStatus)}
-                    </p>
-                    <h3 className={titleCardClass}>{lesson.title}</h3>
-                    <p className={bodyMutedClass}>
-                      {lesson.summary || lesson.objective}
-                    </p>
-                    {lesson.topics.length > 0 ? (
+            {currentModule.lessons.map((lesson) => {
+              const isCompleted = lesson.progressStatus === "completed";
+              return (
+                <li key={lesson.id}>
+                  <Card
+                    className={`flex h-full flex-col gap-4 ${
+                      isCompleted
+                        ? "border-emerald-300 bg-emerald-50/70 dark:border-emerald-800 dark:bg-emerald-950/20"
+                        : ""
+                    }`}
+                  >
+                    <div className="space-y-2">
                       <p className={captionClass}>
-                        Topics: {lesson.topics.map((t) => t.name).join(", ")}
+                        Lesson {lesson.sortOrder + 1} · {lesson.estimatedMinutes} min ·{" "}
+                        {lessonStatusLabel(lesson.progressStatus)}
                       </p>
-                    ) : null}
-                  </div>
-                  <div className="mt-auto">
-                    <Button
-                      href={`${PCAP_COHORT_PATH}/modules/${currentModule.slug}/lessons/${lesson.slug}`}
-                      variant="outline"
-                      className="w-full justify-center sm:w-auto"
-                    >
-                      Open lesson
-                    </Button>
-                  </div>
-                </Card>
-              </li>
-            ))}
+                      <div className="flex items-start gap-3">
+                        {isCompleted ? <CompletedCheckmark /> : null}
+                        <h3 className={titleCardClass}>{lesson.title}</h3>
+                      </div>
+                      <p className={bodyMutedClass}>
+                        {lesson.summary || lesson.objective}
+                      </p>
+                      {lesson.topics.length > 0 ? (
+                        <p className={captionClass}>
+                          Topics: {lesson.topics.map((t) => t.name).join(", ")}
+                        </p>
+                      ) : null}
+                    </div>
+                    <div className="mt-auto">
+                      <Button
+                        href={`${PCAP_COHORT_PATH}/modules/${currentModule.slug}/lessons/${lesson.slug}`}
+                        variant="outline"
+                        className="w-full justify-center sm:w-auto"
+                      >
+                        Open lesson
+                      </Button>
+                    </div>
+                  </Card>
+                </li>
+              );
+            })}
           </ul>
         </section>
 
