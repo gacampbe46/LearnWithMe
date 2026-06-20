@@ -122,6 +122,11 @@ export function PcapCurriculumDashboard({ curriculum }: Props) {
                   <p className={captionClass}>
                     {completed}/{module.lessons.length} lessons complete
                   </p>
+                  <p className={captionClass}>
+                    {module.completedBy.length} cohort member
+                    {module.completedBy.length === 1 ? "" : "s"} marked the
+                    module complete
+                  </p>
                   <div className="mt-auto">
                     <Link
                       href={`${PCAP_COHORT_PATH}/modules/${module.slug}`}
