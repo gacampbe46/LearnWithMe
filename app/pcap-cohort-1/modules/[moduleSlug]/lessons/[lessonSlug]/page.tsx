@@ -15,6 +15,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { PcapLessonContent } from "../../../../pcap-lesson-content";
+import { PcapRunnablePythonBlock } from "../../../../pcap-runnable-python-block";
 import {
   markCurriculumLessonComplete,
   postCurriculumDiscussionMessage,
@@ -101,9 +103,10 @@ export default async function PcapLessonPage({ params }: PageProps) {
           </div>
         ) : null}
 
-        <Card className="prose prose-stone max-w-none dark:prose-invert prose-pre:rounded-2xl prose-pre:bg-[#111827] prose-pre:text-stone-100">
-          <ReactMarkdown>{lesson.contentMarkdown || lesson.objective}</ReactMarkdown>
-        </Card>
+        <PcapLessonContent
+          markdown={lesson.contentMarkdown}
+          fallback={lesson.objective}
+        />
 
         <form action={markCurriculumLessonComplete}>
           <input type="hidden" name="lesson_id" value={lesson.id} />
@@ -163,9 +166,10 @@ export default async function PcapLessonPage({ params }: PageProps) {
                       </div>
 
                       {question.codeSnippet ? (
-                        <pre className="overflow-x-auto rounded-2xl bg-[#111827] p-4 font-mono text-sm leading-7 text-stone-100">
-                          <code>{question.codeSnippet}</code>
-                        </pre>
+                        <PcapRunnablePythonBlock
+                          code={question.codeSnippet}
+                          output={question.expectedOutput}
+                        />
                       ) : null}
 
                       {choices.length > 0 ? (
@@ -182,7 +186,7 @@ export default async function PcapLessonPage({ params }: PageProps) {
                         </ul>
                       ) : null}
 
-                      {question.expectedOutput ? (
+                      {question.expectedOutput && !question.codeSnippet ? (
                         <div className="rounded-2xl border border-editorial-border bg-editorial-card px-4 py-3">
                           <p className="text-sm font-medium text-stone-900 dark:text-stone-50">
                             Expected output

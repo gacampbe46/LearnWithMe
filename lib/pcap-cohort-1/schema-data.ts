@@ -71,6 +71,13 @@ export type PcapCurriculumLesson = {
   progressStatus: "not_started" | "in_progress" | "completed" | null;
 };
 
+export type PcapCurriculumMember = {
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
+  isCurrentUser: boolean;
+};
+
 export type PcapCurriculumModule = {
   id: string;
   slug: string;
@@ -82,6 +89,7 @@ export type PcapCurriculumModule = {
   lessons: PcapCurriculumLesson[];
   quizzes: PcapCurriculumQuiz[];
   progressStatus: "not_started" | "in_progress" | "completed" | null;
+  completedBy: PcapCurriculumMember[];
 };
 
 export type PcapSchemaCohort = {
@@ -194,6 +202,21 @@ type ProgressRow = {
   status: "not_started" | "in_progress" | "completed";
 };
 
+type CompletionProgressRow = {
+  module_id: string | null;
+  user_id: string;
+  completed_at: string | null;
+  last_activity_at: string;
+};
+
+type ProfileRow = {
+  user_id: string;
+  username: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+};
+
 type ThreadRow = {
   id: string;
   question_id: string | null;
@@ -227,6 +250,12 @@ function numericRatio(value: number | string | null, fallback: number): number {
     if (Number.isFinite(parsed)) return parsed;
   }
   return fallback;
+}
+
+function compactName(profile: ProfileRow | null | undefined): string | null {
+  if (!profile) return null;
+  const full = `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim();
+  return full || profile.username?.trim() || null;
 }
 
 export async function loadPcapCurriculumState(): Promise<PcapCurriculumState> {
@@ -288,6 +317,7 @@ export async function loadPcapCurriculumState(): Promise<PcapCurriculumState> {
     { data: lessonRows },
     { data: moduleQuizRows },
     { data: progressRows },
+    { data: completionRows },
   ] = await Promise.all([
     supabase
       .from("program_lessons")
@@ -313,6 +343,13 @@ export async function loadPcapCurriculumState(): Promise<PcapCurriculumState> {
       .eq("cohort_id", cohort.id)
       .eq("user_id", user.id)
       .returns<ProgressRow[]>(),
+    supabase
+      .from("learner_progress")
+      .select("module_id, user_id, completed_at, last_activity_at")
+      .eq("cohort_id", cohort.id)
+      .eq("status", "completed")
+      .in("module_id", moduleIds)
+      .returns<CompletionProgressRow[]>(),
   ]);
 
   const lessonIds = (lessonRows ?? []).map((l) => l.id);
@@ -409,6 +446,35 @@ export async function loadPcapCurriculumState(): Promise<PcapCurriculumState> {
       .filter((p) => p.lesson_id)
       .map((p) => [p.lesson_id!, p.status]),
   );
+
+  const completedUserIds = [
+    ...new Set((completionRows ?? []).map((row) => row.user_id)),
+  ];
+  const { data: completionProfiles } =
+    completedUserIds.length > 0
+      ? await supabase
+          .from("profile")
+          .select("user_id, username, first_name, last_name, avatar_url")
+          .in("user_id", completedUserIds)
+          .returns<ProfileRow[]>()
+      : { data: [] as ProfileRow[] };
+
+  const profileByUser = new Map(
+    (completionProfiles ?? []).map((profile) => [profile.user_id, profile]),
+  );
+  const completedByModule = new Map<string, PcapCurriculumMember[]>();
+  for (const row of completionRows ?? []) {
+    if (!row.module_id) continue;
+    const profile = profileByUser.get(row.user_id);
+    const list = completedByModule.get(row.module_id) ?? [];
+    list.push({
+      userId: row.user_id,
+      name: compactName(profile) ?? "Cohort member",
+      avatarUrl: profile?.avatar_url ?? null,
+      isCurrentUser: row.user_id === user.id,
+    });
+    completedByModule.set(row.module_id, list);
+  }
 
   const topicsByLesson = new Map<string, PcapCurriculumTopic[]>();
   for (const row of lessonTopicRows ?? []) {
@@ -548,6 +614,7 @@ export async function loadPcapCurriculumState(): Promise<PcapCurriculumState> {
       lessons: lessonsByModule.get(row.id) ?? [],
       quizzes: quizzesByModule.get(row.id) ?? [],
       progressStatus: progressByModule.get(row.id) ?? null,
+      completedBy: completedByModule.get(row.id) ?? [],
     };
     moduleBySlug.set(currentModule.slug, currentModule);
     return currentModule;

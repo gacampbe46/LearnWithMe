@@ -287,6 +287,51 @@ export async function markCurriculumLessonComplete(formData: FormData) {
   redirect(returnTo);
 }
 
+export async function markCurriculumModuleComplete(formData: FormData) {
+  const { supabase, user, cohortId } = await requireCurrentSchemaMember();
+  const moduleId = trimField(formText(formData, "module_id"), 80);
+  const returnTo = safeNextPath(formText(formData, "return_to")) || PCAP_COHORT_PATH;
+
+  if (!moduleId) {
+    redirect(returnTo);
+  }
+
+  const { data: existing } = await supabase
+    .from("learner_progress")
+    .select("id")
+    .eq("cohort_id", cohortId)
+    .eq("user_id", user.id)
+    .eq("module_id", moduleId)
+    .maybeSingle();
+
+  if (existing?.id) {
+    await supabase
+      .from("learner_progress")
+      .update({
+        status: "completed",
+        progress_percent: 100,
+        completed_at: new Date().toISOString(),
+        last_activity_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .eq("user_id", user.id);
+  } else {
+    await supabase.from("learner_progress").insert({
+      cohort_id: cohortId,
+      user_id: user.id,
+      module_id: moduleId,
+      status: "completed",
+      progress_percent: 100,
+      completed_at: new Date().toISOString(),
+      last_activity_at: new Date().toISOString(),
+    });
+  }
+
+  revalidatePath(returnTo);
+  revalidatePath(PCAP_COHORT_PATH);
+  redirect(returnTo);
+}
+
 export async function submitCurriculumQuestionAttempt(formData: FormData) {
   const { supabase, user, cohortId } = await requireCurrentSchemaMember();
   const questionId = trimField(formText(formData, "question_id"), 80);
