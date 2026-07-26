@@ -1,4 +1,3 @@
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   AVATAR_BUCKET,
   allAvatarObjectPaths,
@@ -7,58 +6,27 @@ import {
   validateAvatarSourceFile,
   withAvatarCacheBust,
 } from "@/lib/profile/avatar-storage";
+import { AVATAR_PREPARE_OPTIONS } from "@/lib/profile/prepare-image-for-upload";
 import {
-  AVATAR_PREPARE_OPTIONS,
-  prepareImageForUpload,
-} from "@/lib/profile/prepare-image-for-upload";
+  uploadPreparedProfileImage,
+  type UploadProfileImageResult,
+} from "@/lib/profile/upload-profile-image-client";
 
-export type UploadAvatarResult =
-  | { ok: true; publicUrl: string }
-  | { ok: false; error: string };
+export type UploadAvatarResult = UploadProfileImageResult;
 
-export async function uploadAvatarFile(
+export function uploadAvatarFile(
   userId: string,
   file: File,
 ): Promise<UploadAvatarResult> {
-  const sourceError = validateAvatarSourceFile(file);
-  if (sourceError) {
-    return { ok: false, error: sourceError };
-  }
-
-  const prepared = await prepareImageForUpload(file, AVATAR_PREPARE_OPTIONS);
-  if (!prepared.ok) {
-    return prepared;
-  }
-
-  const validationError = validateAvatarFile(prepared.file);
-  if (validationError) {
-    return { ok: false, error: validationError };
-  }
-
-  const objectPath = avatarObjectPath(userId, prepared.file.type);
-  if (!objectPath) {
-    return { ok: false, error: "Unsupported image type." };
-  }
-
-  const supabase = createSupabaseBrowserClient();
-
-  const stalePaths = allAvatarObjectPaths(userId).filter((path) => path !== objectPath);
-  if (stalePaths.length > 0) {
-    await supabase.storage.from(AVATAR_BUCKET).remove(stalePaths);
-  }
-
-  const { error: uploadError } = await supabase.storage
-    .from(AVATAR_BUCKET)
-    .upload(objectPath, prepared.file, {
-      upsert: true,
-      contentType: prepared.file.type,
-      cacheControl: "3600",
-    });
-
-  if (uploadError) {
-    return { ok: false, error: uploadError.message };
-  }
-
-  const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(objectPath);
-  return { ok: true, publicUrl: withAvatarCacheBust(data.publicUrl) };
+  return uploadPreparedProfileImage({
+    bucket: AVATAR_BUCKET,
+    userId,
+    file,
+    prepare: AVATAR_PREPARE_OPTIONS,
+    objectPath: avatarObjectPath,
+    allPaths: allAvatarObjectPaths,
+    validateSource: validateAvatarSourceFile,
+    validatePrepared: validateAvatarFile,
+    withCacheBust: withAvatarCacheBust,
+  });
 }

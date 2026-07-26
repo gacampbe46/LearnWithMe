@@ -16,6 +16,12 @@ type Props = {
   onClear?: () => void;
 };
 
+const fileBtnClass =
+  "rounded-full border border-editorial-border bg-editorial-card px-4 py-2 text-sm font-medium text-stone-800 transition hover:bg-stone-100/90 disabled:cursor-not-allowed disabled:opacity-60 dark:text-stone-100 dark:hover:bg-stone-800/60";
+
+const removeBtnClass =
+  "rounded-full border border-editorial-border px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100/90 disabled:cursor-not-allowed disabled:opacity-60 dark:text-stone-300 dark:hover:bg-stone-800/60";
+
 export function ProfileBannerUpload({
   imageUrl,
   disabled = false,
@@ -32,27 +38,18 @@ export function ProfileBannerUpload({
 
   useEffect(() => {
     return () => {
-      if (localPreviewUrl?.startsWith("blob:")) {
-        URL.revokeObjectURL(localPreviewUrl);
-      }
+      if (localPreviewUrl?.startsWith("blob:")) URL.revokeObjectURL(localPreviewUrl);
     };
   }, [localPreviewUrl]);
 
   const displayUrl = cleared ? null : (localPreviewUrl ?? imageUrl);
-  const displayError = pickError ?? error;
   const busy = disabled || preparing;
-
-  const handlePick = useCallback(() => {
-    inputRef.current?.click();
-  }, []);
 
   const handleClear = useCallback(() => {
     setCleared(true);
     setPickError(null);
     setLocalPreviewUrl((prev) => {
-      if (prev?.startsWith("blob:")) {
-        URL.revokeObjectURL(prev);
-      }
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
       return null;
     });
     onFileChange?.(null);
@@ -79,12 +76,9 @@ export function ProfileBannerUpload({
           setPickError(prepared.error);
           return;
         }
-
         setCleared(false);
         setLocalPreviewUrl((prev) => {
-          if (prev?.startsWith("blob:")) {
-            URL.revokeObjectURL(prev);
-          }
+          if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
           return URL.createObjectURL(prepared.file);
         });
         onFileChange?.(prepared.file);
@@ -102,8 +96,8 @@ export function ProfileBannerUpload({
           Banner image <span className={optionalHintClass}>(optional)</span>
         </label>
         <p className={`${bodyMutedClass} text-xs`}>
-          Wide image across the top of your profile. Large photos are cropped to
-          the banner shape and compressed automatically.
+          Wide image across the top of your profile. Large photos are cropped and
+          compressed automatically.
         </p>
       </div>
 
@@ -132,30 +126,26 @@ export function ProfileBannerUpload({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={handlePick}
+          onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="rounded-full border border-editorial-border bg-editorial-card px-4 py-2 text-sm font-medium text-stone-800 transition hover:bg-stone-100/90 disabled:cursor-not-allowed disabled:opacity-60 dark:text-stone-100 dark:hover:bg-stone-800/60"
+          className={fileBtnClass}
         >
-          {preparing
-            ? "Preparing…"
-            : displayUrl
-              ? "Change banner"
-              : "Choose banner"}
+          {preparing ? "Preparing…" : displayUrl ? "Change banner" : "Choose banner"}
         </button>
         {displayUrl ? (
           <button
             type="button"
             onClick={handleClear}
             disabled={busy}
-            className="rounded-full border border-editorial-border px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100/90 disabled:cursor-not-allowed disabled:opacity-60 dark:text-stone-300 dark:hover:bg-stone-800/60"
+            className={removeBtnClass}
           >
             Remove
           </button>
         ) : null}
       </div>
-      {displayError ? (
+      {(pickError ?? error) ? (
         <p role="alert" className="text-sm text-red-700 dark:text-red-300/90">
-          {displayError}
+          {pickError ?? error}
         </p>
       ) : null}
     </div>

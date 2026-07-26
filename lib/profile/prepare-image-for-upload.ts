@@ -1,12 +1,10 @@
-/** Client-side resize / center-crop / compress for Supabase storage limits. */
+import { AVATAR_MAX_BYTES } from "@/lib/profile/avatar-storage";
 
 export type PrepareImageOptions = {
   maxBytes: number;
-  /** Longest edge after crop (px). */
   maxEdge: number;
-  /** Target width / height. Center-cropped before scale. */
+  /** width / height — center-cropped before scale */
   aspectRatio: number;
-  /** Output basename without extension, e.g. `avatar`. */
   baseName: string;
 };
 
@@ -16,11 +14,7 @@ export type PrepareImageResult =
 
 const QUALITY_STEPS = [0.92, 0.85, 0.78, 0.7, 0.62, 0.55, 0.48];
 
-function loadImageBitmap(file: File): Promise<ImageBitmap> {
-  return createImageBitmap(file);
-}
-
-function centerCropSource(
+function centerCrop(
   width: number,
   height: number,
   aspectRatio: number,
@@ -34,76 +28,59 @@ function centerCropSource(
   return { sx: 0, sy: Math.round((height - sh) / 2), sw: width, sh };
 }
 
-function targetSize(
-  cropW: number,
-  cropH: number,
-  maxEdge: number,
-): { width: number; height: number } {
-  const long = Math.max(cropW, cropH);
-  if (long <= maxEdge) {
-    return { width: cropW, height: cropH };
-  }
+function fitMaxEdge(w: number, h: number, maxEdge: number) {
+  const long = Math.max(w, h);
+  if (long <= maxEdge) return { width: w, height: h };
   const scale = maxEdge / long;
   return {
-    width: Math.max(1, Math.round(cropW * scale)),
-    height: Math.max(1, Math.round(cropH * scale)),
+    width: Math.max(1, Math.round(w * scale)),
+    height: Math.max(1, Math.round(h * scale)),
   };
 }
 
-function canvasToBlob(
+function toBlob(
   canvas: HTMLCanvasElement,
   type: string,
   quality: number,
 ): Promise<Blob | null> {
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), type, quality);
-  });
+  return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
 }
 
 async function encodeUnderLimit(
-  canvas: HTMLCanvasElement,
+  source: HTMLCanvasElement,
   maxBytes: number,
   baseName: string,
 ): Promise<File | null> {
-  const types: Array<{ mime: string; ext: string }> = [
-    { mime: "image/webp", ext: "webp" },
-    { mime: "image/jpeg", ext: "jpg" },
-  ];
+  let canvas = source;
 
-  for (const { mime, ext } of types) {
-    for (const quality of QUALITY_STEPS) {
-      const blob = await canvasToBlob(canvas, mime, quality);
-      if (!blob) continue;
-      if (blob.size <= maxBytes) {
-        return new File([blob], `${baseName}.${ext}`, {
-          type: mime,
-          lastModified: Date.now(),
-        });
-      }
+  for (let shrink = 0; shrink < 7; shrink++) {
+    if (shrink > 0) {
+      const next = document.createElement("canvas");
+      next.width = Math.max(1, Math.round(canvas.width * 0.82));
+      next.height = Math.max(1, Math.round(canvas.height * 0.82));
+      const ctx = next.getContext("2d");
+      if (!ctx) return null;
+      ctx.drawImage(canvas, 0, 0, next.width, next.height);
+      canvas = next;
     }
-  }
 
-  // Still too large — shrink canvas and retry JPEG.
-  let width = canvas.width;
-  let height = canvas.height;
-  for (let attempt = 0; attempt < 6; attempt++) {
-    width = Math.max(1, Math.round(width * 0.82));
-    height = Math.max(1, Math.round(height * 0.82));
-    const shrink = document.createElement("canvas");
-    shrink.width = width;
-    shrink.height = height;
-    const ctx = shrink.getContext("2d");
-    if (!ctx) return null;
-    ctx.drawImage(canvas, 0, 0, width, height);
+    const formats =
+      shrink === 0
+        ? [
+            { mime: "image/webp", ext: "webp" },
+            { mime: "image/jpeg", ext: "jpg" },
+          ]
+        : [{ mime: "image/jpeg", ext: "jpg" }];
 
-    for (const quality of QUALITY_STEPS) {
-      const blob = await canvasToBlob(shrink, "image/jpeg", quality);
-      if (!blob) continue;
-      if (blob.size <= maxBytes) {
-        return new File([blob], `${baseName}.jpg`, {
-          type: "image/jpeg",
-          lastModified: Date.now(),
-        });
+    for (const { mime, ext } of formats) {
+      for (const quality of QUALITY_STEPS) {
+        const blob = await toBlob(canvas, mime, quality);
+        if (blob && blob.size <= maxBytes) {
+          return new File([blob], `${baseName}.${ext}`, {
+            type: mime,
+            lastModified: Date.now(),
+          });
+        }
       }
     }
   }
@@ -111,10 +88,7 @@ async function encodeUnderLimit(
   return null;
 }
 
-/**
- * Center-crops to `aspectRatio`, scales to `maxEdge`, and compresses under `maxBytes`.
- * Small GIFs under the limit pass through unchanged (keeps animation).
- */
+/** Center-crop, scale, and compress under `maxBytes`. Small GIFs pass through. */
 export async function prepareImageForUpload(
   file: File,
   options: PrepareImageOptions,
@@ -127,15 +101,14 @@ export async function prepareImageForUpload(
 
   let bitmap: ImageBitmap;
   try {
-    bitmap = await loadImageBitmap(file);
+    bitmap = await createImageBitmap(file);
   } catch {
     return { ok: false, error: "Couldn’t read that image. Try another file." };
   }
 
   try {
-    const crop = centerCropSource(bitmap.width, bitmap.height, aspectRatio);
-    const size = targetSize(crop.sw, crop.sh, maxEdge);
-
+    const crop = centerCrop(bitmap.width, bitmap.height, aspectRatio);
+    const size = fitMaxEdge(crop.sw, crop.sh, maxEdge);
     const canvas = document.createElement("canvas");
     canvas.width = size.width;
     canvas.height = size.height;
@@ -144,7 +117,6 @@ export async function prepareImageForUpload(
       return { ok: false, error: "Couldn’t process that image in this browser." };
     }
 
-    // Opaque backdrop so JPEG doesn’t get black transparency holes from PNG.
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, size.width, size.height);
     ctx.drawImage(
@@ -172,17 +144,15 @@ export async function prepareImageForUpload(
   }
 }
 
-/** Avatar: 1∶1 circle crop, long edge ≤ 1280. */
 export const AVATAR_PREPARE_OPTIONS: PrepareImageOptions = {
-  maxBytes: 2 * 1024 * 1024,
+  maxBytes: AVATAR_MAX_BYTES,
   maxEdge: 1280,
   aspectRatio: 1,
   baseName: "avatar",
 };
 
-/** Banner: ~1024∶169 strip, long edge ≤ 2048. */
 export const BANNER_PREPARE_OPTIONS: PrepareImageOptions = {
-  maxBytes: 2 * 1024 * 1024,
+  maxBytes: AVATAR_MAX_BYTES,
   maxEdge: 2048,
   aspectRatio: 1024 / 169,
   baseName: "banner",
