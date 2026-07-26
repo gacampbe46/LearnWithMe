@@ -5,7 +5,7 @@ type Props = {
   session: FeaturedSessionLink;
 };
 
-/** Same card chrome as the program sessions grid. */
+/** Profile featured tile — same chrome as program session cards. */
 export function ProfileFeaturedSessionCard({ session }: Props) {
   const programSession: ProgramSession = {
     id: session.sessionId,

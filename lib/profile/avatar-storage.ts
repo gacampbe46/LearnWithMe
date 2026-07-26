@@ -7,33 +7,31 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/gif",
 ]);
 
-const MIME_TO_EXT: Record<string, string> = {
+export const AVATAR_MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
   "image/gif": "gif",
 };
 
-/** 2 MB — matches bucket `file_size_limit` in migration (after client compress). */
+/** 2 MB — matches bucket `file_size_limit` (after client compress). */
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 /** Soft cap on the raw file the browser will try to process. */
 export const AVATAR_SOURCE_MAX_BYTES = 25 * 1024 * 1024;
 
 export function avatarObjectPath(userId: string, mimeType: string): string | null {
-  const ext = MIME_TO_EXT[mimeType];
+  const ext = AVATAR_MIME_TO_EXT[mimeType];
   if (!ext) return null;
   return `${userId}/avatar.${ext}`;
 }
 
-/** Every allowed avatar filename for a user — used to remove stale formats on re-upload. */
 export function allAvatarObjectPaths(userId: string): string[] {
-  return [...new Set(Object.values(MIME_TO_EXT))].map(
+  return [...new Set(Object.values(AVATAR_MIME_TO_EXT))].map(
     (ext) => `${userId}/avatar.${ext}`,
   );
 }
 
-/** MIME (+ optional source size) before compress/crop. */
 export function validateAvatarSourceFile(file: File): string | null {
   if (!ALLOWED_MIME_TYPES.has(file.type)) {
     return "Use a JPEG, PNG, WebP, or GIF image.";
@@ -44,7 +42,6 @@ export function validateAvatarSourceFile(file: File): string | null {
   return null;
 }
 
-/** Final checks before storage upload (post-compress). */
 export function validateAvatarFile(file: File): string | null {
   const sourceError = validateAvatarSourceFile(file);
   if (sourceError) return sourceError;
@@ -54,7 +51,6 @@ export function validateAvatarFile(file: File): string | null {
   return null;
 }
 
-/** Strip cache-bust query params before comparing or storing a canonical path. */
 export function stripAvatarUrlCacheBust(url: string): string {
   try {
     const parsed = new URL(url);
@@ -69,11 +65,11 @@ export function stripAvatarUrlCacheBust(url: string): string {
 export function isAvatarStoragePublicUrl(url: string): boolean {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
   if (!base) return false;
-
   try {
     const parsed = new URL(stripAvatarUrlCacheBust(url));
-    const expectedPrefix = `${base}/storage/v1/object/public/${AVATAR_BUCKET}/`;
-    return parsed.href.startsWith(expectedPrefix);
+    return parsed.href.startsWith(
+      `${base}/storage/v1/object/public/${AVATAR_BUCKET}/`,
+    );
   } catch {
     return false;
   }
@@ -81,6 +77,5 @@ export function isAvatarStoragePublicUrl(url: string): boolean {
 
 export function withAvatarCacheBust(publicUrl: string): string {
   const base = stripAvatarUrlCacheBust(publicUrl);
-  const separator = base.includes("?") ? "&" : "?";
-  return `${base}${separator}t=${Date.now()}`;
+  return `${base}${base.includes("?") ? "&" : "?"}t=${Date.now()}`;
 }

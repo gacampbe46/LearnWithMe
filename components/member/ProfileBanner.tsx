@@ -3,10 +3,7 @@ type Props = {
   className?: string;
 };
 
-/**
- * Banner strip at 1024×169. Full-bleed and centered below `lg`;
- * content-aligned on large screens.
- */
+/** 1024×169 banner; full-bleed below `lg`, content-aligned on large screens. */
 export function ProfileBanner({ bannerUrl, className = "" }: Props) {
   const src = bannerUrl?.trim() || null;
   if (!src) return null;
@@ -17,7 +14,7 @@ export function ProfileBanner({ bannerUrl, className = "" }: Props) {
       aria-hidden
     >
       <div className="relative aspect-[1024/169] w-full">
-        {/* eslint-disable-next-line @next/next/no-img-element -- storage URLs; avoid remotePatterns churn */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- storage URLs */}
         <img
           src={src}
           alt=""

@@ -4,10 +4,7 @@ type Props = {
   className?: string;
 };
 
-/**
- * Circular profile photo for the full profile header.
- * Outer box owns width/aspect (so grid/flex can’t collapse it); clip lives on the inner.
- */
+/** Circular profile photo. Outer box owns size; clip is on the inner. */
 export function ProfilePortrait({
   name,
   imageUrl,
@@ -17,9 +14,7 @@ export function ProfilePortrait({
   const src = imageUrl?.trim() || null;
 
   return (
-    <div
-      className={`relative aspect-square shrink-0 self-start ${className}`.trim()}
-    >
+    <div className={`relative aspect-square shrink-0 ${className}`.trim()}>
       <div className="absolute inset-0 overflow-hidden rounded-full border border-editorial-border bg-stone-200 dark:bg-stone-800">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element -- remote OAuth / storage URLs

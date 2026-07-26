@@ -93,7 +93,6 @@ export type FeaturedSessionLink = {
   programId: string;
   title: string;
   description: string;
-  programTitle: string;
   videoId: string | null;
   href: string;
   /** 1-based index within the parent program (for card meta). */

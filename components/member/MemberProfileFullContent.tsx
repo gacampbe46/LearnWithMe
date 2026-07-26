@@ -15,13 +15,10 @@ import Link from "next/link";
 
 type Props = {
   member: MemberProfile;
-  /** True when `?layout=` is present — show link back to automatic layout. */
-  hasLayoutQuery?: boolean;
-  /** Signed-in viewer is this profile owner — show Edit on program cards. */
   viewerOwnsProfile?: boolean;
 };
 
-const contentPadClass = "px-5 sm:px-8 lg:px-12 xl:px-16";
+const pad = "px-5 sm:px-8 lg:px-12 xl:px-16";
 
 export function MemberProfileFullContent({
   member: t,
@@ -32,47 +29,38 @@ export function MemberProfileFullContent({
   const topicTags = profileTopicTags(t);
   const bannerUrl = t.bannerUrl?.trim() || null;
 
-  const taglineTrim = t.tagline.trim();
-  const bioTrim = t.bio.trim();
-  const quoteTrim = t.quote.trim();
-  const taglineBioDuplicate =
-    taglineTrim.length > 0 && taglineTrim === bioTrim;
+  const tagline = t.tagline.trim();
+  const bio = t.bio.trim();
+  const quote = t.quote.trim();
+  const taglineIsBio = tagline.length > 0 && tagline === bio;
 
-  const programSubtitleRedundant = (subtitle: string) => {
+  const showSubtitle = (subtitle: string) => {
     const s = subtitle.trim();
-    return (
-      s.length === 0 || s === taglineTrim || s === bioTrim
-    );
+    return s.length > 0 && s !== tagline && s !== bio;
   };
 
   const bioText =
-    bioTrim && (!taglineBioDuplicate || !taglineTrim)
-      ? t.bio
-      : taglineBioDuplicate && taglineTrim
-        ? taglineTrim
-        : null;
+    bio && !taglineIsBio ? t.bio : taglineIsBio ? tagline : bio || null;
 
   return (
     <div className="relative flex min-h-dvh w-full flex-col overflow-x-hidden">
       <main className="relative z-10 w-full flex-1 pb-14">
-        <nav className={`${contentPadClass} py-6`}>
+        <nav className={`${pad} py-6`}>
           <Link href="/" className={navLinkClass}>
             ← Home
           </Link>
         </nav>
 
-        <div className={`${contentPadClass}`}>
+        <div className={pad}>
           <ProfileBanner bannerUrl={bannerUrl} />
         </div>
 
-        <div className={`${contentPadClass} space-y-12 pt-8 lg:space-y-14 lg:pt-10`}>
+        <div className={`${pad} space-y-12 pt-8 lg:space-y-14 lg:pt-10`}>
           <ProfileIdentityHeader
             name={t.name}
             slug={t.slug}
-            tagline={
-              taglineTrim && !taglineBioDuplicate ? t.tagline : null
-            }
-            quote={quoteTrim || null}
+            tagline={tagline && !taglineIsBio ? t.tagline : null}
+            quote={quote || null}
             bio={bioText}
             topicTags={topicTags}
             avatarUrl={t.avatarUrl}
@@ -82,7 +70,7 @@ export function MemberProfileFullContent({
           <section className="space-y-4" id="programs">
             <SectionHeader
               title="Programs"
-              subtitle={`Open one below to follow along—it's structured session by session.`}
+              subtitle="Open one below to follow along—it's structured session by session."
             />
             {programs.length === 0 && !viewerOwnsProfile ? (
               <p className={bodyLeadClass}>
@@ -90,21 +78,18 @@ export function MemberProfileFullContent({
               </p>
             ) : (
               <ul className={programGridClass}>
-                {programs.map((p) => {
-                  const href = `/${t.slug}/${p.id}`;
-                  return (
-                    <li key={p.id} className="min-w-0">
-                      <ProgramListingCard
-                        program={p}
-                        href={href}
-                        viewerOwnsProfile={viewerOwnsProfile}
-                        manageHref={`/${t.slug}/${p.id}/manage`}
-                        showSubtitle={!programSubtitleRedundant(p.subtitle)}
-                        featured={programs.length === 1}
-                      />
-                    </li>
-                  );
-                })}
+                {programs.map((p) => (
+                  <li key={p.id} className="min-w-0">
+                    <ProgramListingCard
+                      program={p}
+                      href={`/${t.slug}/${p.id}`}
+                      viewerOwnsProfile={viewerOwnsProfile}
+                      manageHref={`/${t.slug}/${p.id}/manage`}
+                      showSubtitle={showSubtitle(p.subtitle)}
+                      featured={programs.length === 1}
+                    />
+                  </li>
+                ))}
                 {viewerOwnsProfile ? (
                   <li className="min-w-0">
                     <CreateProgramCard hasPrograms={programs.length > 0} />
