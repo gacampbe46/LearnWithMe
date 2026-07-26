@@ -1,6 +1,6 @@
 import { LayoutFullIcon } from "@/components/icons/layout-full-icon";
 import { LayoutHubIcon } from "@/components/icons/layout-hub-icon";
-import { profilePageHref } from "@/lib/member";
+import { profilePageHref } from "@/lib/member/layout-query";
 import Link from "next/link";
 
 const btnBase =

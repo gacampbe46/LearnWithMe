@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import type { ProfileViewPreference } from "@/lib/member/types";
 import { parseAvatarUrlField } from "@/lib/profile/avatar-form";
+import { parseBannerUrlField } from "@/lib/profile/banner-form";
 import { resolveProfileTagIds } from "@/lib/catalog/resolve-profile-tag-ids";
 import { parseInterestTagIds } from "@/lib/onboarding/form-tags";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
@@ -34,11 +35,31 @@ function parseProfileLayout(raw: string | null): "link_hub" | "full_content" | n
   return null;
 }
 
+const QUOTE_MAX = 180;
+const TAGLINE_MAX = 200;
+const FEATURED_SESSION_MAX = 3;
+
+function parseFeaturedSessionIds(formData: FormData): string[] {
+  const values = formData.getAll("featured_session");
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const v of values) {
+    if (typeof v !== "string") continue;
+    const id = v.trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    ids.push(id);
+    if (ids.length >= FEATURED_SESSION_MAX) break;
+  }
+  return ids;
+}
+
 const emptyErrors: ProfileUpdateState = {
   formError: null,
   usernameError: null,
   interestsError: null,
   avatarError: null,
+  bannerError: null,
 };
 
 export type ProfileUpdateState = {
@@ -46,6 +67,7 @@ export type ProfileUpdateState = {
   usernameError: string | null;
   interestsError: string | null;
   avatarError: string | null;
+  bannerError: string | null;
 };
 
 export async function updateProfileByUsername(
@@ -122,6 +144,56 @@ export async function updateProfileByUsername(
   const firstName = trimField(formText(formData, "first_name"), 80) || null;
   const lastName = trimField(formText(formData, "last_name"), 80) || null;
   const bio = trimField(formText(formData, "bio"), 2000);
+  const tagline = trimField(formText(formData, "tagline"), TAGLINE_MAX);
+  const quote = trimField(formText(formData, "quote"), QUOTE_MAX);
+  const featuredSessionIds = parseFeaturedSessionIds(formData);
+
+  if (featuredSessionIds.length > 0) {
+    const { data: ownedPrograms, error: programsErr } = await supabase
+      .from("programs")
+      .select("id")
+      .eq("profile_id", profile.id);
+
+    if (programsErr) {
+      return {
+        ...emptyErrors,
+        formError: isRlsOrPermissionError(programsErr)
+          ? friendlyDbPermissionMessage()
+          : programsErr.message,
+      };
+    }
+
+    const programIds = (ownedPrograms ?? []).map((row) => row.id as string);
+    if (programIds.length === 0) {
+      return {
+        ...emptyErrors,
+        formError: "One or more featured sessions are not on your programs.",
+      };
+    }
+
+    const { data: ownedSessions, error: sessionsErr } = await supabase
+      .from("sessions")
+      .select("id")
+      .in("program_id", programIds)
+      .in("id", featuredSessionIds);
+
+    if (sessionsErr) {
+      return {
+        ...emptyErrors,
+        formError: isRlsOrPermissionError(sessionsErr)
+          ? friendlyDbPermissionMessage()
+          : sessionsErr.message,
+      };
+    }
+
+    const owned = new Set((ownedSessions ?? []).map((row) => row.id as string));
+    if (featuredSessionIds.some((id) => !owned.has(id))) {
+      return {
+        ...emptyErrors,
+        formError: "One or more featured sessions are not on your programs.",
+      };
+    }
+  }
 
   const layout: ProfileViewPreference =
     parseProfileLayout(trimField(formText(formData, "profile_layout"), 32)) ??
@@ -136,12 +208,38 @@ export async function updateProfileByUsername(
     profileViewPreference: layout,
   };
 
+  const baseTags = isRecord(profile.tags) ? { ...profile.tags } : {};
+  delete baseTags.profileViewPreference;
+
+  const nextTags: Record<string, unknown> = {
+    ...baseTags,
+    tagline,
+    quote,
+    featuredSessionIds,
+  };
+
+  const clearBanner =
+    trimField(formText(formData, "banner_clear"), 8) === "1";
+  const bannerField = formText(formData, "banner_url");
+  if (clearBanner) {
+    delete nextTags.bannerUrl;
+  } else if (bannerField !== null && bannerField.trim() !== "") {
+    const parsedBanner = parseBannerUrlField(bannerField);
+    if (!parsedBanner.ok) {
+      return { ...emptyErrors, bannerError: parsedBanner.error };
+    }
+    if (parsedBanner.bannerUrl) {
+      nextTags.bannerUrl = parsedBanner.bannerUrl;
+    }
+  }
+
   const rowUpdate: Record<string, unknown> = {
     username: nextUsername,
     first_name: firstName,
     last_name: lastName,
     bio: bio || "",
     links: nextLinks,
+    tags: nextTags,
   };
 
   const avatarField = formText(formData, "avatar_url");
@@ -166,18 +264,7 @@ export async function updateProfileByUsername(
     if (!resolvedTags.ok) {
       return { ...emptyErrors, interestsError: resolvedTags.error };
     }
-    const baseTags = isRecord(profile.tags) ? { ...profile.tags } : {};
-    delete baseTags.profileViewPreference;
-    rowUpdate.tags = {
-      ...baseTags,
-      tagIds: resolvedTags.tagIds,
-    };
-  } else if (
-    isRecord(profile.tags) &&
-    profile.tags.profileViewPreference !== undefined
-  ) {
-    const nextTags = { ...profile.tags };
-    delete nextTags.profileViewPreference;
+    nextTags.tagIds = resolvedTags.tagIds;
     rowUpdate.tags = nextTags;
   }
 

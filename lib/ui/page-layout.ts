@@ -21,12 +21,17 @@ export const pageMainSessionClass = `${pageContainerClass} flex-1 py-10 pb-32`;
  */
 export const pageFocusedColumnClass = "mx-auto w-full max-w-xl";
 
-/** Session tiles — matches home `popular-sessions` grid. */
+/** Session tiles — matches home `popular-sessions` grid (inside max-w page shells). */
 export const sessionGridClass =
   "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3";
 
-/** Program listing cards on profiles — matches home session tile grid. */
-export const programGridClass = sessionGridClass;
+/**
+ * Program / featured-session cards on full-width profiles.
+ * Fixed column counts that shrink with the viewport (cap 30rem) —
+ * avoids auto-fill reflow jumping as the page resizes.
+ */
+export const programGridClass =
+  "grid grid-cols-1 justify-start gap-3 sm:grid-cols-[repeat(2,minmax(0,30rem))] sm:gap-4 lg:grid-cols-[repeat(3,minmax(0,30rem))]";
 
 /** Session/program card thumbnail — 16:9 to match YouTube stills. */
 export const sessionThumbnailShellClass =

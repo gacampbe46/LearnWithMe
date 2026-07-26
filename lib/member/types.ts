@@ -63,18 +63,42 @@ export type MemberProfile = {
   slug: string;
   /** Public profile picture URL (`profile.avatar_url`), when set. */
   avatarUrl: string | null;
+  /** Full-bleed banner image URL (`profile.tags.bannerUrl`), when set. */
+  bannerUrl: string | null;
   bio: string;
+  /** Short role / specialty line (`profile.tags.tagline`). */
   tagline: string;
+  /** Optional invitation quote (`profile.tags.quote`). */
+  quote: string;
   channelUrl: string;
   profileViewPreference: ProfileViewPreference;
   /** Optional link-in-bio ordering; defaults are derived if omitted. */
   hubLinks?: ProfileHubLink[];
   whatYouNeed?: string[];
+  /** Profile interest tags from `profile.tags.tagIds` (edit form Interests). */
+  interestTags: ProgramTopicTag[];
+  /** Creator-curated session IDs for “Featured sessions” (`profile.tags.featuredSessionIds`). */
+  featuredSessionIds: string[];
+  /** Legacy seed field — prefer `featuredSessionIds` when resolving featured sessions. */
   featuredPreviewVideos: FeaturedPreviewVideo[];
   /** Programs for this profile, newest first when loaded from Supabase. */
   programs: Program[];
   /** First program (`programs[0]`), kept for callers that assume a primary offering. */
   program?: Program;
+};
+
+/** Resolved session card for profile featured sessions. */
+export type FeaturedSessionLink = {
+  sessionId: string;
+  programId: string;
+  title: string;
+  description: string;
+  programTitle: string;
+  videoId: string | null;
+  href: string;
+  /** 1-based index within the parent program (for card meta). */
+  sessionNumber: number;
+  sessionTotal: number;
 };
 
 /** Resolve a program by id for `[username]/[programId]` routes. */

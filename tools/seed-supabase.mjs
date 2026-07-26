@@ -7,6 +7,7 @@ const seedMember = {
   bio: "Focused on efficient, repeatable workouts you can follow anywhere",
   tagline:
     "Theraband sessions, Pilates-style full-body work, and simple training that fits your life",
+  quote: "Short sessions you can actually finish—and come back to tomorrow.",
   profileViewPreference: "full_content",
   channelUrl: "https://www.youtube.com/@kathleenchu",
   whatYouNeed: [
@@ -110,6 +111,7 @@ async function upsertProfile(supabase, profileTagIds) {
     },
     tags: {
       tagline: seedMember.tagline,
+      quote: seedMember.quote,
       whatYouNeed: seedMember.whatYouNeed,
       featuredPreviewVideos: seedMember.featuredPreviewVideos,
       ...(profileTagIds.length > 0 ? { tagIds: profileTagIds } : {}),

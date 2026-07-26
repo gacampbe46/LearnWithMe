@@ -1,19 +1,16 @@
 import { CreateProgramCard } from "@/components/program/CreateProgramCard";
 import { ProgramListingCard } from "@/components/program/ProgramListingCard";
-import { ProfileAvatar } from "@/components/profile-avatar";
-import { ProfileEditIconLink } from "@/components/member/profile-edit-icon-link";
-import { ProfileLayoutToggle } from "@/components/member/profile-layout-toggle";
+import { ProfileBanner } from "@/components/member/ProfileBanner";
+import { ProfileIdentityHeader } from "@/components/member/ProfileIdentityHeader";
+import { StartWithSessionSection } from "@/components/member/StartWithSessionSection";
 import { SectionHeader } from "@/components/SectionHeader";
-import { type MemberProfile } from "@/lib/member";
 import {
-  bodyLeadClass,
-  bodyRelaxedLargeClass,
-  leadMutedClass,
-  navLinkClass,
-  titleSmallClass,
-  titleProfileClass,
-} from "@/lib/ui/typography";
-import { pageMainClass, programGridClass } from "@/lib/ui/page-layout";
+  profileTopicTags,
+  resolveFeaturedSessions,
+  type MemberProfile,
+} from "@/lib/member";
+import { bodyLeadClass, navLinkClass } from "@/lib/ui/typography";
+import { programGridClass } from "@/lib/ui/page-layout";
 import Link from "next/link";
 
 type Props = {
@@ -24,14 +21,20 @@ type Props = {
   viewerOwnsProfile?: boolean;
 };
 
+const contentPadClass = "px-5 sm:px-8 lg:px-12 xl:px-16";
+
 export function MemberProfileFullContent({
   member: t,
   viewerOwnsProfile = false,
 }: Props) {
   const programs = t.programs;
+  const featuredSessions = resolveFeaturedSessions(t);
+  const topicTags = profileTopicTags(t);
+  const bannerUrl = t.bannerUrl?.trim() || null;
 
   const taglineTrim = t.tagline.trim();
   const bioTrim = t.bio.trim();
+  const quoteTrim = t.quote.trim();
   const taglineBioDuplicate =
     taglineTrim.length > 0 && taglineTrim === bioTrim;
 
@@ -42,61 +45,39 @@ export function MemberProfileFullContent({
     );
   };
 
+  const bioText =
+    bioTrim && (!taglineBioDuplicate || !taglineTrim)
+      ? t.bio
+      : taglineBioDuplicate && taglineTrim
+        ? taglineTrim
+        : null;
+
   return (
-    <div className="flex min-h-dvh flex-col">
-      <main className={`${pageMainClass} pb-14`}>
-        <div className="space-y-12">
-          <nav>
-            <Link href="/" className={navLinkClass}>
-              ← Home
-            </Link>
-          </nav>
+    <div className="relative flex min-h-dvh w-full flex-col overflow-x-hidden">
+      <main className="relative z-10 w-full flex-1 pb-14">
+        <nav className={`${contentPadClass} py-6`}>
+          <Link href="/" className={navLinkClass}>
+            ← Home
+          </Link>
+        </nav>
 
-          <header className="space-y-6 lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-10 lg:space-y-0">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex min-w-0 flex-1 items-center gap-4">
-                  <ProfileAvatar
-                    name={t.name}
-                    imageUrl={t.avatarUrl}
-                    size="md"
-                  />
-                  <div className="min-w-0">
-                    <h1 className={titleProfileClass}>{t.name}</h1>
-                    <div className={titleSmallClass}>@{t.slug}</div>
-                  </div>
-                </div>
-                <div className="ml-auto flex shrink-0 items-center gap-2">
-                  <ProfileLayoutToggle slug={t.slug} active="full" />
-                  {viewerOwnsProfile ? (
-                    <ProfileEditIconLink href={`/${t.slug}/edit`} />
-                  ) : null}
-                </div>
-              </div>
-              {taglineBioDuplicate ? (
-                <p className={bodyRelaxedLargeClass}>{taglineTrim}</p>
-              ) : taglineTrim ? (
-                <p className={leadMutedClass}>{t.tagline}</p>
-              ) : null}
-            </div>
-            {!taglineBioDuplicate && bioTrim && bioTrim !== taglineTrim ? (
-              <p className={`${bodyRelaxedLargeClass} lg:pt-2`}>{t.bio}</p>
-            ) : null}
-          </header>
+        <div className={`${contentPadClass}`}>
+          <ProfileBanner bannerUrl={bannerUrl} />
+        </div>
 
-          {t.whatYouNeed && t.whatYouNeed.length > 0 ? (
-            <section className="space-y-4">
-              <SectionHeader
-                title="What you'll need"
-                subtitle="Anything useful to gather before you start."
-              />
-              <ul className={`list-disc space-y-2 pl-5 ${bodyLeadClass}`}>
-                {t.whatYouNeed.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
+        <div className={`${contentPadClass} space-y-12 pt-8 lg:space-y-14 lg:pt-10`}>
+          <ProfileIdentityHeader
+            name={t.name}
+            slug={t.slug}
+            tagline={
+              taglineTrim && !taglineBioDuplicate ? t.tagline : null
+            }
+            quote={quoteTrim || null}
+            bio={bioText}
+            topicTags={topicTags}
+            avatarUrl={t.avatarUrl}
+            viewerOwnsProfile={viewerOwnsProfile}
+          />
 
           <section className="space-y-4" id="programs">
             <SectionHeader
@@ -132,6 +113,11 @@ export function MemberProfileFullContent({
               </ul>
             )}
           </section>
+
+          <StartWithSessionSection
+            sessions={featuredSessions}
+            creatorName={t.name}
+          />
         </div>
       </main>
     </div>

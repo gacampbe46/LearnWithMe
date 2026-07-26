@@ -55,9 +55,12 @@ type DbProfile = {
 
 type ProfileTags = {
   tagline?: string;
+  quote?: string;
+  bannerUrl?: string;
   /** Tag catalog UUIDs from `tags`, stored in profile.tags JSON. */
   tagIds?: string[];
   whatYouNeed?: string[];
+  featuredSessionIds?: string[];
   featuredPreviewVideos?: FeaturedPreviewVideo[];
   channelUrl?: string;
 };
@@ -99,11 +102,16 @@ function parseProfileTags(value: unknown): ProfileTags {
   if (!isRecord(value)) return {};
   return {
     tagline: typeof value.tagline === "string" ? value.tagline : undefined,
+    quote: typeof value.quote === "string" ? value.quote : undefined,
+    bannerUrl: typeof value.bannerUrl === "string" ? value.bannerUrl : undefined,
     tagIds: Array.isArray(value.tagIds)
       ? value.tagIds.filter((x): x is string => typeof x === "string")
       : undefined,
     whatYouNeed: Array.isArray(value.whatYouNeed)
       ? value.whatYouNeed.filter((x): x is string => typeof x === "string")
+      : undefined,
+    featuredSessionIds: Array.isArray(value.featuredSessionIds)
+      ? value.featuredSessionIds.filter((x): x is string => typeof x === "string")
       : undefined,
     featuredPreviewVideos: Array.isArray(value.featuredPreviewVideos)
       ? value.featuredPreviewVideos.filter(
@@ -264,18 +272,38 @@ function mapProfileToMember(
       ? profile.avatar_url.trim()
       : null;
 
+  const bannerUrl =
+    typeof tags.bannerUrl === "string" && tags.bannerUrl.trim()
+      ? tags.bannerUrl.trim()
+      : null;
+
+  const interestTags: ProgramTopicTag[] = (tags.tagIds ?? [])
+    .map((id) => {
+      const label = catalogLabelById.get(id);
+      const name =
+        label ?? (id.length > 12 ? `${id.slice(0, 8)}…` : id);
+      return { id, name };
+    })
+    .sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+    );
+
   return {
     id: profile.id,
     name: displayName,
     slug: username,
     avatarUrl,
+    bannerUrl,
     bio: profile.bio ?? "",
-    tagline: tags.tagline ?? profile.bio ?? "",
+    tagline: tags.tagline?.trim() ?? "",
+    quote: tags.quote?.trim() ?? "",
     channelUrl: links.channelUrl ?? tags.channelUrl ?? "",
     profileViewPreference:
       links.profileViewPreference ?? legacyLayout ?? "full_content",
     hubLinks: links.hubLinks,
     whatYouNeed: tags.whatYouNeed ?? [],
+    interestTags,
+    featuredSessionIds: tags.featuredSessionIds ?? [],
     featuredPreviewVideos: tags.featuredPreviewVideos ?? [],
     programs,
     ...(program ? { program } : {}),
@@ -334,6 +362,10 @@ async function fetchMemberProfileRow(
   const dbProfile = data as unknown as DbProfile;
   const rawPrograms = dbProfile.programs ?? [];
   const allTagIds: string[] = [];
+  const profileTags = parseProfileTags(dbProfile.tags);
+  if (profileTags.tagIds) {
+    allTagIds.push(...profileTags.tagIds);
+  }
   for (const row of rawPrograms) {
     const r = row as EmbeddedProgramRow | undefined;
     if (!r || typeof r !== "object") continue;
