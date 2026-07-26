@@ -1,54 +1,54 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
-  AVATAR_BUCKET,
-  allAvatarObjectPaths,
-  avatarObjectPath,
-  validateAvatarFile,
-  validateAvatarSourceFile,
-  withAvatarCacheBust,
-} from "@/lib/profile/avatar-storage";
+  BANNER_BUCKET,
+  allBannerObjectPaths,
+  bannerObjectPath,
+  validateBannerFile,
+  validateBannerSourceFile,
+  withBannerCacheBust,
+} from "@/lib/profile/banner-storage";
 import {
-  AVATAR_PREPARE_OPTIONS,
+  BANNER_PREPARE_OPTIONS,
   prepareImageForUpload,
 } from "@/lib/profile/prepare-image-for-upload";
 
-export type UploadAvatarResult =
+export type UploadBannerResult =
   | { ok: true; publicUrl: string }
   | { ok: false; error: string };
 
-export async function uploadAvatarFile(
+export async function uploadBannerFile(
   userId: string,
   file: File,
-): Promise<UploadAvatarResult> {
-  const sourceError = validateAvatarSourceFile(file);
+): Promise<UploadBannerResult> {
+  const sourceError = validateBannerSourceFile(file);
   if (sourceError) {
     return { ok: false, error: sourceError };
   }
 
-  const prepared = await prepareImageForUpload(file, AVATAR_PREPARE_OPTIONS);
+  const prepared = await prepareImageForUpload(file, BANNER_PREPARE_OPTIONS);
   if (!prepared.ok) {
     return prepared;
   }
 
-  const validationError = validateAvatarFile(prepared.file);
+  const validationError = validateBannerFile(prepared.file);
   if (validationError) {
     return { ok: false, error: validationError };
   }
 
-  const objectPath = avatarObjectPath(userId, prepared.file.type);
+  const objectPath = bannerObjectPath(userId, prepared.file.type);
   if (!objectPath) {
     return { ok: false, error: "Unsupported image type." };
   }
 
   const supabase = createSupabaseBrowserClient();
 
-  const stalePaths = allAvatarObjectPaths(userId).filter((path) => path !== objectPath);
+  const stalePaths = allBannerObjectPaths(userId).filter((path) => path !== objectPath);
   if (stalePaths.length > 0) {
-    await supabase.storage.from(AVATAR_BUCKET).remove(stalePaths);
+    await supabase.storage.from(BANNER_BUCKET).remove(stalePaths);
   }
 
   const { error: uploadError } = await supabase.storage
-    .from(AVATAR_BUCKET)
+    .from(BANNER_BUCKET)
     .upload(objectPath, prepared.file, {
       upsert: true,
       contentType: prepared.file.type,
@@ -59,6 +59,6 @@ export async function uploadAvatarFile(
     return { ok: false, error: uploadError.message };
   }
 
-  const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(objectPath);
-  return { ok: true, publicUrl: withAvatarCacheBust(data.publicUrl) };
+  const { data } = supabase.storage.from(BANNER_BUCKET).getPublicUrl(objectPath);
+  return { ok: true, publicUrl: withBannerCacheBust(data.publicUrl) };
 }

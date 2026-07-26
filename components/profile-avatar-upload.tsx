@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import { validateAvatarFile } from "@/lib/profile/avatar-storage";
+import { validateAvatarSourceFile } from "@/lib/profile/avatar-storage";
+import {
+  AVATAR_PREPARE_OPTIONS,
+  prepareImageForUpload,
+} from "@/lib/profile/prepare-image-for-upload";
 import { bodyMutedClass, formLabelClass } from "@/lib/ui/typography";
 
 type Props = {
@@ -29,6 +33,7 @@ export function ProfileAvatarUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
+  const [preparing, setPreparing] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -40,31 +45,43 @@ export function ProfileAvatarUpload({
 
   const displayUrl = localPreviewUrl ?? imageUrl;
   const displayError = pickError ?? error;
+  const busy = disabled || preparing;
 
   const handlePick = useCallback(() => {
     inputRef.current?.click();
   }, []);
 
   const handleFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       event.target.value = "";
       if (!file) return;
 
-      const validationError = validateAvatarFile(file);
-      if (validationError) {
-        setPickError(validationError);
+      const sourceError = validateAvatarSourceFile(file);
+      if (sourceError) {
+        setPickError(sourceError);
         return;
       }
 
+      setPreparing(true);
       setPickError(null);
-      setLocalPreviewUrl((prev) => {
-        if (prev?.startsWith("blob:")) {
-          URL.revokeObjectURL(prev);
+      try {
+        const prepared = await prepareImageForUpload(file, AVATAR_PREPARE_OPTIONS);
+        if (!prepared.ok) {
+          setPickError(prepared.error);
+          return;
         }
-        return URL.createObjectURL(file);
-      });
-      onFileChange?.(file);
+
+        setLocalPreviewUrl((prev) => {
+          if (prev?.startsWith("blob:")) {
+            URL.revokeObjectURL(prev);
+          }
+          return URL.createObjectURL(prepared.file);
+        });
+        onFileChange?.(prepared.file);
+      } finally {
+        setPreparing(false);
+      }
     },
     [onFileChange],
   );
@@ -88,19 +105,24 @@ export function ProfileAvatarUpload({
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           className="sr-only"
-          disabled={disabled}
+          disabled={busy}
           onChange={handleFileChange}
         />
         <button
           type="button"
           onClick={handlePick}
-          disabled={disabled}
+          disabled={busy}
           className="rounded-full border border-editorial-border bg-editorial-card px-4 py-2 text-sm font-medium text-stone-800 transition hover:bg-stone-100/90 disabled:cursor-not-allowed disabled:opacity-60 dark:text-stone-100 dark:hover:bg-stone-800/60"
         >
-          {displayUrl ? "Change photo" : "Choose photo"}
+          {preparing
+            ? "Preparing…"
+            : displayUrl
+              ? "Change photo"
+              : "Choose photo"}
         </button>
         <p className={`${bodyMutedClass} text-xs`}>
-          JPEG, PNG, WebP, or GIF · max 2 MB · saved when you submit
+          JPEG, PNG, WebP, or GIF · large photos are cropped and compressed
+          automatically
         </p>
         {displayError ? (
           <p role="alert" className="text-sm text-red-700 dark:text-red-300/90">

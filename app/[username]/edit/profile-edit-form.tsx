@@ -14,6 +14,10 @@ import { Card } from "@/components/Card";
 import { LayoutFullIcon } from "@/components/icons/layout-full-icon";
 import { LayoutHubIcon } from "@/components/icons/layout-hub-icon";
 import {
+  FeaturedSessionsPicker,
+  type FeaturedSessionOption,
+} from "@/components/member/featured-sessions-picker";
+import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,
 } from "@/components/program/topic-chip-styles";
@@ -30,7 +34,9 @@ import { parseAndValidateUsername } from "@/lib/onboarding/username";
 import { updateProfileByUsername, type ProfileUpdateState } from "./actions";
 import { UsernameAvailabilityField } from "@/app/onboarding/username-availability-field";
 import { ProfileAvatarUpload } from "@/components/profile-avatar-upload";
+import { ProfileBannerUpload } from "@/components/profile-banner-upload";
 import { uploadAvatarFile } from "@/lib/profile/upload-avatar-client";
+import { uploadBannerFile } from "@/lib/profile/upload-banner-client";
 
 /** Stored preference for edit form — only hub vs full (no device_adaptive). */
 export type EditProfileLayoutDefault = "link_hub" | "full_content";
@@ -45,13 +51,21 @@ type Defaults = {
   firstName: string;
   lastName: string;
   bio: string;
+  tagline: string;
+  quote: string;
   avatarUrl: string | null;
+  bannerUrl: string | null;
   profileLayout: EditProfileLayoutDefault;
   selectedInterestIds: string[];
+  featuredSessionIds: string[];
 };
 
 function interestFingerprint(ids: Iterable<string>): string {
   return [...ids].sort().join("\0");
+}
+
+function featuredFingerprint(ids: Iterable<string>): string {
+  return [...ids].join("\0");
 }
 
 export function ProfileEditForm({
@@ -59,12 +73,14 @@ export function ProfileEditForm({
   userId,
   interestTags,
   tagsLoadError,
+  sessionOptions,
   defaults,
 }: {
   username: string;
   userId: string;
   interestTags: InterestTagOption[];
   tagsLoadError: string | null;
+  sessionOptions: FeaturedSessionOption[];
   defaults: Defaults;
 }) {
   const interestEditingEnabled =
@@ -83,11 +99,17 @@ export function ProfileEditForm({
     [catalogIds, defaults.selectedInterestIds],
   );
 
+  const initialFeaturedFingerprint = useMemo(
+    () => featuredFingerprint(defaults.featuredSessionIds),
+    [defaults.featuredSessionIds],
+  );
+
   const initial: ProfileUpdateState = {
     formError: null,
     usernameError: null,
     interestsError: null,
     avatarError: null,
+    bannerError: null,
   };
   const [state, formAction, pending] = useActionState<
     ProfileUpdateState,
@@ -103,16 +125,25 @@ export function ProfileEditForm({
   const [firstName, setFirstName] = useState(defaults.firstName);
   const [lastName, setLastName] = useState(defaults.lastName);
   const [bio, setBio] = useState(defaults.bio);
+  const [tagline, setTagline] = useState(defaults.tagline);
+  const [quote, setQuote] = useState(defaults.quote);
   const [avatarUrl, setAvatarUrl] = useState(defaults.avatarUrl);
+  const [bannerUrl, setBannerUrl] = useState(defaults.bannerUrl);
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [pendingBannerFile, setPendingBannerFile] = useState<File | null>(null);
+  const [bannerCleared, setBannerCleared] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [bannerError, setBannerError] = useState<string | null>(null);
   const [profileLayout, setProfileLayout] = useState(defaults.profileLayout);
   const [selectedInterestIds, setSelectedInterestIds] = useState(
     () =>
       new Set(
         defaults.selectedInterestIds.filter((id) => catalogIds.has(id)),
       ),
+  );
+  const [featuredSessionIds, setFeaturedSessionIds] = useState(
+    () => [...defaults.featuredSessionIds],
   );
   const [usernameReady, setUsernameReady] = useState(true);
   const [interestsOpen, setInterestsOpen] = useState(false);
@@ -123,15 +154,22 @@ export function ProfileEditForm({
     setFirstName(defaults.firstName);
     setLastName(defaults.lastName);
     setBio(defaults.bio);
+    setTagline(defaults.tagline);
+    setQuote(defaults.quote);
     setAvatarUrl(defaults.avatarUrl);
+    setBannerUrl(defaults.bannerUrl);
     setPendingAvatarFile(null);
+    setPendingBannerFile(null);
+    setBannerCleared(false);
     setAvatarError(null);
+    setBannerError(null);
     setProfileLayout(defaults.profileLayout);
     setSelectedInterestIds(
       new Set(
         defaults.selectedInterestIds.filter((id) => catalogIds.has(id)),
       ),
     );
+    setFeaturedSessionIds([...defaults.featuredSessionIds]);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by profile slug
   }, [username]);
 
@@ -142,6 +180,10 @@ export function ProfileEditForm({
   useEffect(() => {
     if (state.avatarError) setAvatarError(state.avatarError);
   }, [state.avatarError]);
+
+  useEffect(() => {
+    if (state.bannerError) setBannerError(state.bannerError);
+  }, [state.bannerError]);
 
   const handleUsernameReady = useCallback((ready: boolean) => {
     setUsernameReady(ready);
@@ -159,8 +201,14 @@ export function ProfileEditForm({
     if (firstName.trim() !== defaults.firstName.trim()) return true;
     if (lastName.trim() !== defaults.lastName.trim()) return true;
     if (bio.trim() !== defaults.bio.trim()) return true;
+    if (tagline.trim() !== defaults.tagline.trim()) return true;
+    if (quote.trim() !== defaults.quote.trim()) return true;
     if (profileLayout !== defaults.profileLayout) return true;
     if (pendingAvatarFile) return true;
+    if (pendingBannerFile || bannerCleared) return true;
+    if (featuredFingerprint(featuredSessionIds) !== initialFeaturedFingerprint) {
+      return true;
+    }
     if (
       interestEditingEnabled &&
       interestFingerprint(selectedInterestIds) !== initialInterestFingerprint
@@ -174,8 +222,14 @@ export function ProfileEditForm({
     firstName,
     lastName,
     bio,
+    tagline,
+    quote,
     profileLayout,
     pendingAvatarFile,
+    pendingBannerFile,
+    bannerCleared,
+    featuredSessionIds,
+    initialFeaturedFingerprint,
     defaults,
     interestEditingEnabled,
     selectedInterestIds,
@@ -185,13 +239,26 @@ export function ProfileEditForm({
   const canSubmit =
     isDirty &&
     !pending &&
-    !uploadingAvatar &&
+    !uploadingMedia &&
     usernameReady &&
     (!interestEditingEnabled || hasInterestSelection);
 
   const handleAvatarFile = useCallback((file: File | null) => {
     setPendingAvatarFile(file);
     setAvatarError(null);
+  }, []);
+
+  const handleBannerFile = useCallback((file: File | null) => {
+    setPendingBannerFile(file);
+    setBannerCleared(false);
+    setBannerError(null);
+  }, []);
+
+  const handleBannerClear = useCallback(() => {
+    setPendingBannerFile(null);
+    setBannerCleared(true);
+    setBannerUrl(null);
+    setBannerError(null);
   }, []);
 
   const handleSubmit = useCallback(
@@ -202,23 +269,47 @@ export function ProfileEditForm({
       const form = event.currentTarget;
       const formData = new FormData(form);
 
+      setUploadingMedia(true);
+      setAvatarError(null);
+      setBannerError(null);
+
       if (pendingAvatarFile) {
-        setUploadingAvatar(true);
-        setAvatarError(null);
         const upload = await uploadAvatarFile(userId, pendingAvatarFile);
-        setUploadingAvatar(false);
         if (!upload.ok) {
+          setUploadingMedia(false);
           setAvatarError(upload.error);
           return;
         }
         formData.set("avatar_url", upload.publicUrl);
       }
 
+      if (pendingBannerFile) {
+        const upload = await uploadBannerFile(userId, pendingBannerFile);
+        if (!upload.ok) {
+          setUploadingMedia(false);
+          setBannerError(upload.error);
+          return;
+        }
+        formData.set("banner_url", upload.publicUrl);
+        formData.set("banner_clear", "0");
+      } else if (bannerCleared) {
+        formData.set("banner_clear", "1");
+      }
+
+      setUploadingMedia(false);
+
       startTransition(() => {
         formAction(formData);
       });
     },
-    [canSubmit, pendingAvatarFile, userId, formAction],
+    [
+      canSubmit,
+      pendingAvatarFile,
+      pendingBannerFile,
+      bannerCleared,
+      userId,
+      formAction,
+    ],
   );
 
   const toggleInterest = useCallback((tagId: string) => {
@@ -255,7 +346,7 @@ export function ProfileEditForm({
         <ProfileAvatarUpload
           name={`${firstName} ${lastName}`.trim() || username}
           imageUrl={avatarUrl}
-          disabled={pending || uploadingAvatar}
+          disabled={pending || uploadingMedia}
           error={avatarError}
           onFileChange={handleAvatarFile}
         />
@@ -447,13 +538,76 @@ export function ProfileEditForm({
         </fieldset>
       </Card>
 
+      <Card className="space-y-6">
+        <div className="space-y-1 border-b border-editorial-border pb-4">
+          <h2 className={formLegendClass}>Public page</h2>
+          <p className={bodyMutedClass}>
+            Shape how visitors experience your profile—atmosphere, voice, and a
+            place to start.
+          </p>
+        </div>
+
+        <ProfileBannerUpload
+          imageUrl={bannerCleared ? null : bannerUrl}
+          disabled={pending || uploadingMedia}
+          error={bannerError}
+          onFileChange={handleBannerFile}
+          onClear={handleBannerClear}
+        />
+
+        <div className="space-y-2">
+          <label htmlFor="profile-tagline" className={formLabelClass}>
+            Tagline <span className={optionalHintClass}>(optional)</span>
+          </label>
+          <input
+            id="profile-tagline"
+            name="tagline"
+            type="text"
+            maxLength={200}
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="Pastry · weekends · beginners"
+            className={`${inputFieldClass} ${inputFocusClass}`}
+          />
+          <p className={`${bodyMutedClass} text-xs`}>
+            Short specialty line under your name.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="profile-quote" className={formLabelClass}>
+            Quote <span className={optionalHintClass}>(optional)</span>
+          </label>
+          <textarea
+            id="profile-quote"
+            name="quote"
+            rows={2}
+            maxLength={180}
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            placeholder="Good bread is slow attention"
+            className={`${inputFieldClass} ${inputFocusClass} resize-y`}
+          />
+          <p className={`${bodyMutedClass} text-xs`}>
+            A short invitation or belief—shown as an italic quote.
+          </p>
+        </div>
+
+        <FeaturedSessionsPicker
+          options={sessionOptions}
+          selectedIds={featuredSessionIds}
+          onChange={setFeaturedSessionIds}
+          disabled={pending || uploadingMedia}
+        />
+      </Card>
+
       <Button
         type="submit"
         className={`w-full ${!canSubmit ? "cursor-not-allowed" : ""}`}
         disabled={!canSubmit}
         aria-disabled={!canSubmit}
       >
-        {pending || uploadingAvatar ? "Saving…" : "Save profile"}
+        {pending || uploadingMedia ? "Saving…" : "Save profile"}
       </Button>
     </form>
   );

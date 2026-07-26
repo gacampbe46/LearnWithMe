@@ -1,6 +1,7 @@
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
 import { Button } from "@/components/Button";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { ProfileBanner } from "@/components/member/ProfileBanner";
 import { ProfileEditIconLink } from "@/components/member/profile-edit-icon-link";
 import { ProfileLayoutToggle } from "@/components/member/profile-layout-toggle";
 import { ProgramHiddenBadge } from "@/components/program/ProgramHiddenBadge";
@@ -101,27 +102,31 @@ export function MemberProfileLinkHub({
 
   const taglineTrim = member.tagline.trim();
   const bioTrim = member.bio.trim();
+  const quoteTrim = member.quote.trim();
   const taglineBioDuplicate =
     taglineTrim.length > 0 && taglineTrim === bioTrim;
+  const bannerUrl = member.bannerUrl?.trim() || null;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <main className={`${pageContainerClass} flex flex-1 flex-col py-8 pb-12`}>
+    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-background">
+      <main className={`${pageContainerClass} flex flex-1 flex-col pb-12 pt-8`}>
         <div className={`${pageFocusedColumnClass} flex flex-1 flex-col`}>
-        <nav className="mb-5">
-          <Link href="/" className={navLinkClass}>
-            ← Home
-          </Link>
-        </nav>
+          <nav className="mb-5">
+            <Link href="/" className={navLinkClass}>
+              ← Home
+            </Link>
+          </nav>
 
-        <div className="flex flex-1 flex-col">
-          <div className="text-center">
-            <ProfileAvatar
-              name={member.name}
-              imageUrl={member.avatarUrl}
-              size="lg"
-              className="mx-auto mb-4 ring-4 ring-background"
-            />
+          <ProfileBanner bannerUrl={bannerUrl} className="mb-6" />
+
+          <div className="flex flex-1 flex-col">
+            <div className="text-center">
+              <ProfileAvatar
+                name={member.name}
+                imageUrl={member.avatarUrl}
+                size="lg"
+                className="mx-auto mb-4 ring-4 ring-background"
+              />
             <h1 className={titleMediumClass}>{member.name}</h1>
             <div className={`mt-1 ${titleSmallClass}`}>@{member.slug}</div>
             {taglineBioDuplicate ? (
@@ -142,6 +147,11 @@ export function MemberProfileLinkHub({
                 ) : null}
               </>
             )}
+            {quoteTrim ? (
+              <blockquote className="mx-auto mt-3 max-w-sm font-serif-display text-base font-medium italic leading-snug text-stone-800 dark:text-stone-200">
+                &ldquo;{quoteTrim}&rdquo;
+              </blockquote>
+            ) : null}
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <ProfileLayoutToggle slug={member.slug} active="hub" />
               {viewerOwnsProfile ? (

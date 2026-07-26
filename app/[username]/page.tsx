@@ -27,7 +27,11 @@ export async function generateMetadata({
   }
   return {
     title: `${member.name} — learnwithme`,
-    description: member.tagline,
+    description:
+      member.quote.trim() ||
+      member.tagline.trim() ||
+      member.bio.trim() ||
+      undefined,
   };
 }
 

@@ -14,8 +14,11 @@ const MIME_TO_EXT: Record<string, string> = {
   "image/gif": "gif",
 };
 
-/** 2 MB — matches bucket `file_size_limit` in migration. */
+/** 2 MB — matches bucket `file_size_limit` in migration (after client compress). */
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+
+/** Soft cap on the raw file the browser will try to process. */
+export const AVATAR_SOURCE_MAX_BYTES = 25 * 1024 * 1024;
 
 export function avatarObjectPath(userId: string, mimeType: string): string | null {
   const ext = MIME_TO_EXT[mimeType];
@@ -30,10 +33,21 @@ export function allAvatarObjectPaths(userId: string): string[] {
   );
 }
 
-export function validateAvatarFile(file: File): string | null {
+/** MIME (+ optional source size) before compress/crop. */
+export function validateAvatarSourceFile(file: File): string | null {
   if (!ALLOWED_MIME_TYPES.has(file.type)) {
     return "Use a JPEG, PNG, WebP, or GIF image.";
   }
+  if (file.size > AVATAR_SOURCE_MAX_BYTES) {
+    return "Image is too large to process (max 25 MB).";
+  }
+  return null;
+}
+
+/** Final checks before storage upload (post-compress). */
+export function validateAvatarFile(file: File): string | null {
+  const sourceError = validateAvatarSourceFile(file);
+  if (sourceError) return sourceError;
   if (file.size > AVATAR_MAX_BYTES) {
     return "Image must be 2 MB or smaller.";
   }
