@@ -3,12 +3,14 @@
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { SessionVideoUploadField } from "@/components/session-video-upload-field";
 import {
   addSessionInitialState,
   type AddSessionFormState,
 } from "./add-session-form-state";
 import { formLabelClass, inputFieldClass, inputFocusClass } from "@/lib/ui/typography";
 import { updateProgramSession } from "./actions";
+import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
 
 type Props = {
   username: string;
@@ -32,34 +34,35 @@ export function EditSessionForm({
     FormData
   >(updateProgramSession, addSessionInitialState);
 
+  const initialAssetId = parseGumletAssetId(initialVideoInput) ?? "";
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [videoUrl, setVideoUrl] = useState(initialVideoInput);
+  const [assetId, setAssetId] = useState(initialAssetId);
+  const [videoBusy, setVideoBusy] = useState(false);
 
   useEffect(() => {
     setTitle(initialTitle);
     setDescription(initialDescription);
-    setVideoUrl(initialVideoInput);
+    setAssetId(parseGumletAssetId(initialVideoInput) ?? "");
   }, [sessionId, initialTitle, initialDescription, initialVideoInput]);
 
   const isDirty = useMemo(
     () =>
       title.trim() !== initialTitle.trim() ||
       description.trim() !== initialDescription.trim() ||
-      videoUrl.trim() !== initialVideoInput.trim(),
+      (parseGumletAssetId(assetId) ?? "") !== initialAssetId,
     [
       title,
       description,
-      videoUrl,
+      assetId,
       initialTitle,
       initialDescription,
-      initialVideoInput,
+      initialAssetId,
     ],
   );
 
-  const hasRequired =
-    title.trim().length > 0 && videoUrl.trim().length > 0;
-  const canSubmit = isDirty && hasRequired && !pending;
+  const canSubmit =
+    isDirty && title.trim().length > 0 && !pending && !videoBusy;
 
   return (
     <Card>
@@ -116,25 +119,14 @@ export function EditSessionForm({
           />
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="edit-session-video"
-            className={formLabelClass}
-          >
-            Video (YouTube)
-          </label>
-          <input
-            id="edit-session-video"
-            name="content_url"
-            required
-            maxLength={2000}
-            autoComplete="off"
-            placeholder="https://www.youtube.com/watch?v=… or paste the video ID"
-            className={`${inputFieldClass} ${inputFocusClass}`}
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-          />
-        </div>
+        <SessionVideoUploadField
+          programId={programId}
+          assetId={assetId}
+          onAssetIdChange={setAssetId}
+          onBusyChange={setVideoBusy}
+          disabled={pending}
+          hasExisting={Boolean(initialAssetId)}
+        />
 
         <div className="flex justify-end pt-2">
           <Button

@@ -23,7 +23,11 @@ export function SessionMediaCard({
       id={block.id}
     >
       {showBlockTitle ? <SectionHeader title={block.title} /> : null}
-      <VideoEmbed videoId={block.videoId} title={block.title} />
+      <VideoEmbed
+        videoId={block.videoId}
+        title={block.title}
+        status={block.videoStatus}
+      />
       {block.caption.trim() ? (
         <p className={bodyEmphasisClass}>{block.caption}</p>
       ) : null}

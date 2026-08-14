@@ -1,4 +1,3 @@
-import { youtubeThumb } from "@/lib/home/media";
 import type { Program, ProgramSession } from "@/lib/member";
 
 export function sessionVideoId(session: ProgramSession): string | null {
@@ -7,8 +6,8 @@ export function sessionVideoId(session: ProgramSession): string | null {
 }
 
 export function sessionThumbnailSrc(session: ProgramSession): string | null {
-  const videoId = sessionVideoId(session);
-  return videoId ? youtubeThumb(videoId) : null;
+  const url = session.media[0]?.thumbnailUrl?.trim() ?? "";
+  return url || null;
 }
 
 /** First session with a video preview — used for program listing cards. */

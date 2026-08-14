@@ -22,6 +22,7 @@ function sessionLink(
     title: session.title,
     description: session.description,
     videoId: sessionVideoId(session),
+    thumbnailUrl: session.media[0]?.thumbnailUrl ?? null,
     href: `/${slug}/${program.id}/${session.id}`,
     sessionNumber: index + 1,
     sessionTotal: program.sessions.length,

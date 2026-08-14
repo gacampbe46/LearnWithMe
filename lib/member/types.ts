@@ -1,3 +1,5 @@
+import type { VideoStatus } from "@/lib/gumlet/asset-id";
+
 /**
  * Public teaching content for a member. The same account is meant to both
  * teach (offer programs) and learn (subscribe to others)—not separate roles.
@@ -5,7 +7,10 @@
 export type SessionMedia = {
   id: string;
   title: string;
+  /** Gumlet asset ID for playback; empty when missing or leftover YouTube. */
   videoId: string;
+  videoStatus: VideoStatus | null;
+  thumbnailUrl: string | null;
   /** Short learner-facing text under the video (e.g. instructions). */
   caption: string;
   notes: string[];
@@ -16,7 +21,7 @@ export type ProgramSession = {
   title: string;
   description: string;
   media: SessionMedia[];
-  /** DB `sessions.content_url` — link or bare ID — for instructor edit UI. */
+  /** DB `sessions.content_url` — Gumlet asset ID — for instructor edit UI. */
   storedContentUrl: string | null;
 };
 
@@ -94,6 +99,7 @@ export type FeaturedSessionLink = {
   title: string;
   description: string;
   videoId: string | null;
+  thumbnailUrl: string | null;
   href: string;
   /** 1-based index within the parent program (for card meta). */
   sessionNumber: number;

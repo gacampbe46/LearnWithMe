@@ -8,6 +8,7 @@ import {
 import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
 import {
   PROGRAM_CHILDREN_EMBED_FIELDS,
+  PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS,
   PROGRAM_CHILDREN_EMBED_NO_TAGS,
 } from "@/lib/program/program-embed-select";
 import { parseProgramTagsColumn } from "@/lib/program/program-tags-json";
@@ -62,6 +63,21 @@ async function fetchOwnedProgramRowForManage(
       .eq("id", programId)
       .maybeSingle();
     programRow = fallback.data;
+
+    if (fallback.error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          "[fetchOwnedProgramRowForManage] embed with video columns failed, retrying legacy sessions:",
+          fallback.error.message ?? fallback.error,
+        );
+      }
+      const legacy = await supabase
+        .from("programs")
+        .select(PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS)
+        .eq("id", programId)
+        .maybeSingle();
+      programRow = legacy.data;
+    }
   }
 
   const asRow = programRow as EmbeddedProgramRow | null | undefined;

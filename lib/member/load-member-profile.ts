@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
 import {
   PROGRAM_CHILDREN_EMBED_FIELDS,
+  PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS,
   PROGRAM_CHILDREN_EMBED_NO_TAGS,
 } from "@/lib/program/program-embed-select";
 import { parseProgramTagsColumn } from "@/lib/program/program-tags-json";
@@ -16,6 +17,11 @@ import type {
   ProfileViewPreference,
   SessionMedia,
 } from "./types";
+import {
+  parseGumletAssetId,
+  parseThumbnailUrl,
+  parseVideoStatus,
+} from "@/lib/gumlet/asset-id";
 
 type DbSession = {
   id: string;
@@ -23,6 +29,8 @@ type DbSession = {
   description: string | null;
   instructions: string | null;
   content_url: string | null;
+  video_status?: string | null;
+  thumbnail_url?: string | null;
   sort_order: number | null;
 };
 
@@ -145,24 +153,6 @@ function parseProfileLinks(value: unknown): ProfileLinks {
   };
 }
 
-function normalizeYouTubeId(contentUrl: string | null): string {
-  if (!contentUrl) return "";
-
-  if (!contentUrl.includes("http")) {
-    return contentUrl;
-  }
-
-  try {
-    const url = new URL(contentUrl);
-    const v = url.searchParams.get("v");
-    if (v) return v;
-    const parts = url.pathname.split("/").filter(Boolean);
-    return parts[parts.length - 1] ?? contentUrl;
-  } catch {
-    return contentUrl;
-  }
-}
-
 function formatPrice(price: number | null): string {
   if (typeof price !== "number" || Number.isNaN(price)) {
     return "Contact for pricing";
@@ -178,25 +168,23 @@ function formatPrice(price: number | null): string {
 }
 
 function mapDbSessionToProgramSession(session: DbSession): ProgramSession {
+  const assetId = parseGumletAssetId(session.content_url) ?? "";
   const block: SessionMedia = {
     id: `${session.id}-video`,
     title: session.title ?? "Video",
-    videoId: normalizeYouTubeId(session.content_url),
+    videoId: assetId,
+    videoStatus: parseVideoStatus(session.video_status),
+    thumbnailUrl: parseThumbnailUrl(session.thumbnail_url),
     caption: session.instructions?.trim() ?? "",
     notes: [],
   };
-
-  const rawUrl =
-    typeof session.content_url === "string" && session.content_url.trim()
-      ? session.content_url.trim()
-      : null;
 
   return {
     id: session.id,
     title: session.title ?? "Session",
     description: session.description ?? "",
     media: [block],
-    storedContentUrl: rawUrl,
+    storedContentUrl: assetId || null,
   };
 }
 
@@ -350,6 +338,18 @@ async function fetchMemberProfileRow(
     const second = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_NO_TAGS);
     data = second.data;
     error = second.error;
+  }
+
+  if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        "[getMemberByUsername] profile embed with video columns failed, retrying legacy sessions:",
+        error.message ?? error,
+      );
+    }
+    const third = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS);
+    data = third.data;
+    error = third.error;
   }
 
   if (error || !data) {

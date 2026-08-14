@@ -33,6 +33,6 @@ export const sessionGridClass =
 export const programGridClass =
   "grid grid-cols-1 justify-start gap-3 sm:grid-cols-[repeat(2,minmax(0,30rem))] sm:gap-4 lg:grid-cols-[repeat(3,minmax(0,30rem))]";
 
-/** Session/program card thumbnail — 16:9 to match YouTube stills. */
+/** Session/program card thumbnail — 16:9 to match video stills. */
 export const sessionThumbnailShellClass =
   "relative aspect-video overflow-hidden bg-stone-200 dark:bg-stone-800";

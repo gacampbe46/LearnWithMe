@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "i.ytimg.com",
-        pathname: "/vi/**",
+        hostname: "video.gumlet.io",
+        pathname: "/**",
       },
     ],
   },
