@@ -23,14 +23,24 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/kathleen",
+        destination: "/",
+        permanent: false,
+      },
+      {
+        source: "/kathleen/:path*",
+        destination: "/",
+        permanent: false,
+      },
+      {
         source: "/kathleen-chu",
-        destination: "/kathleen",
-        permanent: true,
+        destination: "/",
+        permanent: false,
       },
       {
         source: "/kathleen-chu/:path*",
-        destination: "/kathleen/:path*",
-        permanent: true,
+        destination: "/",
+        permanent: false,
       },
     ];
   },

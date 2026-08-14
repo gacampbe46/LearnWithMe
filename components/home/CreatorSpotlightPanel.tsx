@@ -16,8 +16,10 @@ export function CreatorSpotlightPanel({
   portraitSrc,
   portraitAlt,
 }: CreatorSpotlightPanelProps) {
-  const profileHref = creator.href ?? "/kathleen";
+  const profileHref = creator.href;
   const firstName = creator.name.split(" ")[0];
+  const ctaClass =
+    "inline-flex min-h-10 items-center rounded-full border border-stone-800 px-5 text-xs font-medium uppercase tracking-[0.12em] text-stone-900 transition lg:min-h-11 lg:px-6 dark:border-stone-300 dark:text-stone-100";
 
   return (
     <div className="space-y-3 lg:space-y-4">
@@ -56,12 +58,18 @@ export function CreatorSpotlightPanel({
             {creator.programCount} program{creator.programCount === 1 ? "" : "s"} ·{" "}
             {creator.sessionCount} sessions
           </p>
-          <Link
-            href={profileHref}
-            className="inline-flex min-h-10 items-center rounded-full border border-stone-800 px-5 text-xs font-medium uppercase tracking-[0.12em] text-stone-900 transition hover:bg-stone-900 hover:text-stone-50 lg:min-h-11 lg:px-6 dark:border-stone-300 dark:text-stone-100 dark:hover:bg-stone-100 dark:hover:text-stone-900"
-          >
-            Learn with {firstName}
-          </Link>
+          {profileHref ? (
+            <Link
+              href={profileHref}
+              className={`${ctaClass} hover:bg-stone-900 hover:text-stone-50 dark:hover:bg-stone-100 dark:hover:text-stone-900`}
+            >
+              Learn with {firstName}
+            </Link>
+          ) : (
+            <span className={ctaClass} aria-disabled="true">
+              Learn with {firstName}
+            </span>
+          )}
         </div>
       </div>
 

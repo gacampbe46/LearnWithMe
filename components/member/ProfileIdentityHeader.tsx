@@ -42,10 +42,10 @@ export function ProfileIdentityHeader({
         className="w-28 self-center sm:row-span-2 sm:w-40 lg:w-60"
       />
 
-      <div className="flex min-w-0 flex-wrap items-start gap-3 self-center">
+      <div className="flex min-w-0 flex-col items-start gap-3 self-center sm:flex-row sm:flex-wrap sm:items-start">
         <div className="min-w-0 flex-1 space-y-0.5 sm:space-y-1">
-          <h1 className={titleProfileClass}>{name}</h1>
-          <p className={handleClass}>@{slug}</p>
+          <h1 className={`${titleProfileClass} break-words`}>{name}</h1>
+          <p className={`${handleClass} break-words`}>@{slug}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <ShareProgramButton

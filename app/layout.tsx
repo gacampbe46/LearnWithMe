@@ -51,7 +51,7 @@ export default function RootLayout({
           <Suspense fallback={<SiteNavFallback />}>
             <SiteNav />
           </Suspense>
-          <div className="min-h-dvh pl-16">{children}</div>
+          <div className="min-h-dvh pt-14 sm:pl-16 sm:pt-0">{children}</div>
         </ThemeProvider>
       </body>
     </html>

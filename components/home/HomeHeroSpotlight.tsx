@@ -1,10 +1,10 @@
 import { spotlightCreator } from "@/lib/home/placeholder-data";
-import type { KathleenSpotlight } from "@/lib/home/resolve-home-kathleen";
+import type { HomeSpotlight } from "@/lib/home/resolve-home-sample";
 import Link from "next/link";
 import { CreatorSpotlightPanel } from "./CreatorSpotlightPanel";
 
 type HomeHeroSpotlightProps = {
-  spotlight: KathleenSpotlight;
+  spotlight: HomeSpotlight;
 };
 
 export function HomeHeroSpotlight({ spotlight }: HomeHeroSpotlightProps) {

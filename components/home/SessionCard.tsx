@@ -27,11 +27,11 @@ export function SessionCard({ session, className = "" }: SessionCardProps) {
     .filter(Boolean)
     .join(" · ");
 
-  return (
-    <Link
-      href={session.href}
-      className={`group relative block overflow-hidden rounded-xl border border-editorial-border bg-editorial-card shadow-sm shadow-stone-900/5 transition hover:border-editorial-accent-muted hover:shadow-md dark:shadow-black/30 ${className}`.trim()}
-    >
+  const shellClass =
+    `group relative block overflow-hidden rounded-xl border border-editorial-border bg-editorial-card shadow-sm shadow-stone-900/5 transition hover:border-editorial-accent-muted hover:shadow-md dark:shadow-black/30 ${className}`.trim();
+
+  const content = (
+    <>
       <div className={sessionThumbnailShellClass}>
         <Image
           src={session.imageSrc}
@@ -66,6 +66,20 @@ export function SessionCard({ session, className = "" }: SessionCardProps) {
           {footerMeta || overlayMeta}
         </p>
       </div>
+    </>
+  );
+
+  if (!session.href) {
+    return (
+      <article className={shellClass} aria-label={`${title} — coming soon`}>
+        {content}
+      </article>
+    );
+  }
+
+  return (
+    <Link href={session.href} className={shellClass}>
+      {content}
     </Link>
   );
 }

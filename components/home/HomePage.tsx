@@ -1,6 +1,6 @@
 import type { InterestTagOption } from "@/lib/catalog/interest-tags";
 import { featuredCreators } from "@/lib/home/placeholder-data";
-import type { HomeKathleenContent } from "@/lib/home/resolve-home-kathleen";
+import type { HomeSampleContent } from "@/lib/home/resolve-home-sample";
 import Link from "next/link";
 import { CreatorCard } from "./CreatorCard";
 import { HomeHeroSpotlight } from "./HomeHeroSpotlight";
@@ -11,13 +11,13 @@ import { SessionCard } from "./SessionCard";
 type HomePageProps = {
   interestTags: InterestTagOption[];
   tagsLoadError: string | null;
-  kathleen: HomeKathleenContent;
+  sample: HomeSampleContent;
 };
 
-export function HomePage({ interestTags, tagsLoadError, kathleen }: HomePageProps) {
+export function HomePage({ interestTags, tagsLoadError, sample }: HomePageProps) {
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <HomeHeroSpotlight spotlight={kathleen.spotlight} />
+      <HomeHeroSpotlight spotlight={sample.spotlight} />
 
       <HomeInterestsSection interests={interestTags} loadError={tagsLoadError} />
 
@@ -47,7 +47,7 @@ export function HomePage({ interestTags, tagsLoadError, kathleen }: HomePageProp
             subtitle="Tap a session to preview, then open the full program when you're ready."
           />
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-            {kathleen.popularSessions.map((session) => (
+            {sample.popularSessions.map((session) => (
               <SessionCard key={session.id} session={session} />
             ))}
           </div>

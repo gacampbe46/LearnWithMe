@@ -210,7 +210,10 @@ export default function AboutPage() {
           </section>
 
           <p>
-            <Link href="/kathleen" className={`text-base ${textLinkUnderlineClass}`}>
+            <Link
+              href="/learnwithme"
+              className={`text-base ${textLinkUnderlineClass}`}
+            >
               View a sample member profile
             </Link>
           </p>
