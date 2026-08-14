@@ -4,8 +4,9 @@
 -- IMPORTANT:
 -- - This migration is additive and idempotent where practical.
 -- - It does not seed full lesson content.
--- - It assumes the existing LearnWithMe tables already exist:
---   public.programs, public.profile, and auth.users.
+-- - Preview / empty databases do not have the dashboard-created core tables,
+--   so this file creates public.profile, public.programs, public.sessions,
+--   public.tags, and the PCAP proof-of-concept tables if they are missing.
 -- - Existing PCAP proof-of-concept tables are preserved and lightly bridged
 --   with nullable cohort_id columns for gradual migration.
 
@@ -22,6 +23,113 @@ begin
   return new;
 end;
 $$;
+
+-- Core LearnWithMe tables (created in the production dashboard, not previously
+-- versioned). Needed before cohorts.program_id can reference public.programs.
+create table if not exists public.profile (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  user_id uuid unique references auth.users(id) on delete cascade,
+  username text unique,
+  first_name text,
+  last_name text,
+  bio text,
+  avatar_url text,
+  picture text,
+  links jsonb,
+  tags jsonb,
+  is_instructor boolean not null default false
+);
+
+create table if not exists public.programs (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  profile_id uuid references public.profile(id) on delete cascade,
+  title text,
+  description text,
+  price double precision,
+  is_active boolean not null default false,
+  tags jsonb
+);
+
+create table if not exists public.sessions (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  program_id uuid references public.programs(id) on delete cascade,
+  title text,
+  description text,
+  instructions text,
+  content_url text,
+  sort_order bigint
+);
+
+create table if not exists public.tags (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  name text unique
+);
+
+create index if not exists programs_profile_id_idx
+  on public.programs (profile_id);
+
+create index if not exists sessions_program_id_idx
+  on public.sessions (program_id);
+
+-- PCAP proof-of-concept tables (historically applied via supabase/pcap-cohort-1.sql).
+create table if not exists public.cohort_members (
+  id uuid primary key default gen_random_uuid(),
+  cohort_slug text not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  joined_at timestamptz not null default now(),
+  unique (cohort_slug, user_id)
+);
+
+create table if not exists public.cohort_quiz_submissions (
+  id uuid primary key default gen_random_uuid(),
+  cohort_slug text not null,
+  quiz_id text not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  answers jsonb not null default '{}'::jsonb,
+  score integer not null default 0,
+  total_questions integer not null default 0,
+  submitted_at timestamptz not null default now(),
+  unique (cohort_slug, quiz_id, user_id)
+);
+
+create table if not exists public.cohort_question_discussions (
+  id uuid primary key default gen_random_uuid(),
+  cohort_slug text not null,
+  quiz_id text not null,
+  question_id text not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.cohort_question_help_requests (
+  id uuid primary key default gen_random_uuid(),
+  cohort_slug text not null,
+  quiz_id text not null,
+  question_id text not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (cohort_slug, quiz_id, question_id, user_id)
+);
+
+create index if not exists cohort_members_cohort_slug_idx
+  on public.cohort_members (cohort_slug);
+
+create index if not exists cohort_members_user_id_idx
+  on public.cohort_members (user_id);
+
+create index if not exists cohort_quiz_submissions_cohort_quiz_idx
+  on public.cohort_quiz_submissions (cohort_slug, quiz_id);
+
+create index if not exists cohort_question_discussions_question_idx
+  on public.cohort_question_discussions (cohort_slug, quiz_id, question_id, created_at);
+
+create index if not exists cohort_question_help_requests_question_idx
+  on public.cohort_question_help_requests (cohort_slug, quiz_id, question_id);
 
 create table if not exists public.cohorts (
   id uuid primary key default gen_random_uuid(),
