@@ -11,7 +11,8 @@
 This repository is still an **early product prototype**, now with a Supabase-backed data path for profile/program/session content. It demonstrates:
 
 - A **marketing home** and a **product narrative** (“Why this exists”) describing the problem space and intended direction.
-- A **sample member profile** ([`/kathleen`](https://learnwithme.fyi/kathleen)) with preview videos and a **sample program** (“Foundation”), seeded into Supabase for end-to-end testing.
+- A **sample member profile** ([`/learnwithme`](https://learnwithme.fyi/learnwithme)) with the **Get to Sewing** sample program for end-to-end demos.
+- Explore still shows **Kathleen** as a featured creator card (display-only / not clickable).
 
 The codebase is meant to communicate **intent and UX shape** to collaborators, teachers, and future contributors. Billing and full account lifecycle are still in progress.
 
@@ -31,7 +32,7 @@ The codebase is meant to communicate **intent and UX shape** to collaborators, t
 ## Product principles (as reflected in the app)
 
 - **Structured programs** — Video, schedules, and supporting materials in a **sequence** people can follow on their own time.
-- **Subscription-shaped revenue** — Steady, transparent pricing for the program (the sample uses placeholder copy such as “$12/month”).
+- **Subscription-shaped revenue** — Steady, transparent pricing for the program (sample copy uses prices set on live programs such as Get to Sewing).
 - **Shareable identity** — A **link** suitable for a bio that points to **your** program and brand.
 - **Complementary to discovery platforms** — Open video and social are treated as **great for being found**; learnwithme is scoped as a **next step** after someone already wants to commit to a program.
 
@@ -54,10 +55,10 @@ Details and tone match the in-app copy on [`/about`](https://learnwithme.fyi/abo
 | `components/auth/`, `components/home/` | Login + Google CTA; home account menu / sign out |
 | `lib/member/` | Member profile types, load from Supabase, hub links, layout query |
 | `lib/catalog/` | Shared tag catalog (`public.tags`) helpers for interests / program topics |
-| `tools/seed-supabase.mjs` | Phase 4 seed script for profile/program/sessions |
+| `tools/cleanup-kathleen-seed.mjs` | One-time cleanup: remove legacy Kathleen sample profile/programs from Supabase |
 | `components/` | Other shared UI (buttons, cards, video, CTAs, …) |
 
-**Redirects in `next.config.ts`:** **`/signup`** → **`/login`**; legacy **`/kathleen-chu`** → **`/kathleen`**.
+**Redirects in `next.config.ts`:** **`/signup`** → **`/login`**; legacy **`/kathleen`** and **`/kathleen-chu`** → **`/`**.
 
 ---
 
@@ -85,7 +86,7 @@ Other scripts:
 npm run build   # production build
 npm run start   # run production server (after build)
 npm run lint    # ESLint
-npm run seed:supabase  # seed Kathleen profile/program/sessions into Supabase
+npm run cleanup:kathleen  # remove legacy Kathleen sample creator from Supabase
 ```
 
 ### Supabase and AI environment
@@ -95,8 +96,7 @@ Copy `.env.example` to `.env.local` and set:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-SUPABASE_SERVICE_ROLE_KEY=  # seed script + server-side AI response writes
-SEED_PROFILE_USER_ID=       # optional; required if profile row doesn't exist yet
+SUPABASE_SERVICE_ROLE_KEY=  # cleanup script + server-side AI response writes
 OPENAI_API_KEY=             # server-side AI Liferaft calls
 ```
 
@@ -109,7 +109,7 @@ The legacy anon key name `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported for l
 
 [`/signup`](/signup) → [`/login`](/login) via [`next.config.ts`](next.config.ts) (query string preserved). Optional [`?next=`](/login?next=/about) only allows same-origin paths (see `lib/auth/safe-next-path.ts`).
 
-**Profiles:** Link `profile.user_id` to `auth.users.id`; add RLS so users can read/update their row. [`tools/seed-supabase.mjs`](tools/seed-supabase.mjs) supports `SEED_PROFILE_USER_ID` for demo data.
+**Profiles:** Link `profile.user_id` to `auth.users.id`; add RLS so users can read/update their row. The live sample is the **`learnwithme`** profile and its **Get to Sewing** program.
 
 ---
 

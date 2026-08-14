@@ -34,6 +34,7 @@ export type HomeCreator = {
   sessionCount: number;
   imageSrc: string;
   imageAlt: string;
+  /** When null, the card renders display-only (not clickable). */
   href: string | null;
 };
 
@@ -46,7 +47,8 @@ export type HomeSession = {
   skillLevel: string;
   imageSrc: string;
   imageAlt: string;
-  href: string;
+  /** When null, the card renders display-only (not clickable). */
+  href: string | null;
 };
 
 export const featuredCreators: HomeCreator[] = [
@@ -61,7 +63,7 @@ export const featuredCreators: HomeCreator[] = [
     sessionCount: 3,
     imageSrc: KATHLEEN_PORTRAIT_SRC,
     imageAlt: KATHLEEN_PORTRAIT_ALT,
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "maya",
@@ -123,7 +125,7 @@ export const popularSessions: HomeSession[] = [
     skillLevel: "All levels",
     imageSrc: SESSION_KATHLEEN_THERABAND_SRC,
     imageAlt: SESSION_KATHLEEN_THERABAND_ALT,
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "pattern-basics",
@@ -134,7 +136,7 @@ export const popularSessions: HomeSession[] = [
     skillLevel: "Beginner",
     imageSrc: SESSION_ZIPPER_POUCH_SRC,
     imageAlt: SESSION_ZIPPER_POUCH_ALT,
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "calibration-101",
@@ -145,7 +147,7 @@ export const popularSessions: HomeSession[] = [
     skillLevel: "Beginner",
     imageSrc: SESSION_BED_LEVELING_SRC,
     imageAlt: SESSION_BED_LEVELING_ALT,
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "weeknight-pasta",
@@ -156,7 +158,7 @@ export const popularSessions: HomeSession[] = [
     skillLevel: "Easy",
     imageSrc: SESSION_LEMON_PASTA_SRC,
     imageAlt: SESSION_LEMON_PASTA_ALT,
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "loose-florals",
@@ -167,7 +169,7 @@ export const popularSessions: HomeSession[] = [
     skillLevel: "All levels",
     imageSrc: SESSION_WATERCOLOR_FLORALS_SRC,
     imageAlt: SESSION_WATERCOLOR_FLORALS_ALT,
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "pole-first-climb",
@@ -178,7 +180,7 @@ export const popularSessions: HomeSession[] = [
     skillLevel: "Beginner",
     imageSrc: SESSION_CAMI_POLE_SRC,
     imageAlt: SESSION_CAMI_POLE_ALT,
-    href: "/kathleen",
+    href: null,
   },
 ];
 
@@ -195,7 +197,7 @@ export const spotlightSessions: HomeSession[] = [
     skillLevel: "Beginner",
     imageSrc: SESSION_KATHLEEN_THERABAND_SRC,
     imageAlt: "Pilates ball beginner session preview",
-    href: "/kathleen",
+    href: null,
   },
   {
     id: "foundation-day-1",
@@ -206,6 +208,6 @@ export const spotlightSessions: HomeSession[] = [
     skillLevel: "All levels",
     imageSrc: SESSION_KATHLEEN_THERABAND_SRC,
     imageAlt: "Foundation program session preview",
-    href: "/kathleen",
+    href: null,
   },
 ];

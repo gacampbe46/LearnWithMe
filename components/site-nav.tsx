@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import type { NavAccount } from "@/lib/auth/nav-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const itemClass =
   "flex size-10 items-center justify-center rounded-xl text-stone-500 transition hover:bg-stone-200/70 hover:text-stone-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-editorial-accent-muted dark:text-stone-400 dark:hover:bg-stone-800/70 dark:hover:text-stone-50 dark:focus-visible:outline-stone-500";
@@ -18,6 +19,7 @@ type Props = {
 
 export function SiteNavChrome({ account }: Props) {
   const pathname = usePathname() ?? "";
+  const [open, setOpen] = useState(false);
   const profilePath = account?.profilePath ?? null;
   const newProgramHref = account?.teachNewProgramHref ?? null;
   const editProfileHref = profilePath
@@ -27,64 +29,116 @@ export function SiteNavChrome({ account }: Props) {
       : null;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex w-16 flex-col items-center border-r border-editorial-border bg-background/80 py-3 backdrop-blur-xl">
-      {account === undefined ? (
-        <span
-          className="size-10 animate-pulse rounded-xl bg-stone-200/90 dark:bg-stone-800"
-          aria-hidden
-        />
-      ) : account && editProfileHref ? (
-        <HomeAccountMenu
-          displayName={account.displayName}
-          editProfileHref={editProfileHref}
-          avatarUrl={account.avatarUrl}
-          active={
-            pathname === editProfileHref || pathname.startsWith("/onboarding")
-          }
-        />
-      ) : (
-        <Link href="/login" title="Sign in" aria-label="Sign in" className={itemClass}>
-          <SignInIcon />
-        </Link>
-      )}
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open menu"
+        aria-expanded={open}
+        aria-controls="site-nav"
+        className={`fixed left-3 top-3 z-40 flex size-10 items-center justify-center rounded-xl border border-editorial-border bg-background/85 text-stone-600 backdrop-blur-xl transition hover:text-stone-900 dark:text-stone-300 dark:hover:text-stone-50 sm:hidden ${open ? "pointer-events-none opacity-0" : ""}`}
+      >
+        <MenuIcon />
+      </button>
 
-      <nav className="mt-6 flex flex-col items-center gap-1" aria-label="Site">
-        <NavIcon href="/" label="Explore" active={pathname === "/"}>
-          <ExploreIcon />
-        </NavIcon>
-        {account && !profilePath ? (
-          <NavIcon
-            href="/onboarding"
-            label="Finish profile"
-            active={pathname.startsWith("/onboarding")}
-          >
-            <UserIcon />
-          </NavIcon>
-        ) : profilePath ? (
-          <NavIcon
-            href={profilePath}
-            label="Your page"
-            active={pathname === profilePath}
-          >
-            <UserIcon />
-          </NavIcon>
-        ) : null}
-        {newProgramHref ? (
-          <NavIcon
-            href={newProgramHref}
-            label="New program"
-            active={pathname.startsWith("/teach/")}
-          >
-            <PlusIcon />
-          </NavIcon>
-        ) : null}
-      </nav>
+      {open ? (
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-40 bg-stone-950/40 sm:hidden"
+        />
+      ) : null}
 
-      <div className="mt-auto flex flex-col items-center gap-1 pb-1">
-        <ThemeToggle />
-        {account ? <SignOutButton /> : null}
-      </div>
-    </aside>
+      <aside
+        id="site-nav"
+        className={`fixed inset-y-0 left-0 z-50 flex w-16 flex-col items-center border-r border-editorial-border bg-background/80 py-3 backdrop-blur-xl transition-transform duration-200 sm:translate-x-0 ${open ? "translate-x-0" : "max-sm:pointer-events-none -translate-x-full"}`}
+      >
+        {account === undefined ? (
+          <span
+            className="size-10 animate-pulse rounded-xl bg-stone-200/90 dark:bg-stone-800"
+            aria-hidden
+          />
+        ) : account && editProfileHref ? (
+          <HomeAccountMenu
+            displayName={account.displayName}
+            editProfileHref={editProfileHref}
+            avatarUrl={account.avatarUrl}
+            active={
+              pathname === editProfileHref || pathname.startsWith("/onboarding")
+            }
+          />
+        ) : (
+          <Link
+            href="/login"
+            title="Sign in"
+            aria-label="Sign in"
+            className={itemClass}
+            onClick={() => setOpen(false)}
+          >
+            <SignInIcon />
+          </Link>
+        )}
+
+        <nav
+          className="mt-6 flex flex-col items-center gap-1"
+          aria-label="Site"
+          onClick={() => setOpen(false)}
+        >
+          <NavIcon href="/" label="Explore" active={pathname === "/"}>
+            <ExploreIcon />
+          </NavIcon>
+          {account && !profilePath ? (
+            <NavIcon
+              href="/onboarding"
+              label="Finish profile"
+              active={pathname.startsWith("/onboarding")}
+            >
+              <UserIcon />
+            </NavIcon>
+          ) : profilePath ? (
+            <NavIcon
+              href={profilePath}
+              label="Your page"
+              active={pathname === profilePath}
+            >
+              <UserIcon />
+            </NavIcon>
+          ) : null}
+          {newProgramHref ? (
+            <NavIcon
+              href={newProgramHref}
+              label="New program"
+              active={pathname.startsWith("/teach/")}
+            >
+              <PlusIcon />
+            </NavIcon>
+          ) : null}
+        </nav>
+
+        <div className="mt-auto flex flex-col items-center gap-1 pb-1">
+          <ThemeToggle />
+          {account ? <SignOutButton /> : null}
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-5"
+    >
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
   );
 }
 
