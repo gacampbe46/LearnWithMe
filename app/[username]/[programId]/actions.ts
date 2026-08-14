@@ -10,6 +10,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
+import { deleteGumletAssetIfUnused } from "@/lib/gumlet/delete-unused-asset";
 import type { AddSessionFormState } from "./add-session-form-state";
 
 function trimField(v: FormDataEntryValue | null, max: number): string {
@@ -197,6 +198,15 @@ export async function updateProgramSession(
     return { formError: `${baseMsg}${hint}` };
   }
 
+  if (assetReplaced && existingAssetId) {
+    await deleteGumletAssetIfUnused(supabase, existingAssetId);
+  }
+
+  revalidatePath(safeNextPath(backPath));
+  revalidatePath(safeNextPath(`/${username}/${programId}/manage`));
+  revalidatePath(safeNextPath(`/${username}/${programId}`));
+  revalidatePath(safeNextPath(`/${username}/${programId}/${sessionId}`));
+
   redirect(safeNextPath(backPath));
 }
 
@@ -222,7 +232,7 @@ export async function deleteProgramSession(payload: {
 
   const { data: sess, error: readErr } = await supabase
     .from("sessions")
-    .select("program_id")
+    .select("program_id, content_url")
     .eq("id", sessionId)
     .maybeSingle();
 
@@ -248,6 +258,13 @@ export async function deleteProgramSession(payload: {
       ? friendlyDbPermissionMessage()
       : delErr.message;
     return { ok: false, error: msg };
+  }
+
+  const removedAssetId = parseGumletAssetId(
+    typeof sess.content_url === "string" ? sess.content_url : null,
+  );
+  if (removedAssetId) {
+    await deleteGumletAssetIfUnused(supabase, removedAssetId);
   }
 
   return { ok: true };

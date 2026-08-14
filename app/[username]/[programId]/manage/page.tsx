@@ -53,6 +53,7 @@ export default async function ManageProgramPage({ params }: PageProps) {
       title: s.title,
       description: s.description ?? "",
       videoInput: s.storedContentUrl ?? "",
+      thumbnailUrl: s.media[0]?.thumbnailUrl ?? null,
     })),
   );
 

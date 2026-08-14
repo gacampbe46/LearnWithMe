@@ -45,11 +45,6 @@ export type Program = {
   isActive: boolean;
 };
 
-export type FeaturedPreviewVideo = {
-  videoId: string;
-  title: string;
-};
-
 export type ProfileViewPreference =
   | "link_hub"
   | "full_content"
@@ -84,8 +79,6 @@ export type MemberProfile = {
   interestTags: ProgramTopicTag[];
   /** Creator-curated session IDs for “Featured sessions” (`profile.tags.featuredSessionIds`). */
   featuredSessionIds: string[];
-  /** Legacy seed field — prefer `featuredSessionIds` when resolving featured sessions. */
-  featuredPreviewVideos: FeaturedPreviewVideo[];
   /** Programs for this profile, newest first when loaded from Supabase. */
   programs: Program[];
   /** First program (`programs[0]`), kept for callers that assume a primary offering. */

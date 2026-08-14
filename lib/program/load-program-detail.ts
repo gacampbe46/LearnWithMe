@@ -9,12 +9,12 @@ import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
 import {
   PROGRAM_CHILDREN_EMBED_FIELDS,
   PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS,
-  PROGRAM_CHILDREN_EMBED_NO_TAGS,
 } from "@/lib/program/program-embed-select";
 import { parseProgramTagsColumn } from "@/lib/program/program-tags-json";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
+import { syncEmbeddedProgramVideos } from "@/lib/gumlet/sync-session-videos";
 
 export type LoadedProgramDetail = {
   profileSlug: string;
@@ -53,31 +53,16 @@ async function fetchOwnedProgramRowForManage(
   if (primary.error) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "[fetchOwnedProgramRowForManage] embed with tags failed, retrying without:",
+        "[fetchOwnedProgramRowForManage] embed with video columns failed, retrying legacy sessions:",
         primary.error.message ?? primary.error,
       );
     }
-    const fallback = await supabase
+    const legacy = await supabase
       .from("programs")
-      .select(PROGRAM_CHILDREN_EMBED_NO_TAGS)
+      .select(PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS)
       .eq("id", programId)
       .maybeSingle();
-    programRow = fallback.data;
-
-    if (fallback.error) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn(
-          "[fetchOwnedProgramRowForManage] embed with video columns failed, retrying legacy sessions:",
-          fallback.error.message ?? fallback.error,
-        );
-      }
-      const legacy = await supabase
-        .from("programs")
-        .select(PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS)
-        .eq("id", programId)
-        .maybeSingle();
-      programRow = legacy.data;
-    }
+    programRow = legacy.data;
   }
 
   const asRow = programRow as EmbeddedProgramRow | null | undefined;
@@ -150,10 +135,11 @@ export async function loadProgramDetail(
       programId,
     );
     if (owned) {
-      const tagIds = parseProgramTagsColumn(owned.row.tags);
+      const syncedRow = await syncEmbeddedProgramVideos(owned.row);
+      const tagIds = parseProgramTagsColumn(syncedRow.tags);
       const sb = await createSupabaseServerClient();
       const catalogLabelById = await fetchCatalogTagLabelMap(sb, tagIds);
-      program = mapEmbeddedProgramRow(owned.row, catalogLabelById);
+      program = mapEmbeddedProgramRow(syncedRow, catalogLabelById);
       profileSlug = owned.profileSlug;
       profileDisplayName = owned.profileDisplayName;
     }

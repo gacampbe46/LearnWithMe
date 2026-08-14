@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AddSessionForm } from "@/app/[username]/[programId]/add-session-form";
 import { EditSessionForm } from "@/app/[username]/[programId]/edit-session-form";
 import { Button } from "@/components/Button";
@@ -36,6 +36,11 @@ function parseSessionsStamp(stamp: string): ManageSessionRow[] {
           typeof row.description === "string" ? row.description : "",
         videoInput:
           typeof row.videoInput === "string" ? row.videoInput : "",
+        thumbnailUrl:
+          typeof row.thumbnailUrl === "string" &&
+          row.thumbnailUrl.startsWith("https://")
+            ? row.thumbnailUrl
+            : null,
       }));
   } catch {
     return [];
@@ -68,6 +73,7 @@ export function ManageSessionsSection({
   const [editingSession, setEditingSession] = useState<ManageSessionRow | null>(
     null,
   );
+  const editFormRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -87,6 +93,17 @@ export function ManageSessionsSection({
     }
   }, [sessions, sessionsStamp]);
 
+  useEffect(() => {
+    if (!editingSession) return;
+    const frame = window.requestAnimationFrame(() => {
+      editFormRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [editingSession]);
+
   const addLabel =
     sessionCount === 0 ? "Add session" : "Add another session";
 
@@ -97,7 +114,9 @@ export function ManageSessionsSection({
 
   const openEditForm = (session: ManageSessionRow) => {
     setShowAddForm(false);
-    setEditingSession(session);
+    setEditingSession((current) =>
+      current?.id === session.id ? null : session,
+    );
   };
 
   const closeForms = () => {
@@ -106,7 +125,10 @@ export function ManageSessionsSection({
   };
 
   return (
-    <section id="sessions" className="space-y-4 lg:sticky lg:top-20">
+    <section
+      id="sessions"
+      className={`space-y-4 ${editingSession ? "" : "lg:sticky lg:top-20"}`}
+    >
       <h3 className={titleSubsectionClass}>Sessions</h3>
 
       <ManageSessionsList
@@ -119,7 +141,7 @@ export function ManageSessionsSection({
       />
 
       {editingSession ? (
-        <div className="space-y-3">
+        <div ref={editFormRef} className="scroll-mt-6 space-y-3">
           <p className="text-sm font-medium text-stone-800 dark:text-stone-200">
             Edit session
           </p>
@@ -130,15 +152,8 @@ export function ManageSessionsSection({
             initialTitle={editingSession.title}
             initialDescription={editingSession.description}
             initialVideoInput={editingSession.videoInput}
+            initialThumbnailUrl={editingSession.thumbnailUrl}
           />
-          <Button
-            type="button"
-            variant="ghost"
-            className="min-h-10 w-full justify-center px-4 text-sm font-medium sm:w-auto"
-            onClick={closeForms}
-          >
-            Cancel
-          </Button>
         </div>
       ) : showAddForm ? (
         <div className="space-y-3">

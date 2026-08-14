@@ -19,6 +19,7 @@ type Props = {
   initialTitle: string;
   initialDescription: string;
   initialVideoInput: string;
+  initialThumbnailUrl?: string | null;
 };
 
 export function EditSessionForm({
@@ -28,6 +29,7 @@ export function EditSessionForm({
   initialTitle,
   initialDescription,
   initialVideoInput,
+  initialThumbnailUrl = null,
 }: Props) {
   const [state, formAction, pending] = useActionState<
     AddSessionFormState,
@@ -120,12 +122,15 @@ export function EditSessionForm({
         </div>
 
         <SessionVideoUploadField
+          key={sessionId}
           programId={programId}
           assetId={assetId}
           onAssetIdChange={setAssetId}
           onBusyChange={setVideoBusy}
           disabled={pending}
           hasExisting={Boolean(initialAssetId)}
+          committedAssetId={initialAssetId}
+          existingThumbnailUrl={initialThumbnailUrl}
         />
 
         <div className="flex justify-end pt-2">

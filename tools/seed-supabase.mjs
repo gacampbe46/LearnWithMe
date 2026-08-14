@@ -15,16 +15,6 @@ const seedMember = {
     "A small Pilates ball for the beginner Pilates-style sample",
     "Clear floor space; a mat is nice to have",
   ],
-  featuredPreviewVideos: [
-    {
-      videoId: "QvWW6M17CLw",
-      title: "50 MINUTE | Full Body | Theraband",
-    },
-    {
-      videoId: "aUv8WuNhZq0",
-      title: "36 MINUTE | Beginner Full Body | Small Pilates Ball",
-    },
-  ],
   program: {
     title: "Foundation Program",
     description: "Three guided sessions — one simple price for the whole program",
@@ -109,7 +99,6 @@ async function upsertProfile(supabase, profileTagIds) {
       tagline: seedMember.tagline,
       quote: seedMember.quote,
       whatYouNeed: seedMember.whatYouNeed,
-      featuredPreviewVideos: seedMember.featuredPreviewVideos,
       ...(profileTagIds.length > 0 ? { tagIds: profileTagIds } : {}),
     },
     is_instructor: true,

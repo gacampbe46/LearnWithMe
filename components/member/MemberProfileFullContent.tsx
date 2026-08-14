@@ -9,9 +9,8 @@ import {
   resolveFeaturedSessions,
   type MemberProfile,
 } from "@/lib/member";
-import { bodyLeadClass, navLinkClass } from "@/lib/ui/typography";
+import { bodyLeadClass } from "@/lib/ui/typography";
 import { programGridClass } from "@/lib/ui/page-layout";
-import Link from "next/link";
 
 type Props = {
   member: MemberProfile;
@@ -44,13 +43,7 @@ export function MemberProfileFullContent({
 
   return (
     <div className="relative flex min-h-dvh w-full flex-col overflow-x-hidden">
-      <main className="relative z-10 w-full flex-1 pb-14">
-        <nav className={`${pad} py-6`}>
-          <Link href="/" className={navLinkClass}>
-            ← Home
-          </Link>
-        </nav>
-
+      <main className="relative z-10 w-full flex-1 pb-14 pt-6">
         <div className={pad}>
           <ProfileBanner bannerUrl={bannerUrl} />
         </div>

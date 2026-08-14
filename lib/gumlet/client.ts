@@ -1,4 +1,4 @@
-import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
+import { parseGumletAssetId, parseThumbnailUrl } from "@/lib/gumlet/asset-id";
 import { getGumletApiKey, getGumletWorkspaceId } from "@/lib/gumlet/env";
 
 const GUMLET_UPLOAD_URL = "https://api.gumlet.com/v1/video/assets/upload";
@@ -73,4 +73,54 @@ export async function createGumletDirectUpload(options?: {
   }
 
   return { assetId, uploadUrl };
+}
+
+export type GumletAssetPlayback = {
+  status: "processing" | "ready" | "errored";
+  thumbnailUrl: string | null;
+};
+
+export async function fetchGumletAssetPlayback(
+  assetId: string,
+): Promise<GumletAssetPlayback | null> {
+  const apiKey = getGumletApiKey();
+  if (!apiKey) return null;
+
+  const response = await fetch(
+    `https://api.gumlet.com/v1/video/assets/${assetId}`,
+    { headers: { Authorization: `Bearer ${apiKey}` } },
+  );
+  const payload: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isRecord(payload)) return null;
+
+  const rawStatus =
+    typeof payload.status === "string" ? payload.status.toLowerCase() : "";
+  const status: GumletAssetPlayback["status"] =
+    rawStatus === "ready" || rawStatus === "stream_ready"
+      ? "ready"
+      : rawStatus === "errored" || rawStatus === "error"
+        ? "errored"
+        : "processing";
+
+  const thumbnailUrl = isRecord(payload.output)
+    ? parseThumbnailUrl(payload.output.thumbnail_url)
+    : parseThumbnailUrl(payload.thumbnail_url);
+
+  return { status, thumbnailUrl };
+}
+
+export async function deleteGumletAsset(assetId: string): Promise<boolean> {
+  const apiKey = getGumletApiKey();
+  const parsed = parseGumletAssetId(assetId);
+  if (!apiKey || !parsed) return false;
+
+  const response = await fetch(
+    `https://api.gumlet.com/v1/video/assets/${parsed}`,
+    {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${apiKey}` },
+    },
+  );
+
+  return response.ok || response.status === 404;
 }

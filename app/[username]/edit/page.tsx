@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -9,7 +8,6 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import {
   bodyMutedClass,
-  navLinkClass,
   titlePrimaryClass,
 } from "@/lib/ui/typography";
 import { pageContainerClass, pageMainStickyClass } from "@/lib/ui/page-layout";
@@ -151,12 +149,6 @@ export default async function EditProfilePage({
   return (
     <div className="flex min-h-dvh flex-col">
       <main className={`${pageMainStickyClass} space-y-8`}>
-        <nav>
-          <Link href={`/${normalized}`} className={navLinkClass}>
-            ← Back to profile
-          </Link>
-        </nav>
-
         <header className="space-y-1 border-b border-editorial-border pb-4">
           <h1 className={titlePrimaryClass}>Edit profile</h1>
         </header>

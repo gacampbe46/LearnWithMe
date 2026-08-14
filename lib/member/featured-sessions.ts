@@ -64,21 +64,6 @@ export function resolveFeaturedSessions(
   }
 
   if (out.length < limit) {
-    for (const preview of member.featuredPreviewVideos) {
-      if (out.length >= limit) break;
-      for (const program of programs) {
-        const session = program.sessions.find(
-          (s) => sessionVideoId(s) === preview.videoId,
-        );
-        if (session) {
-          push(sessionLink(member.slug, program, session.id));
-          break;
-        }
-      }
-    }
-  }
-
-  if (out.length < limit) {
     for (const program of programs) {
       if (out.length >= limit) break;
       const first = program.sessions[0];

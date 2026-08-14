@@ -10,6 +10,7 @@ type ProgramSessionCardProps = {
   href: string;
   sessionNumber?: number;
   sessionTotal?: number;
+  completed?: boolean;
   className?: string;
 };
 
@@ -18,6 +19,7 @@ export function ProgramSessionCard({
   href,
   sessionNumber,
   sessionTotal,
+  completed = false,
   className = "",
 }: ProgramSessionCardProps) {
   const thumbnailSrc = sessionThumbnailSrc(session);
@@ -31,6 +33,13 @@ export function ProgramSessionCard({
       className={`group relative block h-full overflow-hidden rounded-xl border border-editorial-border bg-editorial-card shadow-sm shadow-stone-900/5 transition hover:border-editorial-accent-muted hover:shadow-md dark:shadow-black/30 ${className}`.trim()}
     >
       <div className={sessionThumbnailShellClass}>
+        {completed ? (
+          <div className="absolute left-2 top-2 z-10">
+            <span className="inline-flex items-center gap-1 rounded-full bg-stone-950/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-stone-50 backdrop-blur-[2px]">
+              Completed
+            </span>
+          </div>
+        ) : null}
         {thumbnailSrc ? (
           <Image
             src={thumbnailSrc}
@@ -44,29 +53,23 @@ export function ProgramSessionCard({
             No preview yet
           </div>
         )}
-        <div className="absolute inset-0 bg-stone-950/0 transition duration-300 group-hover:bg-stone-950/25" />
-        <div className="absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:p-4">
-          <div className="rounded-lg bg-[var(--editorial-overlay)] px-3 py-2.5 text-stone-50 backdrop-blur-[2px]">
-            {showNumber ? (
-              <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-stone-300">
-                Session {sessionNumber} of {sessionTotal}
-              </p>
-            ) : null}
-            <p className="font-serif-display text-lg font-medium leading-snug">
-              {session.title}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 opacity-0 transition duration-300 group-hover:opacity-100 sm:p-4">
+          <p className="min-w-0 font-serif-display text-lg font-medium leading-snug text-stone-50">
+            {session.title}
+          </p>
+          {showNumber ? (
+            <p className="shrink-0 text-xs text-stone-200/90">
+              {sessionNumber}/{sessionTotal}
             </p>
-            {description ? (
-              <p className="mt-1 line-clamp-2 text-xs text-stone-200/90">
-                {description}
-              </p>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       </div>
       <div className="space-y-1 p-3 sm:hidden">
         {showNumber ? (
           <p className={metaCapsClass}>
             Session {sessionNumber} of {sessionTotal}
+            {completed ? " · Completed" : ""}
           </p>
         ) : null}
         <p className={titleCardClass}>{session.title}</p>
@@ -80,6 +83,7 @@ export function ProgramSessionCard({
         {showNumber ? (
           <p className={metaCapsClass}>
             Session {sessionNumber} of {sessionTotal}
+            {completed ? " · Completed" : ""}
           </p>
         ) : null}
         <p className={`${titleCardClass} ${showNumber ? "mt-0.5" : ""}`}>

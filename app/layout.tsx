@@ -1,12 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Geist, Inter } from "next/font/google";
 import { Suspense } from "react";
-import {
-  HomeAccountControl,
-  HomeAccountFallback,
-} from "@/components/home/home-account-control";
+import { SiteNav, SiteNavFallback } from "@/components/site-nav-frame";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -52,17 +48,10 @@ export default function RootLayout({
     >
       <body className="min-h-dvh antialiased">
         <ThemeProvider>
-          <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 pt-4 sm:px-6 lg:px-8">
-            <div>
-              <Suspense fallback={<HomeAccountFallback />}>
-                <HomeAccountControl />
-              </Suspense>
-            </div>
-            <div>
-              <ThemeToggle />
-            </div>
-          </div>
-          <div className="min-h-dvh">{children}</div>
+          <Suspense fallback={<SiteNavFallback />}>
+            <SiteNav />
+          </Suspense>
+          <div className="min-h-dvh pl-16">{children}</div>
         </ThemeProvider>
       </body>
     </html>

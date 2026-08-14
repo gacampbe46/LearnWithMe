@@ -31,11 +31,13 @@ export function SessionMediaCard({
       {block.caption.trim() ? (
         <p className={bodyEmphasisClass}>{block.caption}</p>
       ) : null}
-      <ul className={`list-disc space-y-2 pl-5 ${bodyLeadClass}`}>
-        {block.notes.map((note) => (
-          <li key={note}>{note}</li>
-        ))}
-      </ul>
+      {block.notes.length > 0 ? (
+        <ul className={`list-disc space-y-2 pl-5 ${bodyLeadClass}`}>
+          {block.notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      ) : null}
     </article>
   );
 }

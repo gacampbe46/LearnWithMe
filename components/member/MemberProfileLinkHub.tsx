@@ -10,9 +10,8 @@ import { type MemberProfile } from "@/lib/member";
 import {
   bodyLeadClass,
   bodyMutedClass,
-  navLinkClass,
+  handleClass,
   titleMediumClass,
-  titleSmallClass,
 } from "@/lib/ui/typography";
 import { pageContainerClass, pageFocusedColumnClass } from "@/lib/ui/page-layout";
 import Link from "next/link";
@@ -111,12 +110,6 @@ export function MemberProfileLinkHub({
     <div className="flex min-h-dvh flex-col overflow-x-hidden bg-background">
       <main className={`${pageContainerClass} flex flex-1 flex-col pb-12 pt-8`}>
         <div className={`${pageFocusedColumnClass} flex flex-1 flex-col`}>
-          <nav className="mb-5">
-            <Link href="/" className={navLinkClass}>
-              ← Home
-            </Link>
-          </nav>
-
           <ProfileBanner bannerUrl={bannerUrl} className="mb-6" />
 
           <div className="flex flex-1 flex-col">
@@ -128,7 +121,7 @@ export function MemberProfileLinkHub({
                 className="mx-auto mb-4 ring-4 ring-background"
               />
             <h1 className={titleMediumClass}>{member.name}</h1>
-            <div className={`mt-1 ${titleSmallClass}`}>@{member.slug}</div>
+            <p className={`mt-1 ${handleClass}`}>@{member.slug}</p>
             {taglineBioDuplicate ? (
               <p className={`mx-auto mt-2 max-w-sm text-sm leading-relaxed ${bodyMutedClass}`}>
                 {taglineTrim}
@@ -148,11 +141,16 @@ export function MemberProfileLinkHub({
               </>
             )}
             {quoteTrim ? (
-              <blockquote className="mx-auto mt-3 max-w-sm font-serif-display text-base font-medium italic leading-snug text-stone-800 dark:text-stone-200">
+              <blockquote className={`mx-auto mt-3 max-w-sm italic ${bodyMutedClass}`}>
                 &ldquo;{quoteTrim}&rdquo;
               </blockquote>
             ) : null}
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <ShareProgramButton
+                urlPath={`/${member.slug}`}
+                title={member.name}
+                ariaLabel="Share profile"
+              />
               <ProfileLayoutToggle slug={member.slug} active="hub" />
               {viewerOwnsProfile ? (
                 <ProfileEditIconLink href={`/${member.slug}/edit`} />

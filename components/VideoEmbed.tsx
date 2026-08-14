@@ -59,14 +59,6 @@ export function VideoEmbed({
     );
   }
 
-  if (status === "processing") {
-    return (
-      <PlayerShell className={className}>
-        <PlayerMessage>Video is processing. Check back in a minute.</PlayerMessage>
-      </PlayerShell>
-    );
-  }
-
   return (
     <PlayerShell className={className}>
       <iframe

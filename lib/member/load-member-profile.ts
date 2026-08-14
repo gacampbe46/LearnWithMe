@@ -4,11 +4,9 @@ import { fetchCatalogTagLabelMap } from "@/lib/program/catalog-tag-labels";
 import {
   PROGRAM_CHILDREN_EMBED_FIELDS,
   PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS,
-  PROGRAM_CHILDREN_EMBED_NO_TAGS,
 } from "@/lib/program/program-embed-select";
 import { parseProgramTagsColumn } from "@/lib/program/program-tags-json";
 import type {
-  FeaturedPreviewVideo,
   MemberProfile,
   Program,
   ProgramSession,
@@ -69,7 +67,6 @@ type ProfileTags = {
   tagIds?: string[];
   whatYouNeed?: string[];
   featuredSessionIds?: string[];
-  featuredPreviewVideos?: FeaturedPreviewVideo[];
   channelUrl?: string;
 };
 
@@ -120,12 +117,6 @@ function parseProfileTags(value: unknown): ProfileTags {
       : undefined,
     featuredSessionIds: Array.isArray(value.featuredSessionIds)
       ? value.featuredSessionIds.filter((x): x is string => typeof x === "string")
-      : undefined,
-    featuredPreviewVideos: Array.isArray(value.featuredPreviewVideos)
-      ? value.featuredPreviewVideos.filter(
-          (v): v is FeaturedPreviewVideo =>
-            isRecord(v) && typeof v.videoId === "string" && typeof v.title === "string",
-        )
       : undefined,
     channelUrl: typeof value.channelUrl === "string" ? value.channelUrl : undefined,
   };
@@ -292,7 +283,6 @@ function mapProfileToMember(
     whatYouNeed: tags.whatYouNeed ?? [],
     interestTags,
     featuredSessionIds: tags.featuredSessionIds ?? [],
-    featuredPreviewVideos: tags.featuredPreviewVideos ?? [],
     programs,
     ...(program ? { program } : {}),
   };
@@ -331,25 +321,13 @@ async function fetchMemberProfileRow(
   if (error) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "[getMemberByUsername] profile embed with tags failed, retrying without program tags:",
-        error.message ?? error,
-      );
-    }
-    const second = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_NO_TAGS);
-    data = second.data;
-    error = second.error;
-  }
-
-  if (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.warn(
         "[getMemberByUsername] profile embed with video columns failed, retrying legacy sessions:",
         error.message ?? error,
       );
     }
-    const third = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS);
-    data = third.data;
-    error = third.error;
+    const legacy = await fetchWithProgramEmbed(PROGRAM_CHILDREN_EMBED_LEGACY_SESSIONS);
+    data = legacy.data;
+    error = legacy.error;
   }
 
   if (error || !data) {
