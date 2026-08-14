@@ -36,6 +36,7 @@ export type ManageSessionRow = {
   title: string;
   description: string;
   videoInput: string;
+  thumbnailUrl: string | null;
 };
 
 type Props = {
@@ -244,6 +245,11 @@ export function ManageSessionsList({
             typeof row.description === "string" ? row.description : "",
           videoInput:
             typeof row.videoInput === "string" ? row.videoInput : "",
+          thumbnailUrl:
+            typeof row.thumbnailUrl === "string" &&
+            row.thumbnailUrl.startsWith("https://")
+              ? row.thumbnailUrl
+              : null,
         }));
     } catch {
       return [];

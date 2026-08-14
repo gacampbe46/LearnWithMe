@@ -25,8 +25,9 @@ export async function HomeAccountControl() {
   return (
     <HomeAccountMenu
       displayName={account.displayName}
-      profilePath={account.profilePath}
-      teachNewProgramHref={account.teachNewProgramHref}
+      editProfileHref={
+        account.profilePath ? `${account.profilePath}/edit` : "/onboarding"
+      }
       avatarUrl={account.avatarUrl}
     />
   );

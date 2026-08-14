@@ -1,11 +1,11 @@
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
-import { ProgramSessionCard } from "@/components/program/ProgramSessionCard";
+import { ProgramSessionGrid } from "@/components/program/program-session-grid";
+import { BeginProgramCta } from "@/components/program/begin-program-cta";
 import { ShareProgramButton } from "@/components/program/share-program-button";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { Button } from "@/components/Button";
 import { SectionHeader } from "@/components/SectionHeader";
-import { StickyBottomCTA } from "@/components/StickyBottomCTA";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -15,7 +15,7 @@ import {
   navLinkClass,
   titleSubsectionClass,
 } from "@/lib/ui/typography";
-import { pageMainStickyClass, sessionGridClass } from "@/lib/ui/page-layout";
+import { pageMainStickyClass } from "@/lib/ui/page-layout";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string }>;
@@ -46,7 +46,6 @@ export default async function ProgramPage({ params }: PageProps) {
 
   const { profileSlug, profileDisplayName, program: p, canManage } = loaded;
   const sessions = p.sessions;
-  const firstSession = sessions[0];
   const hasSessions = sessions.length > 0;
 
   return (
@@ -108,21 +107,11 @@ export default async function ProgramPage({ params }: PageProps) {
         <section className="space-y-5">
           <h2 className={titleSubsectionClass}>Sessions</h2>
           {hasSessions ? (
-            <ul className={sessionGridClass}>
-              {sessions.map((s, index) => {
-                const sessionHref = `/${profileSlug}/${p.id}/${s.id}`;
-                return (
-                  <li key={s.id} className="min-w-0">
-                    <ProgramSessionCard
-                      session={s}
-                      href={sessionHref}
-                      sessionNumber={index + 1}
-                      sessionTotal={sessions.length}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
+            <ProgramSessionGrid
+              programId={p.id}
+              profileSlug={profileSlug}
+              sessions={sessions}
+            />
           ) : canManage ? (
             <div className="max-w-xl space-y-4">
               <p className={bodyLeadClass}>
@@ -145,15 +134,12 @@ export default async function ProgramPage({ params }: PageProps) {
         </section>
       </main>
 
-      {hasSessions && firstSession && (p.isActive || canManage) ? (
-        <StickyBottomCTA>
-          <Button
-            href={`/${profileSlug}/${p.id}/${firstSession.id}`}
-            className="min-h-12 w-full max-w-sm"
-          >
-            Begin program
-          </Button>
-        </StickyBottomCTA>
+      {hasSessions && (p.isActive || canManage) ? (
+        <BeginProgramCta
+          profileSlug={profileSlug}
+          programId={p.id}
+          sessionIds={sessions.map((s) => s.id)}
+        />
       ) : null}
     </div>
   );

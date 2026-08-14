@@ -15,16 +15,6 @@ const seedMember = {
     "A small Pilates ball for the beginner Pilates-style sample",
     "Clear floor space; a mat is nice to have",
   ],
-  featuredPreviewVideos: [
-    {
-      videoId: "QvWW6M17CLw",
-      title: "50 MINUTE | Full Body | Theraband",
-    },
-    {
-      videoId: "aUv8WuNhZq0",
-      title: "36 MINUTE | Beginner Full Body | Small Pilates Ball",
-    },
-  ],
   program: {
     title: "Foundation Program",
     description: "Three guided sessions — one simple price for the whole program",
@@ -35,28 +25,24 @@ const seedMember = {
         title: "50 MINUTE | Full Body | Theraband",
         description:
           "Full-length theraband workout — follow along for a complete full-body session.",
-        contentUrl: "QvWW6M17CLw",
         instructions: "Full session — follow along in the video",
       },
       {
         title: "Day 1 — 20 MINUTE | Express Glutes & Inner Thigh Focus | Ankle Weights",
         description:
           "Short, focused lower-body session targeting glutes and inner thighs; ankle weights optional.",
-        contentUrl: "YDXB0N0eAwc",
         instructions: "Full session — follow along in the video",
       },
       {
         title: "Day 2 — 26 MINUTE | Full Body Express | Optional Ankle Weights",
         description:
           "Efficient full-body express class; add ankle weights only if it still feels controlled.",
-        contentUrl: "QPLAqXiWa6Y",
         instructions: "Full session — follow along in the video",
       },
       {
         title: "Day 3 — Twist & Rotate | 47 min | Small Pilates Ball",
         description:
           "Longer rotation-focused Pilates-style session using a small ball for feedback and control.",
-        contentUrl: "QfHHsTar1LI",
         instructions: "Full session — follow along in the video",
       },
     ],
@@ -113,7 +99,6 @@ async function upsertProfile(supabase, profileTagIds) {
       tagline: seedMember.tagline,
       quote: seedMember.quote,
       whatYouNeed: seedMember.whatYouNeed,
-      featuredPreviewVideos: seedMember.featuredPreviewVideos,
       ...(profileTagIds.length > 0 ? { tagIds: profileTagIds } : {}),
     },
     is_instructor: true,
@@ -229,7 +214,7 @@ async function replaceSessions(supabase, programId) {
     title: session.title,
     description: session.description,
     instructions: session.instructions,
-    content_url: session.contentUrl,
+    content_url: null,
     sort_order: index,
   }));
 

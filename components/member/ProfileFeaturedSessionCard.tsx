@@ -17,6 +17,8 @@ export function ProfileFeaturedSessionCard({ session }: Props) {
             id: "preview",
             title: session.title,
             videoId: session.videoId,
+            videoStatus: "ready",
+            thumbnailUrl: session.thumbnailUrl,
             caption: "",
             notes: [],
           },

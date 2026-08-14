@@ -1,3 +1,5 @@
+import type { VideoStatus } from "@/lib/gumlet/asset-id";
+
 /**
  * Public teaching content for a member. The same account is meant to both
  * teach (offer programs) and learn (subscribe to others)—not separate roles.
@@ -5,7 +7,10 @@
 export type SessionMedia = {
   id: string;
   title: string;
+  /** Gumlet asset ID for playback; empty when missing or leftover YouTube. */
   videoId: string;
+  videoStatus: VideoStatus | null;
+  thumbnailUrl: string | null;
   /** Short learner-facing text under the video (e.g. instructions). */
   caption: string;
   notes: string[];
@@ -16,7 +21,7 @@ export type ProgramSession = {
   title: string;
   description: string;
   media: SessionMedia[];
-  /** DB `sessions.content_url` — link or bare ID — for instructor edit UI. */
+  /** DB `sessions.content_url` — Gumlet asset ID — for instructor edit UI. */
   storedContentUrl: string | null;
 };
 
@@ -38,11 +43,6 @@ export type Program = {
   topicTags: ProgramTopicTag[];
   /** When false, hidden from learners on profile and blocked for anonymous viewers here. */
   isActive: boolean;
-};
-
-export type FeaturedPreviewVideo = {
-  videoId: string;
-  title: string;
 };
 
 export type ProfileViewPreference =
@@ -79,8 +79,6 @@ export type MemberProfile = {
   interestTags: ProgramTopicTag[];
   /** Creator-curated session IDs for “Featured sessions” (`profile.tags.featuredSessionIds`). */
   featuredSessionIds: string[];
-  /** Legacy seed field — prefer `featuredSessionIds` when resolving featured sessions. */
-  featuredPreviewVideos: FeaturedPreviewVideo[];
   /** Programs for this profile, newest first when loaded from Supabase. */
   programs: Program[];
   /** First program (`programs[0]`), kept for callers that assume a primary offering. */
@@ -94,6 +92,7 @@ export type FeaturedSessionLink = {
   title: string;
   description: string;
   videoId: string | null;
+  thumbnailUrl: string | null;
   href: string;
   /** 1-based index within the parent program (for card meta). */
   sessionNumber: number;

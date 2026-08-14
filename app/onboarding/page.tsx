@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProfileSetupForm } from "./profile-setup-form";
 import { oauthOnboardingSeed } from "@/lib/auth/oauth-user";
@@ -8,7 +7,7 @@ import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { pageContainerClass, pageFocusedColumnClass } from "@/lib/ui/page-layout";
-import { navLinkClass, sectionEyebrowClass, titleDisplayClass } from "@/lib/ui/typography";
+import { sectionEyebrowClass, titleDisplayClass } from "@/lib/ui/typography";
 
 export const metadata: Metadata = {
   title: "Set up your profile — learnwithme",
@@ -46,12 +45,6 @@ export default async function OnboardingPage({ searchParams }: Props) {
     <div className="flex min-h-dvh flex-col">
       <main className={`${pageContainerClass} flex flex-1 flex-col justify-center py-12 sm:py-16`}>
         <div className={pageFocusedColumnClass}>
-          <nav className="mb-8 sm:mb-10">
-            <Link href="/" className={navLinkClass}>
-              ← Home
-            </Link>
-          </nav>
-
           <div className="mb-8 space-y-3">
             <p className={sectionEyebrowClass}>learnwithme</p>
             <h1 className={titleDisplayClass}>Finish your profile</h1>

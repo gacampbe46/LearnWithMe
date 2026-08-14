@@ -22,6 +22,7 @@ function sessionLink(
     title: session.title,
     description: session.description,
     videoId: sessionVideoId(session),
+    thumbnailUrl: session.media[0]?.thumbnailUrl ?? null,
     href: `/${slug}/${program.id}/${session.id}`,
     sessionNumber: index + 1,
     sessionTotal: program.sessions.length,
@@ -60,21 +61,6 @@ export function resolveFeaturedSessions(
   for (const id of member.featuredSessionIds) {
     const program = byId.get(id);
     if (program) push(sessionLink(member.slug, program, id));
-  }
-
-  if (out.length < limit) {
-    for (const preview of member.featuredPreviewVideos) {
-      if (out.length >= limit) break;
-      for (const program of programs) {
-        const session = program.sessions.find(
-          (s) => sessionVideoId(s) === preview.videoId,
-        );
-        if (session) {
-          push(sessionLink(member.slug, program, session.id));
-          break;
-        }
-      }
-    }
   }
 
   if (out.length < limit) {

@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateProgramSessionsAside } from "@/components/program/CreateProgramSessionsAside";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { pageMainStickyClass } from "@/lib/ui/page-layout";
-import { navLinkClass, subtitleSmClass, titlePrimaryClass } from "@/lib/ui/typography";
+import { subtitleSmClass, titlePrimaryClass } from "@/lib/ui/typography";
 import { ProgramCreateForm } from "./program-create-form";
 import type { Metadata } from "next";
 
@@ -35,15 +34,6 @@ export default async function NewProgramPage() {
   return (
     <div className="flex min-h-dvh flex-col">
       <main className={`${pageMainStickyClass} space-y-10`}>
-        <nav className="flex flex-wrap gap-x-4 gap-y-2">
-          <Link href="/" className={navLinkClass}>
-            ← Home
-          </Link>
-          <Link href={`/${profile.username}`} className={navLinkClass}>
-            Your profile
-          </Link>
-        </nav>
-
         <header className="space-y-1 border-b border-editorial-border pb-4">
           <h1 className={titlePrimaryClass}>Create program</h1>
           <p className={subtitleSmClass}>

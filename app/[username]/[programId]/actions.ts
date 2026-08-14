@@ -9,6 +9,8 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
+import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
+import { deleteGumletAssetIfUnused } from "@/lib/gumlet/delete-unused-asset";
 import type { AddSessionFormState } from "./add-session-form-state";
 
 function trimField(v: FormDataEntryValue | null, max: number): string {
@@ -48,12 +50,13 @@ export async function addProgramSession(
   }
 
   const description = trimField(formText(formData, "description"), 8000);
-  const contentUrl = trimField(formText(formData, "content_url"), 2000);
+  const assetId = parseGumletAssetId(
+    trimField(formText(formData, "content_url"), 64),
+  );
 
-  if (!contentUrl) {
+  if (!assetId) {
     return {
-      formError:
-        "Add a video link or YouTube ID so learners have something to follow.",
+      formError: "Upload a video so learners have something to follow.",
     };
   }
 
@@ -77,7 +80,9 @@ export async function addProgramSession(
     program_id: programId,
     title,
     description: description || null,
-    content_url: contentUrl,
+    content_url: assetId,
+    video_status: "processing",
+    thumbnail_url: null,
     sort_order: sortOrder,
   });
 
@@ -124,20 +129,15 @@ export async function updateProgramSession(
   }
 
   const description = trimField(formText(formData, "description"), 8000);
-  const contentUrl = trimField(formText(formData, "content_url"), 2000);
-
-  if (!contentUrl) {
-    return {
-      formError:
-        "Add a video link or YouTube ID so learners have something to follow.",
-    };
-  }
+  const incomingAssetId = parseGumletAssetId(
+    trimField(formText(formData, "content_url"), 64),
+  );
 
   const supabase = await createSupabaseServerClient();
 
   const { data: sess, error: readErr } = await supabase
     .from("sessions")
-    .select("program_id")
+    .select("program_id, content_url")
     .eq("id", sessionId)
     .maybeSingle();
 
@@ -158,13 +158,32 @@ export async function updateProgramSession(
     };
   }
 
+  const existingAssetId = parseGumletAssetId(
+    typeof sess.content_url === "string" ? sess.content_url : null,
+  );
+  const assetReplaced =
+    Boolean(incomingAssetId) && incomingAssetId !== existingAssetId;
+
+  const patch: {
+    title: string;
+    description: string | null;
+    content_url?: string;
+    video_status?: string;
+    thumbnail_url?: string | null;
+  } = {
+    title,
+    description: description || null,
+  };
+
+  if (assetReplaced && incomingAssetId) {
+    patch.content_url = incomingAssetId;
+    patch.video_status = "processing";
+    patch.thumbnail_url = null;
+  }
+
   const { error: updateErr } = await supabase
     .from("sessions")
-    .update({
-      title,
-      description: description || null,
-      content_url: contentUrl,
-    })
+    .update(patch)
     .eq("id", sessionId)
     .eq("program_id", programId);
 
@@ -178,6 +197,15 @@ export async function updateProgramSession(
         : "";
     return { formError: `${baseMsg}${hint}` };
   }
+
+  if (assetReplaced && existingAssetId) {
+    await deleteGumletAssetIfUnused(supabase, existingAssetId);
+  }
+
+  revalidatePath(safeNextPath(backPath));
+  revalidatePath(safeNextPath(`/${username}/${programId}/manage`));
+  revalidatePath(safeNextPath(`/${username}/${programId}`));
+  revalidatePath(safeNextPath(`/${username}/${programId}/${sessionId}`));
 
   redirect(safeNextPath(backPath));
 }
@@ -204,7 +232,7 @@ export async function deleteProgramSession(payload: {
 
   const { data: sess, error: readErr } = await supabase
     .from("sessions")
-    .select("program_id")
+    .select("program_id, content_url")
     .eq("id", sessionId)
     .maybeSingle();
 
@@ -230,6 +258,13 @@ export async function deleteProgramSession(payload: {
       ? friendlyDbPermissionMessage()
       : delErr.message;
     return { ok: false, error: msg };
+  }
+
+  const removedAssetId = parseGumletAssetId(
+    typeof sess.content_url === "string" ? sess.content_url : null,
+  );
+  if (removedAssetId) {
+    await deleteGumletAssetIfUnused(supabase, removedAssetId);
   }
 
   return { ok: true };

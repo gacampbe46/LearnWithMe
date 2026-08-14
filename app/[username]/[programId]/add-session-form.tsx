@@ -3,12 +3,14 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { SessionVideoUploadField } from "@/components/session-video-upload-field";
 import { addProgramSession } from "./actions";
 import { formLabelClass, inputFieldClass, inputFocusClass } from "@/lib/ui/typography";
 import {
   addSessionInitialState,
   type AddSessionFormState,
 } from "./add-session-form-state";
+import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
 
 type Props = {
   username: string;
@@ -31,10 +33,12 @@ export function AddSessionForm({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
+  const [assetId, setAssetId] = useState("");
+  const [videoBusy, setVideoBusy] = useState(false);
 
+  const hasVideo = Boolean(parseGumletAssetId(assetId));
   const canSubmit =
-    title.trim().length > 0 && videoUrl.trim().length > 0 && !pending;
+    title.trim().length > 0 && hasVideo && !pending && !videoBusy;
 
   return (
     <Card>
@@ -93,25 +97,13 @@ export function AddSessionForm({
           />
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="session-video"
-            className={formLabelClass}
-          >
-            Video (YouTube)
-          </label>
-          <input
-            id="session-video"
-            name="content_url"
-            required
-            maxLength={2000}
-            autoComplete="off"
-            placeholder="https://www.youtube.com/watch?v=… or paste the video ID"
-            className={`${inputFieldClass} ${inputFocusClass}`}
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-          />
-        </div>
+        <SessionVideoUploadField
+          programId={programId}
+          assetId={assetId}
+          onAssetIdChange={setAssetId}
+          onBusyChange={setVideoBusy}
+          disabled={pending}
+        />
 
         <Button type="submit" className="w-full sm:w-auto" disabled={!canSubmit}>
           {pending ? "Saving…" : submitLabel}

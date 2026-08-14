@@ -1,18 +1,12 @@
 import { getMemberByUsername } from "@/lib/member";
 import type { MemberProfile, Program } from "@/lib/member/types";
 import { KATHLEEN_PORTRAIT_ALT, KATHLEEN_PORTRAIT_SRC } from "@/lib/home/assets";
-import { youtubeThumb } from "@/lib/home/media";
 import {
   popularSessions as placeholderPopularSessions,
   spotlightSessions as placeholderSpotlightSessions,
   type HomeSession,
 } from "@/lib/home/placeholder-data";
-
-const KATHLEEN_SESSION_VIDEO_IDS: Record<string, string> = {
-  "theraband-full-body": "QvWW6M17CLw",
-  "pilates-ball-beginner": "aUv8WuNhZq0",
-  "foundation-day-1": "YDXB0N0eAwc",
-};
+import { sessionThumbnailSrc } from "@/lib/program/thumbnail";
 
 const KATHLEEN_SESSION_TITLE_NEEDLE: Record<string, string> = {
   "theraband-full-body": "theraband",
@@ -20,39 +14,26 @@ const KATHLEEN_SESSION_TITLE_NEEDLE: Record<string, string> = {
   "foundation-day-1": "day 1",
 };
 
-function videoIdFromSession(placeholder: Pick<HomeSession, "imageSrc" | "id">): string | null {
-  if (KATHLEEN_SESSION_VIDEO_IDS[placeholder.id]) {
-    return KATHLEEN_SESSION_VIDEO_IDS[placeholder.id];
-  }
-  const match = placeholder.imageSrc.match(/\/vi\/([^/]+)\//);
-  return match?.[1] ?? null;
+function matchKathleenSession(
+  program: Program | undefined,
+  placeholderId: string,
+) {
+  const needle = KATHLEEN_SESSION_TITLE_NEEDLE[placeholderId];
+  if (!program || !needle) return undefined;
+  return program.sessions.find((s) => s.title.toLowerCase().includes(needle));
 }
 
 function resolveKathleenSessionHref(
   member: MemberProfile,
   program: Program | undefined,
-  placeholder: Pick<HomeSession, "id" | "href" | "imageSrc">,
+  placeholder: Pick<HomeSession, "id" | "href">,
 ): string {
   const memberHref = `/${member.slug}`;
   if (!program) return memberHref;
 
   const programHref = `${memberHref}/${program.id}`;
-  const videoId = videoIdFromSession(placeholder);
-
-  if (videoId) {
-    const byVideo = program.sessions.find(
-      (s) => s.media[0]?.videoId?.trim() === videoId,
-    );
-    if (byVideo) return `${programHref}/${byVideo.id}`;
-  }
-
-  const needle = KATHLEEN_SESSION_TITLE_NEEDLE[placeholder.id];
-  if (needle) {
-    const byTitle = program.sessions.find((s) =>
-      s.title.toLowerCase().includes(needle),
-    );
-    if (byTitle) return `${programHref}/${byTitle.id}`;
-  }
+  const matched = matchKathleenSession(program, placeholder.id);
+  if (matched) return `${programHref}/${matched.id}`;
 
   return programHref;
 }
@@ -61,21 +42,14 @@ function enrichKathleenSession(
   member: MemberProfile,
   program: Program | undefined,
   placeholder: HomeSession,
-  options?: { preferYouTubeThumb?: boolean },
 ): HomeSession {
-  const videoId = videoIdFromSession(placeholder);
-  const useYoutubeThumb =
-    options?.preferYouTubeThumb ??
-    (placeholder.imageSrc.includes("ytimg.com") ||
-      placeholder.imageSrc.includes("youtube.com"));
+  const matched = matchKathleenSession(program, placeholder.id);
+  const thumb = matched ? sessionThumbnailSrc(matched) : null;
 
   return {
     ...placeholder,
     href: resolveKathleenSessionHref(member, program, placeholder),
-    imageSrc:
-      videoId && useYoutubeThumb
-        ? youtubeThumb(videoId, "max")
-        : placeholder.imageSrc,
+    imageSrc: thumb ?? placeholder.imageSrc,
   };
 }
 
@@ -117,7 +91,7 @@ export async function resolveHomeKathleenContent(): Promise<HomeKathleenContent>
       portraitSrc: KATHLEEN_PORTRAIT_SRC,
       portraitAlt: KATHLEEN_PORTRAIT_ALT,
       sessions: placeholderSpotlightSessions.map((session) =>
-        enrichKathleenSession(member, program, session, { preferYouTubeThumb: true }),
+        enrichKathleenSession(member, program, session),
       ),
     },
     popularSessions: placeholderPopularSessions.map((session) =>

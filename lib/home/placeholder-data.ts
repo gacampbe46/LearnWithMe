@@ -20,7 +20,7 @@ import {
   SESSION_ZIPPER_POUCH_ALT,
   SESSION_ZIPPER_POUCH_SRC,
 } from "@/lib/home/assets";
-import { unsplashPhoto, youtubeThumb } from "@/lib/home/media";
+import { unsplashPhoto } from "@/lib/home/media";
 
 const ELENA_KITCHEN_PHOTO = "1556910103-1c02745aae4d";
 
@@ -193,7 +193,7 @@ export const spotlightSessions: HomeSession[] = [
     programName: "Foundation Program",
     duration: "36 min",
     skillLevel: "Beginner",
-    imageSrc: youtubeThumb("aUv8WuNhZq0"),
+    imageSrc: SESSION_KATHLEEN_THERABAND_SRC,
     imageAlt: "Pilates ball beginner session preview",
     href: "/kathleen",
   },
@@ -204,7 +204,7 @@ export const spotlightSessions: HomeSession[] = [
     programName: "Foundation Program",
     duration: "20 min",
     skillLevel: "All levels",
-    imageSrc: youtubeThumb("YDXB0N0eAwc"),
+    imageSrc: SESSION_KATHLEEN_THERABAND_SRC,
     imageAlt: "Foundation program session preview",
     href: "/kathleen",
   },

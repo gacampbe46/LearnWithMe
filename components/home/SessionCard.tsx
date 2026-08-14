@@ -40,12 +40,16 @@ export function SessionCard({ session, className = "" }: SessionCardProps) {
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 400px"
           className="object-cover object-center transition duration-500 ease-out group-hover:scale-[1.05]"
         />
-        <div className="absolute inset-0 bg-stone-950/0 transition duration-300 group-hover:bg-stone-950/25" />
-        <div className="absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:p-4">
-          <div className="rounded-lg bg-[var(--editorial-overlay)] px-3 py-2.5 text-stone-50 backdrop-blur-[2px]">
-            <p className="font-serif-display text-lg font-medium leading-snug">{title}</p>
-            <p className="mt-1 text-xs text-stone-200/90">{overlayMeta}</p>
-          </div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 opacity-0 transition duration-300 group-hover:opacity-100 sm:p-4">
+          <p className="min-w-0 font-serif-display text-lg font-medium leading-snug text-stone-50">
+            {title}
+          </p>
+          {overlayMeta ? (
+            <p className="max-w-[45%] shrink-0 text-right text-xs text-stone-200/90">
+              {overlayMeta}
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="space-y-1 p-3 sm:hidden">

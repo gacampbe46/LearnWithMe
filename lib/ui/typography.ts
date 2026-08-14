@@ -44,6 +44,10 @@ export const sectionEyebrowClass =
 export const metaCapsClass =
   "text-xs font-medium text-stone-500 dark:text-stone-400";
 
+/** Profile @username under a display name */
+export const handleClass =
+  "text-sm text-stone-500 dark:text-stone-400";
+
 /** One line under a page title */
 export const subtitleSmClass =
   "text-sm leading-relaxed text-stone-600 dark:text-stone-400";
