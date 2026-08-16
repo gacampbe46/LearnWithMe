@@ -585,7 +585,7 @@ export function ProfileEditForm({
             maxLength={180}
             value={quote}
             onChange={(e) => setQuote(e.target.value)}
-            placeholder="Good bread is slow attention"
+            placeholder="Curiosity first, skill follows"
             className={`${inputFieldClass} ${inputFocusClass} resize-y`}
           />
           <p className={`${bodyMutedClass} text-xs`}>

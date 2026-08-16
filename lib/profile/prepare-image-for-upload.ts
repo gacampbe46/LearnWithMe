@@ -1,12 +1,19 @@
 import { AVATAR_MAX_BYTES } from "@/lib/profile/avatar-storage";
 
+/** Crop anchor in 0–1 source coordinates, matching CSS `object-position`. */
+export type CropFocus = { x: number; y: number };
+
 export type PrepareImageOptions = {
   maxBytes: number;
   maxEdge: number;
-  /** width / height — center-cropped before scale */
+  /** width / height — cropped before scale */
   aspectRatio: number;
   baseName: string;
+  /** Where the crop window sits on the overflowing axis. Defaults to center. */
+  focus?: CropFocus;
 };
+
+const CENTER_FOCUS: CropFocus = { x: 0.5, y: 0.5 };
 
 export type PrepareImageResult =
   | { ok: true; file: File }
@@ -14,18 +21,34 @@ export type PrepareImageResult =
 
 const QUALITY_STEPS = [0.92, 0.85, 0.78, 0.7, 0.62, 0.55, 0.48];
 
-function centerCrop(
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) return 0.5;
+  return Math.min(1, Math.max(0, value));
+}
+
+function cropRect(
   width: number,
   height: number,
   aspectRatio: number,
+  focus: CropFocus,
 ): { sx: number; sy: number; sw: number; sh: number } {
   const sourceRatio = width / height;
   if (sourceRatio > aspectRatio) {
     const sw = Math.round(height * aspectRatio);
-    return { sx: Math.round((width - sw) / 2), sy: 0, sw, sh: height };
+    return {
+      sx: Math.round((width - sw) * clamp01(focus.x)),
+      sy: 0,
+      sw,
+      sh: height,
+    };
   }
   const sh = Math.round(width / aspectRatio);
-  return { sx: 0, sy: Math.round((height - sh) / 2), sw: width, sh };
+  return {
+    sx: 0,
+    sy: Math.round((height - sh) * clamp01(focus.y)),
+    sw: width,
+    sh,
+  };
 }
 
 function fitMaxEdge(w: number, h: number, maxEdge: number) {
@@ -88,14 +111,25 @@ async function encodeUnderLimit(
   return null;
 }
 
-/** Center-crop, scale, and compress under `maxBytes`. Small GIFs pass through. */
+/**
+ * Canvas processing flattens animation, so GIFs that already fit are uploaded
+ * untouched — meaning they keep moving but skip cropping and resizing.
+ */
+export function willPassThroughUnchanged(
+  file: File,
+  options: PrepareImageOptions,
+): boolean {
+  return file.type === "image/gif" && file.size <= options.maxBytes;
+}
+
+/** Crop to `aspectRatio` around `focus`, scale, and compress under `maxBytes`. */
 export async function prepareImageForUpload(
   file: File,
   options: PrepareImageOptions,
 ): Promise<PrepareImageResult> {
   const { maxBytes, maxEdge, aspectRatio, baseName } = options;
 
-  if (file.type === "image/gif" && file.size <= maxBytes) {
+  if (willPassThroughUnchanged(file, options)) {
     return { ok: true, file };
   }
 
@@ -107,7 +141,12 @@ export async function prepareImageForUpload(
   }
 
   try {
-    const crop = centerCrop(bitmap.width, bitmap.height, aspectRatio);
+    const crop = cropRect(
+      bitmap.width,
+      bitmap.height,
+      aspectRatio,
+      options.focus ?? CENTER_FOCUS,
+    );
     const size = fitMaxEdge(crop.sw, crop.sh, maxEdge);
     const canvas = document.createElement("canvas");
     canvas.width = size.width;

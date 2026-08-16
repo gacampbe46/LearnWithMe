@@ -108,7 +108,7 @@ export function ProfileAvatarUpload({
           {preparing ? "Preparing…" : displayUrl ? "Change photo" : "Choose photo"}
         </button>
         <p className={`${bodyMutedClass} text-xs`}>
-          JPEG, PNG, WebP, or GIF · large photos are cropped and compressed
+          JPEG, PNG, or WebP · large photos are cropped and compressed
           automatically
         </p>
         {(pickError ?? error) ? (

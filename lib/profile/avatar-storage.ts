@@ -1,5 +1,6 @@
 export const AVATAR_BUCKET = "avatars";
 
+/** GIF stays accepted for animated uploads, but isn't advertised in copy. */
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -34,7 +35,7 @@ export function allAvatarObjectPaths(userId: string): string[] {
 
 export function validateAvatarSourceFile(file: File): string | null {
   if (!ALLOWED_MIME_TYPES.has(file.type)) {
-    return "Use a JPEG, PNG, WebP, or GIF image.";
+    return "Use a JPEG, PNG, or WebP image.";
   }
   if (file.size > AVATAR_SOURCE_MAX_BYTES) {
     return "Image is too large to process (max 25 MB).";
