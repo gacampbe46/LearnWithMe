@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { PAYOUTS_PATH } from "@/lib/app-paths";
 import { resolveAppOrigin } from "@/lib/stripe/app-origin";
 import { getStripe } from "@/lib/stripe/client";
 import {
@@ -9,8 +10,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 
+type Intent = "onboard" | "update" | "login";
+
+function parseIntent(value: unknown): Intent {
+  if (value === "update" || value === "login") return value;
+  return "onboard";
+}
+
 /**
- * Authenticated: ensure Express Connect account exists, return Account Link URL.
+ * Authenticated: ensure Express Connect account exists, return Account Link
+ * or Express Dashboard login URL.
  */
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
@@ -30,6 +39,21 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!teaching.isInstructor) {
+    return NextResponse.json(
+      { error: "Payouts are available after you turn on instructor access." },
+      { status: 403 },
+    );
+  }
+
+  let intent: Intent = "onboard";
+  try {
+    const body = (await request.json()) as { intent?: unknown };
+    intent = parseIntent(body.intent);
+  } catch {
+    intent = "onboard";
+  }
+
   let stripe;
   try {
     stripe = getStripe();
@@ -39,11 +63,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 503 });
   }
 
-  const status = await loadCreatorStripeStatus(supabase, teaching.id);
+  const status = await loadCreatorStripeStatus(teaching.id);
   let accountId = status.stripeAccountId;
 
   try {
     if (!accountId) {
+      if (intent !== "onboard") {
+        return NextResponse.json(
+          { error: "Connect Stripe before opening your account." },
+          { status: 400 },
+        );
+      }
       const account = await stripe.accounts.create({
         type: "express",
         capabilities: {
@@ -81,12 +111,18 @@ export async function POST(request: Request) {
       await syncStripeAccountToProfile(account);
     }
 
+    if (intent === "login") {
+      const login = await stripe.accounts.createLoginLink(accountId);
+      return NextResponse.json({ url: login.url });
+    }
+
     const origin = resolveAppOrigin(request);
+    const payoutsUrl = `${origin}${PAYOUTS_PATH}`;
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${origin}/teach/payouts?refresh=1`,
-      return_url: `${origin}/teach/payouts?return=1`,
-      type: "account_onboarding",
+      refresh_url: `${payoutsUrl}?refresh=1`,
+      return_url: `${payoutsUrl}?return=1`,
+      type: intent === "update" ? "account_update" : "account_onboarding",
     });
 
     return NextResponse.json({ url: accountLink.url });

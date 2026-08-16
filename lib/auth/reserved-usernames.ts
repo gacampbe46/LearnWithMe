@@ -6,6 +6,8 @@ const RESERVED = new Set([
   "conduct",
   "login",
   "onboarding",
+  "payouts",
+  "programs",
   "signup",
   "teach",
 ]);

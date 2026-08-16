@@ -17,6 +17,8 @@ type ProgramListingCardProps = {
   showSubtitle?: boolean;
   /** Use larger title scale for a lone featured program. */
   featured?: boolean;
+  /** e.g. “By Ada Lee” on purchased programs. */
+  byline?: string;
 };
 
 const cardIconClass =
@@ -29,6 +31,7 @@ export function ProgramListingCard({
   manageHref,
   showSubtitle = true,
   featured = false,
+  byline,
 }: ProgramListingCardProps) {
   const titleClass = featured ? titleSubsectionClass : titleCardClass;
   const thumbnailSrc = programThumbnailSrc(program);
@@ -113,6 +116,7 @@ export function ProgramListingCard({
         className="space-y-0.5 border-t border-editorial-border px-3 py-3 sm:px-4"
       >
         <h2 className={`text-left ${titleClass}`}>{program.title}</h2>
+        {byline ? <p className={bodyMutedClass}>{byline}</p> : null}
         {subtitle ? <p className={bodyMutedClass}>{subtitle}</p> : null}
       </Link>
     </article>

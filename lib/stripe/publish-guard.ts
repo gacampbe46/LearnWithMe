@@ -10,7 +10,7 @@ export const PAYOUTS_SETUP_REQUIRED_MESSAGE =
  * Paid programs require Connect charges_enabled before learner visibility.
  */
 export async function assertCanPublishPaidProgram(
-  supabase: SupabaseClient,
+  _supabase: SupabaseClient,
   options: {
     profileId: string;
     priceValue: number | null | undefined;
@@ -21,7 +21,7 @@ export async function assertCanPublishPaidProgram(
     return { ok: true };
   }
 
-  const status = await loadCreatorStripeStatus(supabase, options.profileId);
+  const status = await loadCreatorStripeStatus(options.profileId);
   if (!status.chargesEnabled) {
     return {
       ok: false,

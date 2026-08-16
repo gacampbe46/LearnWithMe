@@ -1,3 +1,4 @@
+import { NEW_PROGRAM_PATH } from "@/lib/app-paths";
 import {
   oauthAccountMenuLabel,
   ssoAvatarUrlFromUser,
@@ -9,7 +10,8 @@ export type NavAccount = {
   displayName: string;
   profilePath: string | null;
   /** Create / manage programs (requires onboarding with a username). */
-  teachNewProgramHref: string | null;
+  newProgramHref: string | null;
+  showPayouts: boolean;
   /** Picture from profile storage, else SSO `user_metadata` when available. */
   avatarUrl: string | null;
 };
@@ -26,7 +28,7 @@ export async function getNavAccount(): Promise<NavAccount | null> {
 
   const { data: profile } = await supabase
     .from("profile")
-    .select("username, avatar_url")
+    .select("username, avatar_url, is_instructor")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -35,7 +37,8 @@ export async function getNavAccount(): Promise<NavAccount | null> {
       ? profile.username.trim()
       : null;
   const profilePath = username ? `/${username}` : null;
-  const teachNewProgramHref = username ? "/teach/programs/new" : null;
+  const newProgramHref = username ? NEW_PROGRAM_PATH : null;
+  const showPayouts = profile?.is_instructor === true;
   const displayName = username ?? oauthAccountMenuLabel(user);
   const storedAvatar =
     profile && typeof profile.avatar_url === "string" && profile.avatar_url.trim()
@@ -43,5 +46,5 @@ export async function getNavAccount(): Promise<NavAccount | null> {
       : null;
   const avatarUrl = storedAvatar ?? ssoAvatarUrlFromUser(user);
 
-  return { displayName, profilePath, teachNewProgramHref, avatarUrl };
+  return { displayName, profilePath, newProgramHref, showPayouts, avatarUrl };
 }

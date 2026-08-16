@@ -6,11 +6,12 @@ import { ProfileEditIconLink } from "@/components/member/profile-edit-icon-link"
 import { ProfileLayoutToggle } from "@/components/member/profile-layout-toggle";
 import { ProgramHiddenBadge } from "@/components/program/ProgramHiddenBadge";
 import { ShareProgramButton } from "@/components/program/share-program-button";
-import { type MemberProfile } from "@/lib/member";
+import { type MemberProfile, type PurchasedProgramCard } from "@/lib/member";
 import {
   bodyLeadClass,
   bodyMutedClass,
   handleClass,
+  sectionEyebrowClass,
   titleMediumClass,
 } from "@/lib/ui/typography";
 import { pageContainerClass, pageFocusedColumnClass } from "@/lib/ui/page-layout";
@@ -19,6 +20,7 @@ import Link from "next/link";
 type Props = {
   member: MemberProfile;
   viewerOwnsProfile?: boolean;
+  purchasedPrograms?: PurchasedProgramCard[];
 };
 
 /** Same footprint as hub “Create … program” `Button`: `w-full min-h-10 px-4 text-sm rounded-full` */
@@ -34,6 +36,12 @@ const hubProgramPillIconTone =
 const hubProgramPillHiddenIconTone =
   "!text-stone-600 hover:!bg-stone-200/80 hover:!text-stone-800 dark:!text-stone-300 dark:hover:!bg-stone-800/80 dark:hover:!text-stone-100";
 
+const hubProgramPillPurchased =
+  "relative flex h-10 w-full min-h-10 items-center overflow-hidden rounded-full border border-stone-800 bg-editorial-card/50 px-4 text-sm font-medium text-stone-900 transition-colors hover:border-editorial-accent-muted hover:bg-stone-900/5 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-editorial-accent-muted dark:border-stone-300 dark:bg-editorial-card/40 dark:text-stone-100 dark:hover:border-editorial-accent dark:hover:bg-stone-800/40 dark:focus-within:outline-stone-500";
+
+const hubProgramPillPurchasedIconTone =
+  "!text-stone-800 hover:!bg-stone-900/10 hover:!text-stone-900 dark:!text-stone-100 dark:hover:!bg-stone-800/80 dark:hover:!text-stone-50";
+
 /** Full-width primary pill (matches program `Button` width); title link + share/manage in one bar. */
 function CompactProgramRow({
   title,
@@ -42,21 +50,31 @@ function CompactProgramRow({
   viewerOwnsProfile,
   manageHref,
   hiddenFromLearners = false,
+  appearance = "owned",
 }: {
   title: string;
   href: string;
   shareTitle: string;
   viewerOwnsProfile: boolean;
-  manageHref: string;
+  manageHref?: string;
   hiddenFromLearners?: boolean;
+  appearance?: "owned" | "purchased";
 }) {
-  const iconTone = hiddenFromLearners
-    ? hubProgramPillHiddenIconTone
-    : hubProgramPillIconTone;
+  const purchased = appearance === "purchased";
+  const iconTone = purchased
+    ? hubProgramPillPurchasedIconTone
+    : hiddenFromLearners
+      ? hubProgramPillHiddenIconTone
+      : hubProgramPillIconTone;
+  const shell = purchased
+    ? hubProgramPillPurchased
+    : hiddenFromLearners
+      ? hubProgramPillHidden
+      : hubProgramPillOuter;
 
   return (
     <li className="w-full">
-      <div className={hiddenFromLearners ? hubProgramPillHidden : hubProgramPillOuter}>
+      <div className={shell}>
         <Link
           href={href}
           className="absolute inset-0 z-0 rounded-full outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400 dark:focus-visible:outline-stone-500"
@@ -78,7 +96,7 @@ function CompactProgramRow({
             title={shareTitle}
             className={iconTone}
           />
-          {viewerOwnsProfile ? (
+          {viewerOwnsProfile && !purchased && manageHref ? (
             <EditProgramIconLink
               href={manageHref}
               ariaLabel="Manage program"
@@ -94,6 +112,7 @@ function CompactProgramRow({
 export function MemberProfileLinkHub({
   member,
   viewerOwnsProfile = false,
+  purchasedPrograms = [],
 }: Props) {
   const programs = member.programs;
   const primary = programs[0];
@@ -162,9 +181,9 @@ export function MemberProfileLinkHub({
             <h2 id="hub-programs-heading" className="sr-only">
               Programs
             </h2>
-            {programs.length === 0 ? (
+            {programs.length === 0 && purchasedPrograms.length === 0 ? (
               <p className={bodyLeadClass}>No public program on this profile yet.</p>
-            ) : programs.length === 1 && primary && primaryPath ? (
+            ) : programs.length === 0 ? null : programs.length === 1 && primary && primaryPath ? (
               <ul className="list-none space-y-3 p-0">
                 <CompactProgramRow
                   title={primary.title}
@@ -199,7 +218,7 @@ export function MemberProfileLinkHub({
             )}
             {viewerOwnsProfile ? (
               <Button
-                href="/teach/programs/new"
+                href="/programs/new"
                 variant="outline"
                 className="mt-2 h-10 w-full justify-center px-4 text-sm font-medium"
               >
@@ -207,6 +226,26 @@ export function MemberProfileLinkHub({
               </Button>
             ) : null}
           </section>
+
+          {purchasedPrograms.length > 0 ? (
+            <section className="mt-8 space-y-3" aria-labelledby="hub-purchased-heading">
+              <h2 id="hub-purchased-heading" className={sectionEyebrowClass}>
+                Purchased
+              </h2>
+              <ul className="list-none space-y-3 p-0">
+                {purchasedPrograms.map((item) => (
+                  <CompactProgramRow
+                    key={item.program.id}
+                    title={item.program.title}
+                    href={item.href}
+                    shareTitle={item.program.title}
+                    viewerOwnsProfile={false}
+                    appearance="purchased"
+                  />
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </div>
         </div>
       </main>

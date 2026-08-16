@@ -23,7 +23,7 @@ export function FormErrorAlert({ message }: Props) {
         <>
           Finish Payout setup before publishing a paid program.{" "}
           <Link
-            href="/teach/payouts"
+            href="/payouts"
             className="font-medium text-stone-900 underline decoration-editorial-accent underline-offset-2 dark:text-white"
           >
             Set up Payouts

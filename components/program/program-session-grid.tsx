@@ -10,12 +10,15 @@ type Props = {
   programId: string;
   profileSlug: string;
   sessions: ProgramSession[];
+  /** Hide local completion until the viewer actually has access. */
+  revealProgress?: boolean;
 };
 
 export function ProgramSessionGrid({
   programId,
   profileSlug,
   sessions,
+  revealProgress = true,
 }: Props) {
   const completed = useCompletedSessions(programId);
   const steps = sessions.map((s) => ({
@@ -26,7 +29,9 @@ export function ProgramSessionGrid({
 
   return (
     <div className="space-y-5">
-      <SessionProgressNav programId={programId} steps={steps} />
+      {revealProgress ? (
+        <SessionProgressNav programId={programId} steps={steps} />
+      ) : null}
       <ul className={sessionGridClass}>
       {sessions.map((s, index) => (
         <li key={s.id} className="min-w-0">
@@ -35,7 +40,7 @@ export function ProgramSessionGrid({
             href={`/${profileSlug}/${programId}/${s.id}`}
             sessionNumber={index + 1}
             sessionTotal={sessions.length}
-            completed={completed.has(s.id)}
+            completed={revealProgress && completed.has(s.id)}
           />
         </li>
       ))}

@@ -42,6 +42,26 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: false,
       },
+      {
+        source: "/teach/payouts",
+        destination: "/payouts",
+        permanent: true,
+      },
+      {
+        source: "/teach/programs/new",
+        destination: "/programs/new",
+        permanent: true,
+      },
+      {
+        source: "/teach",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/teach/:path*",
+        destination: "/",
+        permanent: true,
+      },
     ];
   },
 };
