@@ -1,3 +1,7 @@
+import {
+  AnalyticsPageShell,
+  CreatorAnalyticsFallback,
+} from "@/components/analytics/creator-analytics-fallback";
 import { CreatorAnalyticsPanel } from "@/components/analytics/creator-analytics-panel";
 import { ANALYTICS_PATH } from "@/lib/app-paths";
 import {
@@ -6,10 +10,10 @@ import {
 } from "@/lib/gumlet/creator-analytics";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
-import { pageMainClass } from "@/lib/ui/page-layout";
-import { subtitleSmClass, titleDisplayClass } from "@/lib/ui/typography";
+import { subtitleSmClass } from "@/lib/ui/typography";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -36,29 +40,40 @@ export default async function AnalyticsPage() {
     redirect("/");
   }
 
+  return (
+    <AnalyticsPageShell>
+      <Suspense fallback={<CreatorAnalyticsFallback />}>
+        <CreatorAnalyticsBody
+          profileId={profile.id}
+          username={profile.username}
+        />
+      </Suspense>
+    </AnalyticsPageShell>
+  );
+}
+
+async function CreatorAnalyticsBody({
+  profileId,
+  username,
+}: {
+  profileId: string;
+  username: string;
+}) {
+  const supabase = await createSupabaseServerClient();
   const programs = await loadInstructorProgramsForAnalytics(
     supabase,
-    profile.id,
-    profile.username,
+    profileId,
+    username,
   );
   const analytics = await loadCreatorVideoAnalytics(programs);
 
-  return (
-    <div className="flex min-h-dvh flex-col">
-      <main className={`${pageMainClass} space-y-8`}>
-        <header className="space-y-2">
-          <h1 className={titleDisplayClass}>Analytics</h1>
-          {!analytics.configured ? (
-            <p className={subtitleSmClass}>
-              Video analytics are not configured on this environment yet.
-            </p>
-          ) : null}
-        </header>
+  if (!analytics.configured) {
+    return (
+      <p className={subtitleSmClass}>
+        Video analytics are not configured on this environment yet.
+      </p>
+    );
+  }
 
-        {analytics.configured ? (
-          <CreatorAnalyticsPanel analytics={analytics} />
-        ) : null}
-      </main>
-    </div>
-  );
+  return <CreatorAnalyticsPanel analytics={analytics} />;
 }

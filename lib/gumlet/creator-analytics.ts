@@ -1,8 +1,14 @@
 import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
 import { getGumletApiKey, getGumletWorkspaceId } from "@/lib/gumlet/env";
 import {
+  fetchInsightsByAsset,
+  lastDaysRange,
+  type AssetInsights,
+} from "@/lib/gumlet/insights";
+import {
   ANALYTICS_DAYS,
-  loadProgramVideoAnalytics,
+  mergeWeeklyViews,
+  sessionAnalyticsFromInsights,
   weightedCompletion,
   type ProgramAnalyticsSessionInput,
   type ProgramAnalyticsTrendPoint,
@@ -66,23 +72,6 @@ function sessionInputs(
     }));
 }
 
-function mergeWeeklyViews(
-  series: ProgramAnalyticsTrendPoint[][],
-): ProgramAnalyticsTrendPoint[] {
-  const byKey = new Map<string, ProgramAnalyticsTrendPoint>();
-  for (const points of series) {
-    for (const point of points) {
-      const existing = byKey.get(point.key);
-      if (existing) {
-        existing.value += point.value;
-      } else {
-        byKey.set(point.key, { ...point });
-      }
-    }
-  }
-  return [...byKey.values()].sort((a, b) => Number(a.key) - Number(b.key));
-}
-
 function emptyCreatorAnalytics(configured: boolean): CreatorVideoAnalytics {
   return {
     configured,
@@ -93,6 +82,28 @@ function emptyCreatorAnalytics(configured: boolean): CreatorVideoAnalytics {
     completionPercent: null,
     viewsByWeek: [],
     programs: [],
+  };
+}
+
+function rollupSessions(
+  program: InstructorProgramAnalyticsInput,
+  byAsset: Map<string, AssetInsights>,
+): CreatorProgramAnalyticsRow {
+  const sessions = program.sessions.map((session) =>
+    sessionAnalyticsFromInsights(session, byAsset),
+  );
+  return {
+    programId: program.id,
+    title: program.title,
+    href: program.href,
+    views: sessions.reduce((sum, row) => sum + row.views, 0),
+    uniqueViews: sessions.reduce((sum, row) => sum + row.uniqueViews, 0),
+    playingTimeHours: sessions.reduce(
+      (sum, row) => sum + row.playingTimeHours,
+      0,
+    ),
+    completionPercent: weightedCompletion(sessions),
+    sessions,
   };
 }
 
@@ -120,38 +131,22 @@ export async function loadInstructorProgramsForAnalytics(
 export async function loadCreatorVideoAnalytics(
   programs: InstructorProgramAnalyticsInput[],
 ): Promise<CreatorVideoAnalytics> {
-  if (programs.length === 0) {
-    return emptyCreatorAnalytics(
-      Boolean(getGumletApiKey() && getGumletWorkspaceId()),
-    );
-  }
-
-  const loaded = await Promise.all(
-    programs.map(async (program) => {
-      const analytics = await loadProgramVideoAnalytics(
-        program.id,
-        program.sessions,
-      );
-      return { program, analytics };
-    }),
-  );
-
-  const configured = loaded.some((row) => row.analytics.configured);
+  const configured = Boolean(getGumletApiKey() && getGumletWorkspaceId());
   if (!configured) return emptyCreatorAnalytics(false);
+  if (programs.length === 0) return emptyCreatorAnalytics(true);
 
-  const rows: CreatorProgramAnalyticsRow[] = loaded.map(
-    ({ program, analytics }) => ({
-      programId: program.id,
-      title: program.title,
-      href: program.href,
-      views: analytics.views,
-      uniqueViews: analytics.uniqueViews,
-      playingTimeHours: analytics.playingTimeHours,
-      completionPercent: analytics.completionPercent,
-      sessions: analytics.sessions,
-    }),
+  const assetIds = programs.flatMap((program) =>
+    program.sessions
+      .map((session) => parseGumletAssetId(session.assetId))
+      .filter((id): id is string => Boolean(id)),
   );
 
+  const byAsset = await fetchInsightsByAsset(
+    assetIds,
+    lastDaysRange(ANALYTICS_DAYS),
+  );
+
+  const rows = programs.map((program) => rollupSessions(program, byAsset));
   const allSessions = rows.flatMap((row) => row.sessions);
 
   return {
@@ -161,7 +156,9 @@ export async function loadCreatorVideoAnalytics(
     uniqueViews: rows.reduce((sum, row) => sum + row.uniqueViews, 0),
     playingTimeHours: rows.reduce((sum, row) => sum + row.playingTimeHours, 0),
     completionPercent: weightedCompletion(allSessions),
-    viewsByWeek: mergeWeeklyViews(loaded.map((row) => row.analytics.viewsByWeek)),
+    viewsByWeek: mergeWeeklyViews(
+      [...byAsset.values()].map((insights) => insights.viewsByWeek),
+    ),
     programs: rows,
   };
 }

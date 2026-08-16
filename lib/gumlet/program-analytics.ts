@@ -1,19 +1,7 @@
-import { unstable_cache } from "next/cache";
 import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
-import { getGumletApiKey, getGumletWorkspaceId } from "@/lib/gumlet/env";
-import {
-  assetUrlFilter,
-  fetchInsightsCompletion,
-  fetchInsightsTotals,
-  fetchInsightsViewsByAsset,
-  lastDaysRange,
-  type InsightsChartPoint,
-  type InsightsTotals,
-} from "@/lib/gumlet/insights";
+import type { AssetInsights, InsightsChartPoint } from "@/lib/gumlet/insights";
 
 export const ANALYTICS_DAYS = 30;
-const CACHE_SECONDS = 15 * 60;
-const INSIGHTS_CONCURRENCY = 5;
 
 export type ProgramAnalyticsSessionInput = {
   id: string;
@@ -37,61 +25,6 @@ export type ProgramAnalyticsTrendPoint = {
   value: number;
 };
 
-export type ProgramVideoAnalytics = {
-  configured: boolean;
-  rangeLabel: string;
-  views: number;
-  uniqueViews: number;
-  playingTimeHours: number;
-  completionPercent: number | null;
-  sessions: ProgramSessionAnalytics[];
-  viewsByWeek: ProgramAnalyticsTrendPoint[];
-};
-
-function emptyAnalytics(configured: boolean): ProgramVideoAnalytics {
-  return {
-    configured,
-    rangeLabel: `Last ${ANALYTICS_DAYS} days`,
-    views: 0,
-    uniqueViews: 0,
-    playingTimeHours: 0,
-    completionPercent: null,
-    sessions: [],
-    viewsByWeek: [],
-  };
-}
-
-function emptyTotals(): InsightsTotals {
-  return {
-    views: 0,
-    uniqueViews: 0,
-    playingTimeHours: 0,
-  };
-}
-
-async function mapPool<T, R>(
-  items: T[],
-  concurrency: number,
-  mapper: (item: T) => Promise<R>,
-): Promise<R[]> {
-  if (items.length === 0) return [];
-  const results = new Array<R>(items.length);
-  let next = 0;
-  async function worker() {
-    while (next < items.length) {
-      const index = next;
-      next += 1;
-      results[index] = await mapper(items[index]);
-    }
-  }
-  const workers = Array.from(
-    { length: Math.min(concurrency, items.length) },
-    () => worker(),
-  );
-  await Promise.all(workers);
-  return results;
-}
-
 export function weightedCompletion(
   sessions: ProgramSessionAnalytics[],
 ): number | null {
@@ -106,12 +39,12 @@ export function weightedCompletion(
   return weighted / views;
 }
 
-function mergeWeeklyViews(
-  series: { points: InsightsChartPoint[] }[],
+export function mergeWeeklyViews(
+  series: InsightsChartPoint[][],
 ): ProgramAnalyticsTrendPoint[] {
   const byAt = new Map<number, number>();
-  for (const row of series) {
-    for (const point of row.points) {
+  for (const points of series) {
+    for (const point of points) {
       byAt.set(point.at, (byAt.get(point.at) ?? 0) + point.value);
     }
   }
@@ -131,68 +64,22 @@ function mergeWeeklyViews(
     });
 }
 
-async function loadProgramVideoAnalyticsUncached(
-  programId: string,
-  sessions: ProgramAnalyticsSessionInput[],
-): Promise<ProgramVideoAnalytics> {
-  const configured = Boolean(getGumletApiKey() && getGumletWorkspaceId());
-  if (!configured || !programId.trim()) return emptyAnalytics(configured);
-
-  const range = lastDaysRange(ANALYTICS_DAYS);
-  const assetIds = sessions
-    .map((session) => parseGumletAssetId(session.assetId))
-    .filter((id): id is string => Boolean(id));
-
-  const [sessionTotals, weeklySeries] = await Promise.all([
-    mapPool(sessions, INSIGHTS_CONCURRENCY, async (session) => {
-      const assetId = parseGumletAssetId(session.assetId);
-      const [totals, completionPercent] = assetId
-        ? await Promise.all([
-            fetchInsightsTotals(assetUrlFilter(assetId), range),
-            fetchInsightsCompletion(assetUrlFilter(assetId), range),
-          ])
-        : [emptyTotals(), null];
-      const row: ProgramSessionAnalytics = {
-        sessionId: session.id,
-        title: session.title,
-        hasVideo: Boolean(assetId),
-        views: totals?.views ?? 0,
-        uniqueViews: totals?.uniqueViews ?? 0,
-        playingTimeHours: totals?.playingTimeHours ?? 0,
-        completionPercent,
-      };
-      return row;
-    }),
-    fetchInsightsViewsByAsset(assetIds, range),
-  ]);
-
-  const views = sessionTotals.reduce((sum, row) => sum + row.views, 0);
-  const uniqueViews = sessionTotals.reduce(
-    (sum, row) => sum + row.uniqueViews,
-    0,
-  );
-  const playingTimeHours = sessionTotals.reduce(
-    (sum, row) => sum + row.playingTimeHours,
-    0,
-  );
-
+export function sessionAnalyticsFromInsights(
+  session: ProgramAnalyticsSessionInput,
+  byAsset: Map<string, AssetInsights>,
+): ProgramSessionAnalytics {
+  const assetId = parseGumletAssetId(session.assetId);
+  const insights = assetId ? byAsset.get(assetId) : undefined;
   return {
-    configured: true,
-    rangeLabel: `Last ${ANALYTICS_DAYS} days`,
-    views,
-    uniqueViews,
-    playingTimeHours,
-    completionPercent: weightedCompletion(sessionTotals),
-    sessions: sessionTotals,
-    viewsByWeek: mergeWeeklyViews(weeklySeries),
+    sessionId: session.id,
+    title: session.title,
+    hasVideo: Boolean(assetId),
+    views: insights?.views ?? 0,
+    uniqueViews: insights?.uniqueViews ?? 0,
+    playingTimeHours: insights?.playingTimeHours ?? 0,
+    completionPercent: null,
   };
 }
-
-export const loadProgramVideoAnalytics = unstable_cache(
-  loadProgramVideoAnalyticsUncached,
-  ["gumlet-program-video-analytics-v2"],
-  { revalidate: CACHE_SECONDS, tags: ["gumlet-insights"] },
-);
 
 export function formatWatchTime(hours: number): string {
   if (!Number.isFinite(hours) || hours <= 0) return "0 min";
