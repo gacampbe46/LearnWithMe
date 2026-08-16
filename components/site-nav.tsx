@@ -2,6 +2,7 @@
 
 import { HomeAccountMenu, SignOutButton } from "@/components/home/home-account-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ANALYTICS_PATH, PAYOUTS_PATH } from "@/lib/app-paths";
 import type { NavAccount } from "@/lib/auth/nav-account";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -114,11 +115,20 @@ export function SiteNavChrome({ account }: Props) {
               <PlusIcon />
             </NavIcon>
           ) : null}
+          {account?.showAnalytics ? (
+            <NavIcon
+              href={ANALYTICS_PATH}
+              label="Analytics"
+              active={pathname.startsWith(ANALYTICS_PATH)}
+            >
+              <AnalyticsIcon />
+            </NavIcon>
+          ) : null}
           {account?.showPayouts ? (
             <NavIcon
-              href="/payouts"
+              href={PAYOUTS_PATH}
               label="Payouts"
-              active={pathname.startsWith("/payouts")}
+              active={pathname.startsWith(PAYOUTS_PATH)}
             >
               <PayoutsIcon />
             </NavIcon>
@@ -224,6 +234,26 @@ function PlusIcon() {
       className="size-5"
     >
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function AnalyticsIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-5"
+    >
+      <path d="M4.5 19V10" />
+      <path d="M9.5 19V5" />
+      <path d="M14.5 19v-6" />
+      <path d="M19.5 19v-9" />
     </svg>
   );
 }

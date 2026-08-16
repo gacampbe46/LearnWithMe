@@ -127,6 +127,7 @@ export default async function ProgramSessionPage({ params }: PageProps) {
                 key={block.id}
                 block={block}
                 showBlockTitle={false}
+                programId={p.id}
               />
             ))}
             <SessionNotesField programId={p.id} sessionId={sessionId} />
