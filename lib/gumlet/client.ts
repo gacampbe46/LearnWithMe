@@ -1,5 +1,6 @@
 import { parseGumletAssetId, parseThumbnailUrl } from "@/lib/gumlet/asset-id";
 import { getGumletApiKey, getGumletWorkspaceId } from "@/lib/gumlet/env";
+import { parseGumletFolderId } from "@/lib/gumlet/folders";
 
 const GUMLET_UPLOAD_URL = "https://api.gumlet.com/v1/video/assets/upload";
 
@@ -19,8 +20,9 @@ function gumletErrorMessage(payload: unknown, fallback: string): string {
   return fallback;
 }
 
-export async function createGumletDirectUpload(options?: {
+export async function createGumletDirectUpload(options: {
   title?: string;
+  folderId: string;
 }): Promise<GumletDirectUpload> {
   const apiKey = getGumletApiKey();
   const workspaceId = getGumletWorkspaceId();
@@ -37,6 +39,11 @@ export async function createGumletDirectUpload(options?: {
   };
   const title = options?.title?.trim();
   if (title) body.title = title.slice(0, 280);
+  const folderId = parseGumletFolderId(options.folderId);
+  if (!folderId) {
+    throw new Error("Invalid Gumlet folder id.");
+  }
+  body.folder = folderId;
 
   const response = await fetch(GUMLET_UPLOAD_URL, {
     method: "POST",
