@@ -2,12 +2,26 @@ import type { ReactNode } from "react";
 import { parseGumletAssetId } from "@/lib/gumlet/asset-id";
 import type { VideoStatus } from "@/lib/gumlet/asset-id";
 
+const PROGRAM_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 type VideoEmbedProps = {
   videoId: string;
   title?: string;
   className?: string;
   status?: VideoStatus | null;
+  /** Tagged on the embed so Gumlet Insights can filter plays by program. */
+  programId?: string | null;
 };
+
+function gumletEmbedSrc(assetId: string, programId?: string | null): string {
+  const url = new URL(`https://play.gumlet.io/embed/${assetId}`);
+  const taggedProgramId = programId?.trim() ?? "";
+  if (PROGRAM_ID_RE.test(taggedProgramId)) {
+    url.searchParams.set("gm_custom_data_1", taggedProgramId.toLowerCase());
+  }
+  return url.toString();
+}
 
 function PlayerShell({
   className,
@@ -38,6 +52,7 @@ export function VideoEmbed({
   title = "Video player",
   className = "",
   status = null,
+  programId = null,
 }: VideoEmbedProps) {
   const assetId = parseGumletAssetId(videoId);
 
@@ -63,7 +78,7 @@ export function VideoEmbed({
     <PlayerShell className={className}>
       <iframe
         className="h-full w-full"
-        src={`https://play.gumlet.io/embed/${assetId}`}
+        src={gumletEmbedSrc(assetId, programId)}
         title={title}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowFullScreen

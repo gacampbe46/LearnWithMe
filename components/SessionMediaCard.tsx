@@ -10,12 +10,14 @@ type SessionMediaCardProps = {
    * When false, skips the embedded heading—the parent page already shows the lesson title.
    */
   showBlockTitle?: boolean;
+  programId?: string | null;
 };
 
 export function SessionMediaCard({
   block,
   className = "",
   showBlockTitle = true,
+  programId = null,
 }: SessionMediaCardProps) {
   return (
     <article
@@ -27,6 +29,7 @@ export function SessionMediaCard({
         videoId={block.videoId}
         title={block.title}
         status={block.videoStatus}
+        programId={programId}
       />
       {block.caption.trim() ? (
         <p className={bodyEmphasisClass}>{block.caption}</p>

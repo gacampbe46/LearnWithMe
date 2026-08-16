@@ -12,6 +12,7 @@ export type NavAccount = {
   /** Create / manage programs (requires onboarding with a username). */
   newProgramHref: string | null;
   showPayouts: boolean;
+  showAnalytics: boolean;
   /** Picture from profile storage, else SSO `user_metadata` when available. */
   avatarUrl: string | null;
 };
@@ -39,6 +40,7 @@ export async function getNavAccount(): Promise<NavAccount | null> {
   const profilePath = username ? `/${username}` : null;
   const newProgramHref = username ? NEW_PROGRAM_PATH : null;
   const showPayouts = profile?.is_instructor === true;
+  const showAnalytics = showPayouts;
   const displayName = username ?? oauthAccountMenuLabel(user);
   const storedAvatar =
     profile && typeof profile.avatar_url === "string" && profile.avatar_url.trim()
@@ -46,5 +48,12 @@ export async function getNavAccount(): Promise<NavAccount | null> {
       : null;
   const avatarUrl = storedAvatar ?? ssoAvatarUrlFromUser(user);
 
-  return { displayName, profilePath, newProgramHref, showPayouts, avatarUrl };
+  return {
+    displayName,
+    profilePath,
+    newProgramHref,
+    showPayouts,
+    showAnalytics,
+    avatarUrl,
+  };
 }
