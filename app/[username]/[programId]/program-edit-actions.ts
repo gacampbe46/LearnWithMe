@@ -16,6 +16,10 @@ import {
   parseProgramTagsColumn,
   serializeProgramTags,
 } from "@/lib/program/program-tags-json";
+import {
+  renameGumletFolderBestEffort,
+  sanitizeGumletFolderName,
+} from "@/lib/gumlet/folders";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
 import type { EditProgramBasicsState } from "./program-edit-actions-state";
@@ -93,7 +97,7 @@ export async function updateProgramBasics(
 
   const { data: existing, error: readErr } = await supabase
     .from("programs")
-    .select("title, description, price, tags, is_active")
+    .select("title, description, price, tags, is_active, gumlet_folder_id")
     .eq("id", programId)
     .maybeSingle();
 
@@ -175,6 +179,15 @@ export async function updateProgramBasics(
       formError:
         "Could not save: changes didn’t persist. Run `tools/sql/run-all-owner-policies.sql` in Supabase → SQL Editor.",
     };
+  }
+
+  if (existing.title !== title) {
+    await renameGumletFolderBestEffort(
+      typeof existing.gumlet_folder_id === "string"
+        ? existing.gumlet_folder_id
+        : null,
+      sanitizeGumletFolderName(title, programId.slice(0, 8)),
+    );
   }
 
   if (wantActive !== currentActive) {

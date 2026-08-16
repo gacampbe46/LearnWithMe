@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createGumletDirectUpload } from "@/lib/gumlet/client";
+import { ensureProgramGumletFolder } from "@/lib/gumlet/ensure-program-folder";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
 
@@ -42,7 +43,11 @@ export async function POST(request: Request) {
   const title = typeof body.title === "string" ? body.title : undefined;
 
   try {
-    const { assetId, uploadUrl } = await createGumletDirectUpload({ title });
+    const folderId = await ensureProgramGumletFolder(programId);
+    const { assetId, uploadUrl } = await createGumletDirectUpload({
+      title,
+      folderId,
+    });
     return NextResponse.json({ assetId, uploadUrl });
   } catch (error) {
     const message =

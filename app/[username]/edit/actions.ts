@@ -9,6 +9,7 @@ import { parseBannerUrlField } from "@/lib/profile/banner-form";
 import { resolveProfileTagIds } from "@/lib/catalog/resolve-profile-tag-ids";
 import { parseInterestTagIds } from "@/lib/onboarding/form-tags";
 import { parseAndValidateUsername } from "@/lib/onboarding/username";
+import { renameGumletFolderBestEffort } from "@/lib/gumlet/folders";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   friendlyDbPermissionMessage,
@@ -102,7 +103,7 @@ export async function updateProfileByUsername(
 
   const { data: profile, error: profileErr } = await supabase
     .from("profile")
-    .select("id, user_id, links, tags")
+    .select("id, user_id, links, tags, gumlet_folder_id")
     .eq("username", currentUsername)
     .maybeSingle();
 
@@ -285,6 +286,15 @@ export async function updateProfileByUsername(
         ? friendlyDbPermissionMessage()
         : updErr.message,
     };
+  }
+
+  if (nextUsername !== currentUsername) {
+    await renameGumletFolderBestEffort(
+      typeof profile.gumlet_folder_id === "string"
+        ? profile.gumlet_folder_id
+        : null,
+      nextUsername,
+    );
   }
 
   revalidatePath("/", "layout");
