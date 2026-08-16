@@ -1,16 +1,18 @@
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
 import { ProgramSessionGrid } from "@/components/program/program-session-grid";
 import { BeginProgramCta } from "@/components/program/begin-program-cta";
+import { CheckoutAccessSync } from "@/components/program/checkout-access-sync";
 import { ShareProgramButton } from "@/components/program/share-program-button";
 import { ReadonlyTopicChips } from "@/components/program/ReadonlyTopicChips";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
 import { userHasProgramAccess } from "@/lib/stripe/entitlements";
+import { claimPaidCheckoutForBuyer } from "@/lib/stripe/fulfill-checkout";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/Button";
 import { SectionHeader } from "@/components/SectionHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   bodyEmphasisClass,
   bodyLeadClass,
@@ -21,8 +23,10 @@ import { pageMainStickyClass } from "@/lib/ui/page-layout";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string }>;
-  searchParams: Promise<{ checkout?: string }>;
+  searchParams: Promise<{ checkout?: string; session_id?: string }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -41,7 +45,7 @@ export async function generateMetadata({
 /** Learner-facing program page — owners edit from `/manage`. */
 export default async function ProgramPage({ params, searchParams }: PageProps) {
   const { username, programId } = await params;
-  const { checkout } = await searchParams;
+  const { checkout, session_id: sessionIdRaw } = await searchParams;
   const loaded = await loadProgramDetail(username, programId);
 
   if (!loaded) {
@@ -51,11 +55,32 @@ export default async function ProgramPage({ params, searchParams }: PageProps) {
   const { profileSlug, profileDisplayName, program: p, canManage } = loaded;
   const sessions = p.sessions;
   const hasSessions = sessions.length > 0;
+  const sessionId =
+    typeof sessionIdRaw === "string" ? sessionIdRaw.trim() : "";
+  const returningFromCheckout =
+    checkout === "success" || Boolean(sessionId);
 
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (returningFromCheckout && user && !canManage) {
+    let granted = false;
+    try {
+      granted = await claimPaidCheckoutForBuyer({
+        userId: user.id,
+        programId: p.id,
+        sessionId: sessionId || undefined,
+      });
+    } catch (error) {
+      console.error("[program/checkout]", error);
+    }
+    if (granted) {
+      redirect(`/${profileSlug}/${programId}`);
+    }
+  }
+
   const hasAccess = await userHasProgramAccess({
     supabase,
     programId: p.id,
@@ -63,6 +88,12 @@ export default async function ProgramPage({ params, searchParams }: PageProps) {
     canManage,
     userId: user?.id ?? null,
   });
+
+  if (hasAccess && returningFromCheckout) {
+    redirect(`/${profileSlug}/${programId}`);
+  }
+
+  const checkoutPending = returningFromCheckout && !hasAccess && !canManage;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -93,19 +124,6 @@ export default async function ProgramPage({ params, searchParams }: PageProps) {
                 subtitle={p.subtitle}
               />
             </div>
-
-            {checkout === "success" && !hasAccess && !canManage ? (
-              <p className="rounded-xl border border-stone-300 bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900 dark:border-stone-700 dark:bg-stone-900/50 dark:text-stone-100">
-                Payment received — access usually unlocks within a few seconds.
-                Refresh if Begin doesn&apos;t appear yet.
-              </p>
-            ) : null}
-
-            {checkout === "success" && hasAccess ? (
-              <p className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
-                You&apos;re in — start the program when you&apos;re ready.
-              </p>
-            ) : null}
 
             {canManage && !p.isActive ? (
               <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
@@ -140,6 +158,7 @@ export default async function ProgramPage({ params, searchParams }: PageProps) {
               programId={p.id}
               profileSlug={profileSlug}
               sessions={sessions}
+              revealProgress={hasAccess}
             />
           ) : canManage ? (
             <div className="max-w-xl space-y-4">
@@ -171,7 +190,11 @@ export default async function ProgramPage({ params, searchParams }: PageProps) {
           hasAccess={hasAccess}
           priceLabel={p.price}
           isSignedIn={Boolean(user)}
+          checkoutPending={checkoutPending}
         />
+      ) : null}
+      {checkoutPending ? (
+        <CheckoutAccessSync programId={p.id} sessionId={sessionId || undefined} />
       ) : null}
     </div>
   );

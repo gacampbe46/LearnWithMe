@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/Button";
 import { StickyBottomCTA } from "@/components/StickyBottomCTA";
+import { checkoutSessionStorageKey } from "@/components/program/checkout-access-sync";
 import { firstIncompleteSessionId } from "@/lib/program/session-progress";
 import { useCompletedSessions } from "@/lib/program/use-completed-sessions";
 
@@ -16,6 +17,8 @@ type Props = {
   priceLabel: string;
   /** Signed-in? Buy requires auth. */
   isSignedIn: boolean;
+  /** Returning from Stripe Checkout but entitlement is not visible yet. */
+  checkoutPending?: boolean;
 };
 
 export function BeginProgramCta({
@@ -25,6 +28,7 @@ export function BeginProgramCta({
   hasAccess,
   priceLabel,
   isSignedIn,
+  checkoutPending = false,
 }: Props) {
   const completed = useCompletedSessions(programId);
   const [buying, setBuying] = useState(false);
@@ -52,11 +56,30 @@ export function BeginProgramCta({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ programId }),
       });
-      const data = (await res.json()) as { url?: string; error?: string };
+      const data = (await res.json()) as {
+        url?: string;
+        sessionId?: string;
+        alreadyPaid?: boolean;
+        error?: string;
+      };
+      if (data.alreadyPaid) {
+        window.location.reload();
+        return;
+      }
       if (!res.ok || !data.url) {
         setBuyError(data.error ?? "Could not start checkout.");
         setBuying(false);
         return;
+      }
+      if (data.sessionId) {
+        try {
+          window.sessionStorage.setItem(
+            checkoutSessionStorageKey(programId),
+            data.sessionId,
+          );
+        } catch {
+          /* ignore */
+        }
       }
       window.location.href = data.url;
     } catch {
@@ -66,6 +89,20 @@ export function BeginProgramCta({
   }
 
   if (!hasAccess) {
+    if (checkoutPending) {
+      return (
+        <StickyBottomCTA>
+          <Button
+            type="button"
+            disabled
+            className="min-h-12 w-full max-w-sm"
+          >
+            Opening your program…
+          </Button>
+        </StickyBottomCTA>
+      );
+    }
+
     return (
       <StickyBottomCTA>
         <div className="flex w-full max-w-sm flex-col items-center gap-2">

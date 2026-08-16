@@ -5,3 +5,4 @@ export * from "./featured-sessions";
 export * from "./hub-links";
 export * from "./profile-view";
 export * from "./layout-query";
+export * from "./purchased-programs";

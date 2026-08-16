@@ -21,7 +21,7 @@ export function SiteNavChrome({ account }: Props) {
   const pathname = usePathname() ?? "";
   const [open, setOpen] = useState(false);
   const profilePath = account?.profilePath ?? null;
-  const newProgramHref = account?.teachNewProgramHref ?? null;
+  const newProgramHref = account?.newProgramHref ?? null;
   const editProfileHref = profilePath
     ? `${profilePath}/edit`
     : account
@@ -109,16 +109,16 @@ export function SiteNavChrome({ account }: Props) {
             <NavIcon
               href={newProgramHref}
               label="New program"
-              active={pathname.startsWith("/teach/programs")}
+              active={pathname.startsWith("/programs/new")}
             >
               <PlusIcon />
             </NavIcon>
           ) : null}
-          {account ? (
+          {account?.showPayouts ? (
             <NavIcon
-              href="/teach/payouts"
+              href="/payouts"
               label="Payouts"
-              active={pathname.startsWith("/teach/payouts")}
+              active={pathname.startsWith("/payouts")}
             >
               <PayoutsIcon />
             </NavIcon>

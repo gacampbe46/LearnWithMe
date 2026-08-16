@@ -8,7 +8,7 @@ type CreateProgramCardProps = {
 export function CreateProgramCard({ hasPrograms = false }: CreateProgramCardProps) {
   return (
     <Link
-      href="/teach/programs/new"
+      href="/programs/new"
       className="flex h-full min-h-[15rem] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-editorial-border bg-editorial-card/40 p-5 text-center transition hover:border-editorial-accent hover:bg-editorial-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-editorial-accent-muted"
     >
       <span

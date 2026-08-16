@@ -6,6 +6,7 @@ import {
   dollarsToCents,
   isPaidProgramPrice,
 } from "@/lib/stripe/fees";
+import { claimPaidCheckoutForBuyer } from "@/lib/stripe/fulfill-checkout";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -14,7 +15,7 @@ type Body = {
 };
 
 /**
- * Authenticated: create a Checkout Session (destination charge + 10% fee).
+ * Authenticated: create a Checkout Session (destination charge + 12.5% fee).
  */
 export async function POST(request: Request) {
   let body: Body;
@@ -104,6 +105,18 @@ export async function POST(request: Request) {
       { error: "You already have access to this program." },
       { status: 400 },
     );
+  }
+
+  try {
+    const granted = await claimPaidCheckoutForBuyer({
+      userId: user.id,
+      programId,
+    });
+    if (granted) {
+      return NextResponse.json({ alreadyPaid: true });
+    }
+  } catch (error) {
+    console.error("[stripe/checkout] recover paid session", error);
   }
 
   /** Stripe Connect fields may not be readable to buyers under profile RLS. */
@@ -200,7 +213,7 @@ export async function POST(request: Request) {
           creator_profile_id: creator.id,
         },
       },
-      success_url: `${origin}/${username}/${programId}?checkout=success`,
+      success_url: `${origin}/${username}/${programId}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/${username}/${programId}?checkout=cancel`,
       client_reference_id: user.id,
       ...(typeof user.email === "string" && user.email
@@ -222,7 +235,7 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url, sessionId: session.id });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Could not start checkout.";

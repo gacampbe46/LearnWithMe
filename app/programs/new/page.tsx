@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateProgramSessionsAside } from "@/components/program/CreateProgramSessionsAside";
+import { NEW_PROGRAM_PATH, PAYOUTS_PATH } from "@/lib/app-paths";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
@@ -21,12 +22,12 @@ export default async function NewProgramPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/login?next=${encodeURIComponent("/teach/programs/new")}`);
+    redirect(`/login?next=${encodeURIComponent(NEW_PROGRAM_PATH)}`);
   }
 
   const profile = await getTeachingProfile(supabase, user.id);
   if (!profile) {
-    redirect(`/onboarding?next=${encodeURIComponent("/teach/programs/new")}`);
+    redirect(`/onboarding?next=${encodeURIComponent(NEW_PROGRAM_PATH)}`);
   }
 
   const { options: catalogTags, error: catalogTagsError } =
@@ -40,7 +41,7 @@ export default async function NewProgramPage() {
           <p className={subtitleSmClass}>
             Set the basics here as a draft — you&apos;ll add sessions and publish
             from manage right after. Paid programs need{" "}
-            <Link href="/teach/payouts" className="font-medium underline underline-offset-2">
+            <Link href={PAYOUTS_PATH} className="font-medium underline underline-offset-2">
               payouts
             </Link>{" "}
             set up before going live.

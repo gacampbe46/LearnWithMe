@@ -3,6 +3,7 @@ import { MemberProfileLinkHub } from "@/components/member/MemberProfileLinkHub";
 import {
   getMemberByUsername,
   getMemberByUsernameForOwner,
+  loadPurchasedProgramsForUser,
   parseProfileLayoutParam,
   resolveRenderedProfileView,
 } from "@/lib/member";
@@ -67,11 +68,16 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     isMobile,
     layoutOverride ?? null,
   );
+  const purchasedPrograms =
+    viewerOwnsProfile && user
+      ? await loadPurchasedProgramsForUser(user.id)
+      : [];
   if (view === "link_hub") {
     return (
       <MemberProfileLinkHub
         member={member}
         viewerOwnsProfile={viewerOwnsProfile}
+        purchasedPrograms={purchasedPrograms}
       />
     );
   }
@@ -80,6 +86,7 @@ export default async function MemberProfilePage({ params, searchParams }: PagePr
     <MemberProfileFullContent
       member={member}
       viewerOwnsProfile={viewerOwnsProfile}
+      purchasedPrograms={purchasedPrograms}
     />
   );
 }

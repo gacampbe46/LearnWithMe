@@ -8,6 +8,7 @@ import {
   profileTopicTags,
   resolveFeaturedSessions,
   type MemberProfile,
+  type PurchasedProgramCard,
 } from "@/lib/member";
 import { bodyLeadClass } from "@/lib/ui/typography";
 import { programGridClass } from "@/lib/ui/page-layout";
@@ -15,6 +16,7 @@ import { programGridClass } from "@/lib/ui/page-layout";
 type Props = {
   member: MemberProfile;
   viewerOwnsProfile?: boolean;
+  purchasedPrograms?: PurchasedProgramCard[];
 };
 
 const pad = "px-5 sm:px-8 lg:px-12 xl:px-16";
@@ -22,6 +24,7 @@ const pad = "px-5 sm:px-8 lg:px-12 xl:px-16";
 export function MemberProfileFullContent({
   member: t,
   viewerOwnsProfile = false,
+  purchasedPrograms = [],
 }: Props) {
   const programs = t.programs;
   const featuredSessions = resolveFeaturedSessions(t);
@@ -91,6 +94,28 @@ export function MemberProfileFullContent({
               </ul>
             )}
           </section>
+
+          {purchasedPrograms.length > 0 ? (
+            <section className="space-y-4" id="purchased">
+              <SectionHeader
+                title="Purchased"
+                subtitle="Programs you've bought — open one to keep learning."
+              />
+              <ul className={programGridClass}>
+                {purchasedPrograms.map((item) => (
+                  <li key={item.program.id} className="min-w-0">
+                    <ProgramListingCard
+                      program={item.program}
+                      href={item.href}
+                      showSubtitle={showSubtitle(item.program.subtitle)}
+                      featured={purchasedPrograms.length === 1}
+                      byline={`By ${item.creatorName}`}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <StartWithSessionSection
             sessions={featuredSessions}

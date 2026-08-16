@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/Button";
 
+type Intent = "onboard" | "update" | "login";
+
 type Props = {
   chargesEnabled: boolean;
   detailsSubmitted: boolean;
@@ -30,6 +32,10 @@ export function ConnectPayoutsButton({
       const res = await fetch("/api/stripe/connect", {
         method: "POST",
         credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          intent: chargesEnabled ? "update" : ("onboard" satisfies Intent),
+        }),
       });
       const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) {
@@ -37,7 +43,7 @@ export function ConnectPayoutsButton({
         setLoading(false);
         return;
       }
-      window.location.href = data.url;
+      window.location.assign(data.url);
     } catch {
       setError("Could not start Stripe onboarding.");
       setLoading(false);

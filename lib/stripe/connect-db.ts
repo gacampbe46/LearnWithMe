@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -9,10 +8,10 @@ export type CreatorStripeStatus = {
 };
 
 export async function loadCreatorStripeStatus(
-  supabase: SupabaseClient,
   profileId: string,
 ): Promise<CreatorStripeStatus> {
-  const { data, error } = await supabase
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service
     .from("profile")
     .select("stripe_account_id, stripe_charges_enabled, stripe_details_submitted")
     .eq("id", profileId)
