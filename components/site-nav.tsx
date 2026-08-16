@@ -109,9 +109,18 @@ export function SiteNavChrome({ account }: Props) {
             <NavIcon
               href={newProgramHref}
               label="New program"
-              active={pathname.startsWith("/teach/")}
+              active={pathname.startsWith("/teach/programs")}
             >
               <PlusIcon />
+            </NavIcon>
+          ) : null}
+          {account ? (
+            <NavIcon
+              href="/teach/payouts"
+              label="Payouts"
+              active={pathname.startsWith("/teach/payouts")}
+            >
+              <PayoutsIcon />
             </NavIcon>
           ) : null}
         </nav>
@@ -215,6 +224,25 @@ function PlusIcon() {
       className="size-5"
     >
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function PayoutsIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-5"
+    >
+      <rect x="3.5" y="6.5" width="17" height="11" rx="2" />
+      <path d="M3.5 10.5h17" />
+      <path d="M8 15h2.5" />
     </svg>
   );
 }

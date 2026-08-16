@@ -10,6 +10,7 @@ function isOnboardingGateExempt(pathname: string): boolean {
   if (pathname === "/login") return true;
   if (pathname.startsWith("/onboarding")) return true;
   if (pathname.startsWith("/api/onboarding/")) return true;
+  if (pathname.startsWith("/api/stripe/webhook")) return true;
   return false;
 }
 

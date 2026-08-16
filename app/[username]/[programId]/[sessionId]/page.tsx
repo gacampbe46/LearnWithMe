@@ -4,6 +4,8 @@ import { SessionStickyNav } from "@/components/SessionStickyNav";
 import { EditProgramIconLink } from "@/components/program/edit-program-icon-link";
 import { memberProgramSessionById } from "@/lib/member";
 import { loadProgramDetail } from "@/lib/program/load-program-detail";
+import { userHasProgramAccess } from "@/lib/stripe/entitlements";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { pageMainSessionClass } from "@/lib/ui/page-layout";
 import {
   bodyLeadClass,
@@ -13,7 +15,7 @@ import {
 } from "@/lib/ui/typography";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ username: string; programId: string; sessionId: string }>;
@@ -55,6 +57,22 @@ export default async function ProgramSessionPage({ params }: PageProps) {
 
   if (!p.isActive && !canManage) {
     notFound();
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const hasAccess = await userHasProgramAccess({
+    supabase,
+    programId: p.id,
+    priceValue: p.priceValue,
+    canManage,
+    userId: user?.id ?? null,
+  });
+
+  if (!hasAccess) {
+    redirect(`/${profileSlug}/${programId}`);
   }
 
   const mediaAnchorIds = session.media.map((m) => m.id);

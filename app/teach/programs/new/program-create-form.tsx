@@ -17,7 +17,6 @@ import {
   formLegendClass,
   inputFieldClass,
   inputFocusClass,
-  subtitleSmClass,
   titleSubsectionClass,
 } from "@/lib/ui/typography";
 import { priceAllowsSubmit } from "@/lib/program/program-price-form";
@@ -103,12 +102,8 @@ export function ProgramCreateForm({
   return (
     <form action={formAction} className="space-y-6">
       <Card className="space-y-6">
-        <header className="space-y-1 border-b border-editorial-border pb-5">
+        <header className="border-b border-editorial-border pb-5">
           <h2 className={titleSubsectionClass}>Program details</h2>
-          <p className={subtitleSmClass}>
-            Saved as a draft under @{profile.username}. You&apos;ll go to manage
-            next to add sessions and publish.
-          </p>
         </header>
 
         {state.formError ? (
