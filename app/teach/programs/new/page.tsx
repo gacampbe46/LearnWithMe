@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateProgramSessionsAside } from "@/components/program/CreateProgramSessionsAside";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
@@ -6,7 +8,6 @@ import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import { pageMainStickyClass } from "@/lib/ui/page-layout";
 import { subtitleSmClass, titlePrimaryClass } from "@/lib/ui/typography";
 import { ProgramCreateForm } from "./program-create-form";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Create a program — learnwithme",
@@ -38,7 +39,11 @@ export default async function NewProgramPage() {
           <h1 className={titlePrimaryClass}>Create program</h1>
           <p className={subtitleSmClass}>
             Set the basics here as a draft — you&apos;ll add sessions and publish
-            from manage right after.
+            from manage right after. Paid programs need{" "}
+            <Link href="/teach/payouts" className="font-medium underline underline-offset-2">
+              payouts
+            </Link>{" "}
+            set up before going live.
           </p>
         </header>
 

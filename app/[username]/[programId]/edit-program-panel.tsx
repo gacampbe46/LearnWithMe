@@ -9,6 +9,7 @@ import {
 } from "@/components/program/topic-chip-styles";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { FormErrorAlert } from "@/components/form-error-alert";
 import { LearnerVisibilityToggle } from "@/components/program/LearnerVisibilityToggle";
 import { PROGRAM_CATALOG_TOPIC_FIELD } from "@/lib/program/program-catalog-topic-form";
 import { priceAllowsSubmit } from "@/lib/program/program-price-form";
@@ -121,12 +122,7 @@ export function EditProgramPanel({
         <input type="hidden" name="username" value={username} />
         <input type="hidden" name="program_id" value={programId} />
         {basicState.formError ? (
-          <p
-            role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-100"
-          >
-            {basicState.formError}
-          </p>
+          <FormErrorAlert message={basicState.formError} />
         ) : null}
 
         <div className="space-y-2">

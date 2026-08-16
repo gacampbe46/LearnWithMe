@@ -20,8 +20,10 @@ import {
   renameGumletFolderBestEffort,
   sanitizeGumletFolderName,
 } from "@/lib/gumlet/folders";
+import { assertCanPublishPaidProgram } from "@/lib/stripe/publish-guard";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { currentUserCanManageProgram } from "@/lib/teach/can-manage-program";
+import { getTeachingProfile } from "@/lib/teach/teaching-profile";
 import type { EditProgramBasicsState } from "./program-edit-actions-state";
 
 function trimField(v: FormDataEntryValue | null, max: number): string {
@@ -91,6 +93,26 @@ export async function updateProgramBasics(
 
   if (wantActive && (sessionCount ?? 0) < 1) {
     wantActive = false;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { formError: "Sign in to edit this program." };
+  }
+  const teaching = await getTeachingProfile(supabase, user.id);
+  if (!teaching) {
+    return { formError: "Finish your profile first." };
+  }
+
+  const publishOk = await assertCanPublishPaidProgram(supabase, {
+    profileId: teaching.id,
+    priceValue: priceParsed.value,
+    wantActive,
+  });
+  if (!publishOk.ok) {
+    return { formError: publishOk.message };
   }
 
   const programViewPath = safeNextPath(`/${username}/${programId}`);
