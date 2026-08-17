@@ -6,7 +6,7 @@ import { NEW_PROGRAM_PATH, PAYOUTS_PATH } from "@/lib/app-paths";
 import { listInterestTagOptions } from "@/lib/catalog/interest-tags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getTeachingProfile } from "@/lib/teach/teaching-profile";
-import { pageMainStickyClass } from "@/lib/ui/page-layout";
+import { pageFocusedColumnClass, pageMainStickyClass } from "@/lib/ui/page-layout";
 import { subtitleSmClass, titlePrimaryClass } from "@/lib/ui/typography";
 import { ProgramCreateForm } from "./program-create-form";
 
@@ -48,16 +48,24 @@ export default async function NewProgramPage() {
           </p>
         </header>
 
-        <div className="space-y-10 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-10 lg:space-y-0">
+        <div
+          className={
+            profile.isInstructor
+              ? "space-y-10 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-10 lg:space-y-0"
+              : pageFocusedColumnClass
+          }
+        >
           <ProgramCreateForm
             profile={profile}
             catalogTags={catalogTags}
             catalogTagsLoadError={catalogTagsError}
           />
 
-          <div className="lg:sticky lg:top-20">
-            <CreateProgramSessionsAside />
-          </div>
+          {profile.isInstructor ? (
+            <div className="lg:sticky lg:top-20">
+              <CreateProgramSessionsAside />
+            </div>
+          ) : null}
         </div>
       </main>
     </div>

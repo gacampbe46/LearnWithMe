@@ -87,7 +87,9 @@ export default async function EditProfilePage({
 
   const { data: profile } = await supabase
     .from("profile")
-    .select("id, user_id, username, first_name, last_name, bio, avatar_url, links, tags")
+    .select(
+      "id, user_id, username, first_name, last_name, bio, avatar_url, links, tags, is_instructor",
+    )
     .eq("username", normalized)
     .maybeSingle();
 
@@ -111,11 +113,15 @@ export default async function EditProfilePage({
     await listInterestTagOptions(supabase);
   const selectedInterestIds = tagIdsFromProfile(profile.tags);
 
-  const { data: programRows } = await supabase
-    .from("programs")
-    .select("id, title, sessions(id, title, sort_order)")
-    .eq("profile_id", profile.id)
-    .order("created_at", { ascending: false });
+  const isInstructor = profile.is_instructor === true;
+
+  const { data: programRows } = isInstructor
+    ? await supabase
+        .from("programs")
+        .select("id, title, sessions(id, title, sort_order)")
+        .eq("profile_id", profile.id)
+        .order("created_at", { ascending: false })
+    : { data: null };
 
   const sessionOptions: FeaturedSessionOption[] = [];
   for (const program of programRows ?? []) {
@@ -156,6 +162,7 @@ export default async function EditProfilePage({
         <ProfileEditForm
           username={normalized}
           userId={user.id}
+          isInstructor={isInstructor}
           interestTags={interestTags}
           tagsLoadError={tagsLoadError}
           sessionOptions={sessionOptions}

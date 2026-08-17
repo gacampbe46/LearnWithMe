@@ -103,7 +103,7 @@ export async function updateProfileByUsername(
 
   const { data: profile, error: profileErr } = await supabase
     .from("profile")
-    .select("id, user_id, links, tags, gumlet_folder_id")
+    .select("id, user_id, links, tags, gumlet_folder_id, is_instructor")
     .eq("username", currentUsername)
     .maybeSingle();
 
@@ -147,7 +147,9 @@ export async function updateProfileByUsername(
   const bio = trimField(formText(formData, "bio"), 2000);
   const tagline = trimField(formText(formData, "tagline"), TAGLINE_MAX);
   const quote = trimField(formText(formData, "quote"), QUOTE_MAX);
-  const featuredSessionIds = parseFeaturedSessionIds(formData);
+  // Non-instructors have no featured sessions UI, so drop anything stored earlier.
+  const featuredSessionIds =
+    profile.is_instructor === true ? parseFeaturedSessionIds(formData) : [];
 
   if (featuredSessionIds.length > 0) {
     const { data: ownedPrograms, error: programsErr } = await supabase

@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { EnableInstructorButton } from "@/components/teach/enable-instructor-button";
 import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,
@@ -21,10 +21,7 @@ import {
 } from "@/lib/ui/typography";
 import { priceAllowsSubmit } from "@/lib/program/program-price-form";
 import type { TeachingProfile } from "@/lib/teach/teaching-profile";
-import {
-  createProgram,
-  enableInstructorForCurrentUser,
-} from "./actions";
+import { createProgram } from "./actions";
 import {
   programCreateFormInitialState,
   type ProgramCreateFormState,
@@ -41,9 +38,6 @@ export function ProgramCreateForm({
   catalogTags,
   catalogTagsLoadError,
 }: Props) {
-  const router = useRouter();
-  const [instrPending, startInstrTransition] = useTransition();
-  const [instrError, setInstrError] = useState<string | null>(null);
   const [state, formAction, pending] = useActionState<
     ProgramCreateFormState,
     FormData
@@ -57,43 +51,16 @@ export function ProgramCreateForm({
     priceAllowsSubmit(price) &&
     !pending;
 
-  function enableInstructor() {
-    setInstrError(null);
-    startInstrTransition(async () => {
-      const r = await enableInstructorForCurrentUser();
-      if (r.ok) {
-        router.refresh();
-      } else {
-        setInstrError(r.error ?? "Could not update instructor access.");
-      }
-    });
-  }
-
   if (!profile.isInstructor) {
     return (
       <Card className="space-y-5">
         <p className={bodyLeadClass}>
           To create programs, your account needs instructor access.
         </p>
-        {instrError ? (
-          <p
-            role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-100"
-          >
-            {instrError}
-          </p>
-        ) : null}
-        <Button
-          type="button"
-          className="w-full sm:w-auto"
-          disabled={instrPending}
-          onClick={() => enableInstructor()}
-        >
-          {instrPending ? "Updating…" : "Enable instructor access"}
-        </Button>
+        <EnableInstructorButton />
         <p className={captionClass}>
-          Nothing is public yet; you&apos;ll fill in titles, pricing, and
-          sessions on the next screens.
+          This only unlocks the teaching tools. Nothing goes live until you
+          publish a program yourself.
         </p>
       </Card>
     );
