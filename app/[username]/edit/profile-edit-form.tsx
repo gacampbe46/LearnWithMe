@@ -17,6 +17,7 @@ import {
   FeaturedSessionsPicker,
   type FeaturedSessionOption,
 } from "@/components/member/featured-sessions-picker";
+import { EnableInstructorButton } from "@/components/teach/enable-instructor-button";
 import {
   profileSetupInterestChipClasses,
   profileSetupInterestChipPeerClasses,
@@ -71,6 +72,7 @@ function featuredFingerprint(ids: Iterable<string>): string {
 export function ProfileEditForm({
   username,
   userId,
+  isInstructor,
   interestTags,
   tagsLoadError,
   sessionOptions,
@@ -78,6 +80,7 @@ export function ProfileEditForm({
 }: {
   username: string;
   userId: string;
+  isInstructor: boolean;
   interestTags: InterestTagOption[];
   tagsLoadError: string | null;
   sessionOptions: FeaturedSessionOption[];
@@ -566,7 +569,7 @@ export function ProfileEditForm({
             maxLength={200}
             value={tagline}
             onChange={(e) => setTagline(e.target.value)}
-            placeholder="Pastry · weekends · beginners"
+            placeholder="Learnin' · Teachin' · Overall Beachin'"
             className={`${inputFieldClass} ${inputFocusClass}`}
           />
           <p className={`${bodyMutedClass} text-xs`}>
@@ -593,12 +596,27 @@ export function ProfileEditForm({
           </p>
         </div>
 
-        <FeaturedSessionsPicker
-          options={sessionOptions}
-          selectedIds={featuredSessionIds}
-          onChange={setFeaturedSessionIds}
-          disabled={pending || uploadingMedia}
-        />
+        {isInstructor ? (
+          <FeaturedSessionsPicker
+            options={sessionOptions}
+            selectedIds={featuredSessionIds}
+            onChange={setFeaturedSessionIds}
+            disabled={pending || uploadingMedia}
+          />
+        ) : (
+          <div className="space-y-3">
+            <p className={formLabelClass}>Teaching on LearnWithMe</p>
+            <p className={bodyMutedClass}>
+              Turn on instructor access to build programs and feature a session
+              on your profile.
+            </p>
+            <EnableInstructorButton />
+            <p className={`${bodyMutedClass} text-xs`}>
+              This only unlocks the teaching tools. Your public profile stays
+              exactly as it is until you publish a program.
+            </p>
+          </div>
+        )}
       </Card>
 
       <Button
